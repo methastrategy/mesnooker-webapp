@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="38%" r="75%">
+      <stop offset="0%" stop-color="#0d2a1d"/>
+      <stop offset="100%" stop-color="#050505"/>
+    </radialGradient>
+  </defs>
+  <rect width="512" height="512" rx="110" fill="url(#bg)"/>
+  <!-- chalk rail at top -->
+  <rect x="0" y="0" width="512" height="18" fill="#14532d" opacity="0.7"/>
+  <!-- table felt -->
+  <rect x="70" y="90" width="372" height="330" rx="70" fill="#0c5a28"/>
+  <!-- balls -->
+  <circle cx="150" cy="180" r="40" fill="#ef4444"/>
+  <circle cx="256" cy="256" r="46" fill="#facc15"/>
+  <circle cx="360" cy="230" r="40" fill="#22c55e"/>
+  <circle cx="200" cy="340" r="42" fill="#3b82f6"/>
+  <circle cx="330" cy="350" r="42" fill="#ec4899"/>
+  <circle cx="110" cy="320" r="34" fill="#1f2937" stroke="#555" stroke-width="4"/>
+</svg>
