@@ -20,6 +20,13 @@ const NAV = [
   { href: "/stats", label: "Stats", icon: BarChart3 },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
+/** Bottom nav (mobile) shows only the main tabs; Settings stays in the desktop sidebar. */
+const NAV_BOTTOM = [
+  { href: "/", label: "Dashboard", icon: Home },
+  { href: "/match", label: "Match", icon: Timer },
+  { href: "/history", label: "History", icon: History },
+  { href: "/stats", label: "Stats", icon: BarChart3 },
+];
 
 /** Desktop left sidebar */
 export function Sidebar() {
@@ -71,7 +78,7 @@ export function BottomNav() {
   return (
     <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-white/5 bg-black/70 pb-safe backdrop-blur-xl md:hidden">
       <div className="mx-auto flex max-w-md items-center justify-around px-2 py-2">
-        {NAV.map((item) => {
+        {NAV_BOTTOM.map((item) => {
           const active = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
           return (
             <Link
