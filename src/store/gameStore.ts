@@ -7,6 +7,7 @@ import {
   ballValue,
   buildTargetCycle,
   FOUL_VALUES,
+  pottedBallsPerPlayer,
 } from "@/lib/rules";
 import {
   computeFrameMoney,
@@ -30,8 +31,8 @@ export interface PottedEvent extends GameEvent {
   ball: BallColor;
 }
 
-function initialCounts(): BallCounts {
-  return { ...BALL_START, red: 15, yellow: 1, green: 1, brown: 1, blue: 1, pink: 1, black: 1 };
+function initialCounts(redCount: number = 15): BallCounts {
+  return { ...BALL_START, red: redCount, yellow: 1, green: 1, brown: 1, blue: 1, pink: 1, black: 1 };
 }
 function emptyScores(players: Player[]): Record<string, number> {
   return Object.fromEntries(players.map((p) => [p.id, 0]));
@@ -76,7 +77,7 @@ interface PersistShape {
 }
 
 interface GameStore extends PersistShape {
-  startSession: (o: { players: Player[]; mode: GameMode; moneyRate: number; moneyPer: MoneyRateUnit }) => void;
+  startSession: (o: { players: Player[]; mode: GameMode; moneyRate: number; moneyPer: MoneyRateUnit; redCount: number }) => void;
   endSession: () => SessionSummary | null;
   setMode: (m: GameMode) => void;
   setMoneyRate: (r: number) => void;
@@ -116,7 +117,7 @@ export const useGameStore = create<GameStore>()(
       events: [],
       startCounts: initialCounts(),
 
-      startSession: ({ players, mode, moneyRate, moneyPer }) => {
+      startSession: ({ players, mode, moneyRate, moneyPer, redCount = 15 }) => {
         if (players.length < 2) return;
         const id = nid();
         const frame = makeFrame(players, mode);
@@ -126,20 +127,22 @@ export const useGameStore = create<GameStore>()(
           mode,
           moneyRate,
           moneyPer,
+          redCount,
           players,
           frameIds: [frame.id],
           runningBalance: emptyScores(players),
           activeFrameId: frame.id,
           status: "live",
         };
+        const counts = initialCounts(redCount);
         set({
           session,
           players,
           mode,
           moneyRate,
           moneyPer,
-          ballCounts: initialCounts(),
-          startCounts: initialCounts(),
+          ballCounts: counts,
+          startCounts: counts,
           shooterIndex: 0,
           reverse: false,
           frames: [frame],
@@ -319,7 +322,10 @@ export const useGameStore = create<GameStore>()(
           mode: f.mode,
           players: st.players,
           scores: f.scores,
-          ballCounts: Object.fromEntries(st.players.map((p) => [p.id, st.ballCounts])),
+          // per-ball money: pass each player's OWN potted-ball counts from events
+          ballCounts: Object.fromEntries(
+            st.players.map((p) => [p.id, pottedBallsPerPlayer(st.events, p.id)])
+          ),
           targetCycle: f.targetCycle,
           moneyPer: st.moneyPer,
           moneyRate: st.moneyRate,
@@ -355,8 +361,8 @@ export const useGameStore = create<GameStore>()(
         set({
           session,
           frames: [...st.frames, frame],
-          ballCounts: initialCounts(),
-          startCounts: initialCounts(),
+          ballCounts: initialCounts(st.session.redCount),
+          startCounts: initialCounts(st.session.redCount),
           shooterIndex: 0,
         });
       },

@@ -7,12 +7,18 @@ import { BALL_ORDER, BALL_HEX } from "@/lib/rules";
 import type { GameMode, MoneyRateUnit, Player } from "@/types";
 import { uid } from "@/lib/utils";
 
-/** New session setup: players, mode, money rate */
+/** New session setup: players, mode, money rate, red-count */
 export function NewSession({
   onStart,
   initialPlayers,
 }: {
-  onStart: (o: { players: Player[]; mode: GameMode; moneyRate: number; moneyPer: MoneyRateUnit }) => void;
+  onStart: (o: {
+    players: Player[];
+    mode: GameMode;
+    moneyRate: number;
+    moneyPer: MoneyRateUnit;
+    redCount: number;
+  }) => void;
   initialPlayers?: Player[];
 }) {
   const [mode, setMode] = useState<GameMode>("points");
@@ -22,6 +28,7 @@ export function NewSession({
     initialPlayers?.map((p) => p.nickname) ?? ["Metha", "", "", ""]
   );
   const [count, setCount] = useState(4);
+  const [redCount, setRedCount] = useState(15);
 
   const shown = names.slice(0, count);
   const validPlayers = shown.filter((n) => n.trim());
@@ -43,7 +50,7 @@ export function NewSession({
       color: BALL_ORDER[i % BALL_ORDER.length],
     }));
     if (players.length < 2) return;
-    onStart({ players, mode, moneyRate, moneyPer });
+    onStart({ players, mode, moneyRate, moneyPer, redCount });
   }
 
   return (
@@ -77,6 +84,29 @@ export function NewSession({
           {mode === "points"
             ? "red=1, yellow=2 … black=7 · foul −4"
             : "every colour 1 (pink/black 2) · foul −2"}
+        </p>
+      </div>
+
+      {/* Red count */}
+      <div>
+        <div className="mb-2 flex items-center justify-between">
+          <span className="text-sm font-medium">Red balls on table</span>
+          <Badge>{redCount} reds</Badge>
+        </div>
+        <div className="grid grid-cols-3 gap-2">
+          {[6, 10, 15].map((n) => (
+            <Button
+              key={n}
+              variant={redCount === n ? "default" : "glass"}
+              size="sm"
+              onClick={() => setRedCount(n)}
+            >
+              {n} red
+            </Button>
+          ))}
+        </div>
+        <p className="mt-2 text-[11px] text-muted-foreground">
+          Break sequence: red → colour → red … Reset on foul / miss. First pot of a break must be red.
         </p>
       </div>
 

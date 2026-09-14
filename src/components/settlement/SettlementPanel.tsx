@@ -46,10 +46,6 @@ export function SettlementPanel({
     0
   );
 
-  function isEmptyBalance(): boolean {
-    return players.every((p) => Math.abs(runningBalance[p.id] ?? 0) < 1e-9);
-  }
-
   return (
     <div className="flex flex-col gap-4">
       {/* Running balances */}

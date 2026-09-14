@@ -10,7 +10,14 @@ import { PlayerCard } from "@/components/game/PlayerCard";
 import { TurnControls } from "@/components/game/TurnControls";
 import { EventLog } from "@/components/game/EventLog";
 import { Sheet, Button, Badge, Stat, AnimatedNumber, Confetti } from "@/components/ui";
-import { BALL_HEX } from "@/lib/rules";
+import {
+  BALL_HEX,
+  ballValue,
+  BreakPhase,
+  currentBreakCount,
+  inferBreakPhase,
+  legalBalls,
+} from "@/lib/rules";
 import type { BallColor } from "@/types";
 
 export function LiveMatch() {
@@ -57,16 +64,20 @@ export function LiveMatch() {
   const events = store.events.filter((e) => e.frameId === frame.id && !e.undone);
   const frameEventsText = events;
 
-  const currentBreak = (() => {
-    // count consecutive pots by current shooter without foul
-    let b = 0;
-    for (let i = events.length - 1; i >= 0; i--) {
-      const e = events[i];
-      if (e.playerId !== shooter?.id || e.type === "foul" || e.type === "snooker_miss") break;
-      if (e.type === "pot" || e.type === "snooker_hit") b += e.points;
-    }
-    return b;
-  })();
+  // Break engine: legal phase + consecutive break count for the current shooter
+  const phase = inferBreakPhase(events, shooter?.id ?? "");
+  const breakCount = currentBreakCount(events, shooter?.id ?? "");
+  const legal = legalBalls(phase, store.ballCounts);
+  const canStartBreak = phase === BreakPhase.COLOUR;
+  const ballValues: Record<BallColor, number> = {
+    red: ballValue("red", mode),
+    yellow: ballValue("yellow", mode),
+    green: ballValue("green", mode),
+    brown: ballValue("brown", mode),
+    blue: ballValue("blue", mode),
+    pink: ballValue("pink", mode),
+    black: ballValue("black", mode),
+  };
 
   function handleHaptics() {
     if (haptics && typeof navigator !== "undefined" && "vibrate" in navigator) {
@@ -131,7 +142,7 @@ export function LiveMatch() {
           <div className="text-right">
             <div className="text-[11px] uppercase tracking-wider text-muted-foreground">Break</div>
             <div className="text-2xl font-bold tabular-nums text-gold">
-              <AnimatedNumber value={currentBreak} />
+              <AnimatedNumber value={breakCount} />
             </div>
           </div>
         </div>
@@ -146,7 +157,7 @@ export function LiveMatch() {
               money={running[p.id] ?? 0}
               isShooter={i === shooterIndex}
               targetName={players.find((x) => x.id === frame.targetCycle[p.id])?.nickname}
-              breakValue={currentBreak}
+              breakValue={breakCount}
               isHolder={p.id === shooter?.id}
             />
           ))}
@@ -160,17 +171,31 @@ export function LiveMatch() {
             Balls on table
           </h3>
           <Badge variant="neutral">
-            <span className="text-primary">{ballCounts.red}</span>/15 reds
+            <span className="text-primary">{ballCounts.red}</span>/{store.session?.redCount ?? 15} reds
           </Badge>
         </div>
-        <BallPad ballCounts={ballCounts} mode={mode} onPot={onPot} />
+        <div className="mb-3 text-[12px] text-muted-foreground">
+          {canStartBreak
+            ? "Pot a colour to continue the break"
+            : "First shot of a break must be Red"}
+        </div>
+        <BallPad
+          legal={legal}
+          ballValues={ballValues}
+          onPot={onPot}
+          showCount={(c) => store.ballCounts[c]}
+        />
       </div>
 
       {/* Play / foul actions */}
       <div className="glass p-4">
-        <div className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Actions</div>
+        <div className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+          Actions
+        </div>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-          <Button variant="danger" onClick={() => { tap(); foul(); }}>Foul ({mode === "points" ? "-4" : "-2"})</Button>
+          <Button variant="danger" onClick={() => { tap(); foul(); }}>
+            Foul ({mode === "points" ? "-4" : "-2"})
+          </Button>
           <Button variant="danger" onClick={() => { tap(); snookerMiss(); }}>Miss −2</Button>
           <Button variant="gold" onClick={() => { tap(); snookerHit(); }}>Hit +1</Button>
           <Button variant="outline" onClick={() => { tap(); undo(); }} disabled={!canUndo}>Undo</Button>

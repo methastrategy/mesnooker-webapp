@@ -90,7 +90,9 @@ export interface SessionSummary {
   createdAt: number;
   mode: GameMode;
   moneyRate: number;
-  moneyPer: "point" | "ball";
+  moneyPer: MoneyRateUnit;
+  /** number of red balls in play (6/10/15) */
+  redCount: number;
   players: Player[];
   frameIds: string[];
   /** cumulative running balance per player */
