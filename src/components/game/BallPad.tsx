@@ -1,7 +1,7 @@
 "use client";
 
 import type { BallColor } from "@/types";
-import { BALL_NAME } from "@/lib/rules";
+import { BALL_HEX, BALL_NAME, COLOUR_ORDER } from "@/lib/rules";
 import { SnookerBall } from "@/components/ui/snooker-ball";
 
 /** Live ball pad: shows ONLY the legally pottable balls for the current break phase. */
@@ -10,11 +10,14 @@ export function BallPad({
   ballValues,
   onPot,
   showCount,
+  clearingColours,
 }: {
   legal: BallColor[];
   ballValues: Record<BallColor, number>;
   onPot: (ball: BallColor) => void;
   showCount?: (ball: BallColor) => number;
+  /** true once all reds are gone; only the exact next colour is legal */
+  clearingColours?: boolean;
 }) {
   if (!legal.length) {
     return (
@@ -23,10 +26,40 @@ export function BallPad({
       </div>
     );
   }
+  const legalSet = new Set(legal);
   return (
     <div className="relative mx-auto w-full max-w-xl rounded-2xl bg-[radial-gradient(120%_120%_at_50%_0%,#0e7a3a_0%,#0a5a27_55%,#073d1a_100%)] p-4 shadow-[inset_0_0_30px_rgba(0,0,0,0.45),0_12px_30px_rgba(0,0,0,0.5)]">
       {/* soft top light reflection on the felt */}
       <div className="pointer-events-none absolute inset-x-4 top-2 h-6 rounded-t-2xl bg-white/[0.06] blur-md" />
+
+      {clearingColours ? (
+        /* When clearing, show the official colour rack with only the next
+           ball active — proves the order is locked (yellow→…→black). */
+        <div className="relative mb-3 flex items-center justify-center gap-2">
+          {COLOUR_ORDER.map((c, i) => {
+            const onNow = legalSet.has(c);
+            const done = showCount ? showCount(c) === 0 : false;
+            return (
+              <div key={c} className="flex flex-col items-center gap-1">
+                <span
+                  className="flex h-4 w-4 items-center justify-center rounded-full text-[8px] font-bold text-black/60"
+                  style={{ background: BALL_HEX[c] }}
+                >
+                  {i + 1}
+                </span>
+                <span
+                  className={`text-[9px] leading-none ${
+                    onNow ? "font-semibold text-white" : done ? "text-white/30 line-through" : "text-white/45"
+                  }`}
+                >
+                  {BALL_NAME[c]}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      ) : null}
+
       <div className="relative flex flex-wrap items-center justify-center gap-3">
         {legal.map((c) => {
           const value = ballValues[c];

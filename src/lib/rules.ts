@@ -49,6 +49,16 @@ export const BALL_ORDER: BallColor[] = [
   "black",
 ];
 
+/** Official potting order for the six colours once all reds are cleared. */
+export const COLOUR_ORDER: BallColor[] = [
+  "yellow",
+  "green",
+  "brown",
+  "blue",
+  "pink",
+  "black",
+];
+
 export const BALL_NAME: Record<BallColor, string> = {
   red: "Red",
   yellow: "Yellow",
@@ -125,15 +135,26 @@ export function inferBreakPhase(
 /** Which balls are legally pottable right now.
  *  RED_FIRST: only red while reds remain; once reds run out, the colours are
  *             potted to clear the table.
- *  COLOUR:    the six colours (red returns after a colour while reds remain). */
+ *  COLOUR:    the six colours (red returns after a colour while reds remain).
+ *
+ *  Once all reds are gone, the colours MUST be potted in their official order
+ *  (yellow → green → brown → blue → pink → black) — no skipping. */
 export function legalBalls(
   phase: BreakPhase,
   counts: BallCounts
 ): BallColor[] {
   const available = BALL_ORDER.filter((c) => counts[c] > 0);
+
+  // Reds all gone → the six colours are cleared strictly in sequence. Only the
+  // next colour yet to be potted is legal (each colour is potted exactly once).
+  if (counts.red === 0) {
+    const next = COLOUR_ORDER.find((c) => counts[c] > 0);
+    return next ? [next] : [];
+  }
+
   if (phase === BreakPhase.RED_FIRST) {
-    // reds still available → must pot red; else clear the colours
-    return counts.red > 0 ? available.filter((c) => c === "red") : available;
+    // reds still available → must pot red
+    return available.filter((c) => c === "red");
   }
   // COLOUR phase: show colours only (no red until a colour has been potted)
   return available.filter((c) => c !== "red");

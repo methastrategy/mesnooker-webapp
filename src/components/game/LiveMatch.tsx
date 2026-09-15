@@ -3,7 +3,14 @@
 import * as React from "react";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Flag, ChevronDown, ArrowRight, ChevronLeft, Timer, Hourglass } from "lucide-react";
+import {
+  Flag,
+  ChevronDown,
+  ArrowRight,
+  ChevronLeft,
+  Timer,
+  Hourglass,
+} from "lucide-react";
 import { useGameStore, useActiveFrame, useRunningBalance } from "@/store/gameStore";
 import { BallPad } from "@/components/game/BallPad";
 import { PlayerCard } from "@/components/game/PlayerCard";
@@ -71,6 +78,9 @@ export function LiveMatch({ onFinish }: { onFinish?: (a: ArchivedGame) => void }
   const breakCount = currentBreakCount(events, shooter?.id ?? "");
   const legal = legalBalls(phase, store.ballCounts);
   const canStartBreak = phase === BreakPhase.COLOUR;
+  // Once reds are gone, legal[0] is the exact next colour in sequence.
+  const clearingColours = store.ballCounts.red === 0;
+  const nextColour = clearingColours ? legal[0] : undefined;
   const ballValues: Record<BallColor, number> = {
     red: ballValue("red", mode),
     yellow: ballValue("yellow", mode),
@@ -135,50 +145,42 @@ export function LiveMatch({ onFinish }: { onFinish?: (a: ArchivedGame) => void }
   const coloursPot = BALL_ORDER
     .filter((c) => c !== "red")
     .reduce((s, c) => s + potted[c], 0);
-  // 1 set = 1 red + 1 colour
   const setsPot = Math.min(redsPot, coloursPot);
   const totalPoints = players.reduce((s, p) => s + (frame.scores[p.id] ?? 0), 0);
 
   return (
     <LiveShell>
-      {/* Shooter header (compact — the star is the action pad) */}
-      <div className="glass glow-emerald flex items-center gap-3 p-3">
+      {/* Shooter header — the star of the frame */}
+      <div className="glass glow-emerald flex items-center gap-3 p-4">
         <span
-          className="h-9 w-9 rounded-full snooker-ball"
+          className="h-10 w-10 rounded-full snooker-ball"
           style={{ background: BALL_HEX[shooter.color as BallColor] }}
         />
         <div className="min-w-0 flex-1">
-          <div className="font-bold truncate">{shooter.nickname}</div>
-          <div className="text-[11px] text-muted-foreground">target: {targetName}</div>
+          <div className="flex items-center gap-2">
+            <span className="truncate font-bold text-lg">{shooter.nickname}</span>
+            <Badge>ON BREAK</Badge>
+          </div>
+          <div className="text-[12px] text-muted-foreground">
+            shooting vs {targetName}
+          </div>
         </div>
         <div className="text-right leading-tight">
-          <div className="text-[10px] uppercase text-muted-foreground">Break</div>
-          <div className="text-xl font-bold tabular-nums text-gold">
+          <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Break</div>
+          <div className="text-2xl font-bold tabular-nums text-gold">
             <AnimatedNumber value={breakCount} />
           </div>
         </div>
       </div>
 
-      {/* Workflow steps + live clocks */}
-      <div className="glass p-3">
-        <div className="flex items-center gap-2 text-[11px]">
-          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/20 text-[11px] text-primary">1</span>
-          <span className="text-muted-foreground">Setup</span>
-          <span className="text-muted-foreground">→</span>
-          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-[11px] text-primary-foreground">2</span>
-          <span className="font-semibold text-foreground">Play</span>
-          <span className="text-muted-foreground">→</span>
-          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/20 text-primary">3</span>
-          <span className="text-muted-foreground">Summary</span>
-        </div>
-        <div className="mt-2 flex items-center justify-between text-[12px] tabular-nums">
-          <span className="flex items-center gap-1 text-foreground/85">
-            <Timer className="text-primary" size={13} /> Frame {store.frames.length}: {frameClock}
-          </span>
-          <span className="flex items-center gap-1 text-foreground/70">
-            <Hourglass className="text-gold" size={13} /> Session: {sessionClock}
-          </span>
-        </div>
+      {/* Live clocks + frame step */}
+      <div className="glass flex items-center justify-between px-4 py-3 text-[12px] tabular-nums">
+        <span className="flex items-center gap-1.5 text-foreground/85">
+          <Timer className="text-primary" size={14} /> Frame {store.frames.length}: {frameClock}
+        </span>
+        <span className="flex items-center gap-1.5 text-foreground/70">
+          <Hourglass className="text-gold" size={14} /> Session: {sessionClock}
+        </span>
       </div>
 
       {/* ⭐ ACTION PAD — the primary control, big & few */}
@@ -188,7 +190,7 @@ export function LiveMatch({ onFinish }: { onFinish?: (a: ArchivedGame) => void }
             Tap to play
           </h3>
           <Badge variant={canStartBreak ? "default" : "danger"}>
-            {canStartBreak ? "pick a colour" : "red first"}
+            {canStartBreak ? "pick a colour" : clearingColours ? `clear: ${nextColour ? BALL_NAME[nextColour] : "table done"}` : "red first"}
           </Badge>
         </div>
         <BallPad
@@ -196,6 +198,7 @@ export function LiveMatch({ onFinish }: { onFinish?: (a: ArchivedGame) => void }
           ballValues={ballValues}
           onPot={onPot}
           showCount={(c) => store.ballCounts[c]}
+          clearingColours={clearingColours}
         />
       </div>
 
@@ -268,7 +271,7 @@ export function LiveMatch({ onFinish }: { onFinish?: (a: ArchivedGame) => void }
             </div>
           </div>
 
-          {/* potted detail per colour */}
+          {/* potted detail per colour (in official order when clearing) */}
           <div className="glass">
             <h3 className="mb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
               Potted this frame
