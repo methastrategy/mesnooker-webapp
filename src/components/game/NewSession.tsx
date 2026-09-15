@@ -25,7 +25,6 @@ export function NewSession({
   initialPlayers?: Player[];
 }) {
   const [mode, setMode] = useState<GameMode>("points");
-  const [moneyPer, setMoneyPer] = useState<MoneyRateUnit>("point");
   const [moneyRate, setMoneyRate] = useState(1);
   const [names, setNames] = useState<string[]>(
     initialPlayers?.map((p) => p.nickname) ?? ["Metha", "Player 2"]
@@ -39,6 +38,10 @@ export function NewSession({
 
   const shown = names.slice(0, count);
   const validPlayers = shown.filter((n) => n.trim());
+
+  // Money unit follows the game mode automatically: point count => per point,
+  // ball count => per ball. No separate toggle needed.
+  const moneyPer: MoneyRateUnit = mode === "points" ? "point" : "ball";
 
   function bump(d: number) {
     const nc = Math.max(2, Math.min(8, count + d));
@@ -114,14 +117,6 @@ export function NewSession({
 
       {/* Money */}
       <div>
-        <div className="mb-2 grid grid-cols-2 gap-2">
-          <Button variant={moneyPer === "point" ? "gold" : "glass"} size="sm" onClick={() => setMoneyPer("point")}>
-            per point
-          </Button>
-          <Button variant={moneyPer === "ball" ? "gold" : "glass"} size="sm" onClick={() => setMoneyPer("ball")}>
-            per ball
-          </Button>
-        </div>
         <div className="flex items-center gap-3">
           <span className="text-sm font-medium">Rate</span>
           <Button variant="glass" size="icon" onClick={() => setMoneyRate(Math.max(0.5, moneyRate - 0.5))} aria-label="Decrease rate">
@@ -135,6 +130,9 @@ export function NewSession({
             <Plus size={18} />
           </Button>
         </div>
+        <p className="mt-2 text-[11px] text-muted-foreground">
+          Money is {moneyPer === "point" ? "per point scored" : "per ball potted"}, matching your game mode.
+        </p>
         <div className="mt-2 flex items-center gap-3">
           <span className="text-sm font-medium">Table fee (split evenly)</span>
           <Button variant="glass" size="icon" onClick={() => setTableFee(Math.max(0, tableFee - 10))} aria-label="Decrease table fee">
