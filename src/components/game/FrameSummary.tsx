@@ -2,14 +2,21 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { PartyPopper, Trophy, ArrowDown } from "lucide-react";
+import { PartyPopper, Trophy, ArrowDown, Minus, Plus, Receipt } from "lucide-react";
 import type { ArchivedGame } from "@/types";
 import { optimizeTransfers } from "@/lib/money";
 import { Button, Badge } from "@/components/ui";
 import { AvatarBubble } from "@/components/game/AvatarPicker";
+import { useGameStore } from "@/store/gameStore";
 import { formatMoney, formatDateTime } from "@/lib/utils";
 
-/** Final settlement summary shown after a game ends: who +/−, total, who pays whom. */
+/**
+ * Final settlement summary shown after a game ends.
+ *
+ * The table fee is decided HERE (when you "close the table"), not at setup —
+ * real snooker only tells you the fee at the end. Use the stepper to set it;
+ * it splits evenly and recomputes who pays whom live, persisted to history.
+ */
 export function FrameCompleteSummary({
   game,
   onNewGame,
@@ -17,12 +24,22 @@ export function FrameCompleteSummary({
   game: ArchivedGame;
   onNewGame: () => void;
 }) {
-  const sorted = [...game.players].sort((a, b) => (game.balances[b.id] ?? 0) - (game.balances[a.id] ?? 0));
-  const transfers = optimizeTransfers(game.balances, game.players);
-  const totalWon = game.players.reduce((s, p) => s + Math.max(0, game.balances[p.id] ?? 0), 0);
-  const win = (game.mode === "points" ? "point" : "ball") as "point" | "ball";
-  const tableShare = game.players.length > 0 ? game.tableFee / game.players.length : 0;
-  const hasTable = game.tableFee > 0;
+  const setArchivedTableFee = useGameStore((s) => s.setArchivedTableFee);
+  // Read the live copy from history so fee edits re-render here.
+  const live = useGameStore((s) => s.history.find((g) => g.id === game.id)) ?? game;
+
+  const tableFee = live.tableFee;
+  const tableShare = live.players.length > 0 ? tableFee / live.players.length : 0;
+  const hasTable = tableFee > 0;
+
+  // balances already reflect the fee (rawBalances - share). Total winnings shown
+  // is the positive sum of rawBalances so it's stable regardless of the fee.
+  const rawTotal = live.players.reduce((s, p) => s + Math.max(0, live.rawBalances?.[p.id] ?? 0), 0);
+  const sorted = [...live.players].sort((a, b) => (live.balances[b.id] ?? 0) - (live.balances[a.id] ?? 0));
+  const transfers = optimizeTransfers(live.balances, live.players);
+  const win = (live.mode === "points" ? "point" : "ball") as "point" | "ball";
+
+  const setFee = (v: number) => setArchivedTableFee(live.id, Math.max(0, v));
 
   return (
     <motion.div
@@ -35,11 +52,11 @@ export function FrameCompleteSummary({
         <div>
           <h2 className="text-xl font-bold">🎉 Game complete</h2>
           <p className="text-sm text-muted-foreground">
-            {game.frames} frame{game.frames > 1 ? "s" : ""} · ฿{game.moneyRate}/{win} · {formatDateTime(game.endedAt)}
-            {hasTable ? <span className="ml-1 text-gold">· table ฿{game.tableFee}</span> : null}
+            {live.frames} frame{live.frames > 1 ? "s" : ""} · ฿{live.moneyRate}/{win} · {formatDateTime(live.endedAt)}
+            {hasTable ? <span className="ml-1 text-gold">· table ฿{tableFee}</span> : null}
           </p>
         </div>
-        {totalWon > 0 ? <Badge variant="gold">net +{formatMoney(totalWon)}</Badge> : <Badge>settled</Badge>}
+        {rawTotal > 0 ? <Badge variant="gold">net +{formatMoney(rawTotal)}</Badge> : <Badge>settled</Badge>}
       </div>
 
       {/* Who + / − */}
@@ -47,9 +64,9 @@ export function FrameCompleteSummary({
         <h3 className="mb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Tonight’s result</h3>
         <div className="flex flex-col">
           {sorted.map((p, i) => {
-            const bal = game.balances[p.id] ?? 0;
+            const bal = live.balances[p.id] ?? 0;
             // raw winnings before table fee (for display when fee applies)
-            const rawWin = hasTable ? bal + tableShare : bal;
+            const rawWin = live.rawBalances?.[p.id] ?? bal;
             const isWinner = i === 0 && bal > 0;
             return (
               <div key={p.id} className="flex items-center gap-3 rounded-xl bg-white/[0.03] px-3 py-2">
@@ -85,13 +102,45 @@ export function FrameCompleteSummary({
         </div>
       </div>
 
+      {/* Table fee (decided now that the table is closed) */}
+      <div className="glass">
+        <h3 className="mb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+          <Receipt size={14} className="mr-1 inline text-gold" /> Table fee
+        </h3>
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="text-sm text-muted-foreground">Close the table & split evenly among players:</span>
+          <div className="flex items-center gap-2">
+            <Button variant="glass" size="icon" onClick={() => setFee(tableFee - 10)} aria-label="Decrease table fee">
+              <Minus size={18} />
+            </Button>
+            <div className="h-12 min-w-24 rounded-2xl border border-gold/40 bg-white/5 px-4 text-center text-xl font-bold text-gold tabular-nums">
+              ฿{tableFee}
+            </div>
+            <Button variant="gold" size="icon" onClick={() => setFee(tableFee + 10)} aria-label="Increase table fee">
+              <Plus size={18} />
+            </Button>
+          </div>
+          {tableFee > 0 && live.players.length > 0 ? (
+            <span className="text-[11px] text-muted-foreground">
+              = ฿{Math.round(tableFee / live.players.length)} each
+            </span>
+          ) : null}
+          <Button variant="ghost" size="sm" onClick={() => setFee(0)} disabled={!hasTable}>
+            Clear
+          </Button>
+        </div>
+        <p className="mt-2 text-[11px] text-muted-foreground">
+          The fee is subtracted evenly from each player's winnings and updates who pays whom below.
+        </p>
+      </div>
+
       {/* Who pays whom */}
       <div className="glass">
         <h3 className="mb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Who pays whom</h3>
         {transfers.length === 0 ? (
           <p className="py-4 text-center text-sm text-muted-foreground">
             {hasTable
-              ? <>Each player pays <span className="font-semibold text-gold">฿{game.tableFee} total / {game.players.length} = {Math.round((game.tableFee / game.players.length) * 100) / 100}฿</span> table fee.</>
+              ? <>Each player pays <span className="font-semibold text-gold">฿{tableFee} total / {live.players.length} = {Math.round((tableFee / live.players.length) * 100) / 100}฿</span> table fee.</>
               : "Everyone settled — nothing to pay. 🎉"}
           </p>
         ) : (
@@ -107,7 +156,7 @@ export function FrameCompleteSummary({
           </div>
         )}
         <p className="mt-2 text-[11px] text-muted-foreground">
-          ≤ {game.players.length - 1} transfers — the simplest way to settle everyone.
+          ≤ {live.players.length - 1} transfers — the simplest way to settle everyone.
         </p>
       </div>
 

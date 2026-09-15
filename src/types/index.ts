@@ -117,6 +117,8 @@ export interface ArchivedGame {
   /** total table fee split evenly at settlement */
   tableFee: number;
   players: Player[];
+  /** winnings before any table fee (source for adjusting the fee after the game) */
+  rawBalances: Record<string, number>;
   /** final net money per playerId (the settlement basis) */
   balances: Record<string, number>;
   frames: number;

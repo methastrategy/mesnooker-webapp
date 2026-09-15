@@ -102,6 +102,8 @@ interface GameStore extends PersistShape {
   toggleSound: () => void;
   toggleHaptics: () => void;
   setActiveFrameId: () => void;
+  /** apply (or clear) the table fee to an archived game's balances; fee split evenly */
+  setArchivedTableFee: (gameId: string, fee: number) => void;
 }
 
 export const useGameStore = create<GameStore>()(
@@ -193,20 +195,15 @@ export const useGameStore = create<GameStore>()(
         const running = currentNet
           ? mergeRunning(st.session.runningBalance, currentNet)
           : st.session.runningBalance;
-        // apply table fee: each player owes tableFee / playerCount (kept separate
-        // from game winnings so the summary can show "win (table) = net")
-        const tableShare =
-          st.players.length > 0 ? st.session.tableFee / st.players.length : 0;
-        const netAfterTable = { ...running };
-        for (const p of st.players) {
-          netAfterTable[p.id] = Math.round(((netAfterTable[p.id] ?? 0) - tableShare) * 100) / 100;
-        }
         const totalPoints = st.frames.reduce(
           (s, fr) =>
             s +
             Object.values(fr.scores).reduce((x, y) => x + (y > 0 ? y : 0), 0),
           0
         );
+        // rawBalances = winnings before any table fee. The fee itself is decided
+        // AFTER the game ends (at the summary), so archive with fee 0 here and let
+        // setArchivedTableFee recompute the net from rawBalances later.
         const archived: ArchivedGame = {
           id: nid(),
           endedAt: Date.now(),
@@ -216,7 +213,8 @@ export const useGameStore = create<GameStore>()(
           redCount: st.session.redCount,
           tableFee: st.session.tableFee,
           players: st.players.map((p) => ({ ...p })),
-          balances: netAfterTable,
+          rawBalances: { ...running },
+          balances: { ...running },
           frames: st.frames.length,
           totalPoints,
         };
@@ -462,6 +460,20 @@ export const useGameStore = create<GameStore>()(
         if (st.session && st.frames.length) {
           set({ session: { ...st.session, activeFrameId: st.frames[st.frames.length - 1].id } });
         }
+      },
+      setArchivedTableFee: (gameId, fee) => {
+        const st = get();
+        const feeVal = Math.max(0, fee);
+        const history = st.history.map((g) => {
+          if (g.id !== gameId) return g;
+          const share = g.players.length > 0 ? feeVal / g.players.length : 0;
+          const balances = { ...g.rawBalances };
+          for (const p of g.players) {
+            balances[p.id] = Math.round(((balances[p.id] ?? 0) - share) * 100) / 100;
+          }
+          return { ...g, tableFee: feeVal, balances };
+        });
+        set({ history });
       },
     }),
     {
