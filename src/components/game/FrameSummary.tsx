@@ -21,6 +21,8 @@ export function FrameCompleteSummary({
   const transfers = optimizeTransfers(game.balances, game.players);
   const totalWon = game.players.reduce((s, p) => s + Math.max(0, game.balances[p.id] ?? 0), 0);
   const win = (game.mode === "points" ? "point" : "ball") as "point" | "ball";
+  const tableShare = game.players.length > 0 ? game.tableFee / game.players.length : 0;
+  const hasTable = game.tableFee > 0;
 
   return (
     <motion.div
@@ -34,9 +36,10 @@ export function FrameCompleteSummary({
           <h2 className="text-xl font-bold">🎉 Game complete</h2>
           <p className="text-sm text-muted-foreground">
             {game.frames} frame{game.frames > 1 ? "s" : ""} · ฿{game.moneyRate}/{win} · {formatDateTime(game.endedAt)}
+            {hasTable ? <span className="ml-1 text-gold">· table ฿{game.tableFee}</span> : null}
           </p>
         </div>
-        {totalWon > 0 ? <Badge variant="gold">+{formatMoney(totalWon)}</Badge> : <Badge>settled</Badge>}
+        {totalWon > 0 ? <Badge variant="gold">net +{formatMoney(totalWon)}</Badge> : <Badge>settled</Badge>}
       </div>
 
       {/* Who + / − */}
@@ -45,6 +48,8 @@ export function FrameCompleteSummary({
         <div className="flex flex-col">
           {sorted.map((p, i) => {
             const bal = game.balances[p.id] ?? 0;
+            // raw winnings before table fee (for display when fee applies)
+            const rawWin = hasTable ? bal + tableShare : bal;
             const isWinner = i === 0 && bal > 0;
             return (
               <div key={p.id} className="flex items-center gap-3 rounded-xl bg-white/[0.03] px-3 py-2">
@@ -52,10 +57,28 @@ export function FrameCompleteSummary({
                 <span className="flex-1 truncate font-medium">
                   {p.nickname} {isWinner ? <Trophy size={13} className="inline text-gold" /> : null}
                 </span>
-                <span className={`text-lg font-bold tabular-nums ${bal > 0 ? "text-primary" : bal < 0 ? "text-destructive" : "text-muted-foreground"}`}>
-                  {bal > 0 ? "+" : ""}
-                  {formatMoney(bal)}
-                </span>
+                {hasTable ? (
+                  <span className="text-right">
+                    <span className={`block text-sm font-semibold tabular-nums ${
+                      rawWin > 0 ? "text-primary" : rawWin < 0 ? "text-muted-foreground" : "text-muted-foreground"
+                    }`}>
+                      {rawWin > 0 ? "+" : ""}
+                      {formatMoney(rawWin)}
+                    </span>
+                    <span className="block text-[11px] text-muted-foreground tabular-nums">
+                      table −{formatMoney(tableShare)} ={" "}
+                      <span className={bal > 0 ? "text-primary" : bal < 0 ? "text-destructive" : "text-muted-foreground"}>
+                        {bal > 0 ? "+" : ""}
+                        {formatMoney(bal)}
+                      </span>
+                    </span>
+                  </span>
+                ) : (
+                  <span className={`text-lg font-bold tabular-nums ${bal > 0 ? "text-primary" : bal < 0 ? "text-destructive" : "text-muted-foreground"}`}>
+                    {bal > 0 ? "+" : ""}
+                    {formatMoney(bal)}
+                  </span>
+                )}
               </div>
             );
           })}
@@ -66,7 +89,11 @@ export function FrameCompleteSummary({
       <div className="glass">
         <h3 className="mb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Who pays whom</h3>
         {transfers.length === 0 ? (
-          <p className="py-4 text-center text-sm text-muted-foreground">Everyone settled — nothing to pay. 🎉</p>
+          <p className="py-4 text-center text-sm text-muted-foreground">
+            {hasTable
+              ? <>Each player pays <span className="font-semibold text-gold">฿{game.tableFee} total / {game.players.length} = {Math.round((game.tableFee / game.players.length) * 100) / 100}฿</span> table fee.</>
+              : "Everyone settled — nothing to pay. 🎉"}
+          </p>
         ) : (
           <div className="flex flex-col">
             {transfers.map((t, i) => (

@@ -91,6 +91,8 @@ export interface SessionSummary {
   mode: GameMode;
   moneyRate: number;
   moneyPer: MoneyRateUnit;
+  /** total table fee (฿) split evenly among players at settlement */
+  tableFee: number;
   /** number of red balls in play (6/10/15) */
   redCount: number;
   players: Player[];
@@ -112,6 +114,8 @@ export interface ArchivedGame {
   moneyRate: number;
   moneyPer: MoneyRateUnit;
   redCount: number;
+  /** total table fee split evenly at settlement */
+  tableFee: number;
   players: Player[];
   /** final net money per playerId (the settlement basis) */
   balances: Record<string, number>;

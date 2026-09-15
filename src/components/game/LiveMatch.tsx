@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Flag, ChevronDown, ArrowRight, ChevronLeft } from "lucide-react";
+import { Flag, ChevronDown, ArrowRight, ChevronLeft, Timer, Hourglass } from "lucide-react";
 import { useGameStore, useActiveFrame, useRunningBalance } from "@/store/gameStore";
 import { BallPad } from "@/components/game/BallPad";
 import { PlayerCard } from "@/components/game/PlayerCard";
@@ -21,10 +21,16 @@ import {
 } from "@/lib/rules";
 import type { ArchivedGame, BallColor } from "@/types";
 
+import { useElapsed } from "@/hooks/useElapsed";
+
 export function LiveMatch({ onFinish }: { onFinish?: (a: ArchivedGame) => void }) {
   const store = useGameStore();
   const frame = useActiveFrame();
   const running = useRunningBalance();
+  const sessionStartedAt = store.session?.createdAt;
+  const frameStartedAt = frame?.startedAt;
+  const sessionClock = useElapsed(sessionStartedAt);
+  const frameClock = useElapsed(frameStartedAt);
   const [detailsOpen, setDetailsOpen] = useState(false);
 
   const {
@@ -153,6 +159,28 @@ export function LiveMatch({ onFinish }: { onFinish?: (a: ArchivedGame) => void }
         </div>
       </div>
 
+      {/* Workflow steps + live clocks */}
+      <div className="glass p-3">
+        <div className="flex items-center gap-2 text-[11px]">
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/20 text-[11px] text-primary">1</span>
+          <span className="text-muted-foreground">Setup</span>
+          <span className="text-muted-foreground">→</span>
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-[11px] text-primary-foreground">2</span>
+          <span className="font-semibold text-foreground">Play</span>
+          <span className="text-muted-foreground">→</span>
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/20 text-primary">3</span>
+          <span className="text-muted-foreground">Summary</span>
+        </div>
+        <div className="mt-2 flex items-center justify-between text-[12px] tabular-nums">
+          <span className="flex items-center gap-1 text-foreground/85">
+            <Timer className="text-primary" size={13} /> Frame {store.frames.length}: {frameClock}
+          </span>
+          <span className="flex items-center gap-1 text-foreground/70">
+            <Hourglass className="text-gold" size={13} /> Session: {sessionClock}
+          </span>
+        </div>
+      </div>
+
       {/* ⭐ ACTION PAD — the primary control, big & few */}
       <div className="glass-strong glow-emerald p-4">
         <div className="mb-2 flex items-center justify-between">
@@ -177,10 +205,13 @@ export function LiveMatch({ onFinish }: { onFinish?: (a: ArchivedGame) => void }
           <Button variant="danger" size="lg" onClick={() => { tap(); foul(); }}>
             Foul {mode === "points" ? "-4" : "-2"}
           </Button>
-          <Button variant="danger" size="sm" onClick={() => { tap(); snookerMiss(); }}>Miss −2</Button>
-          <Button variant="gold" size="sm" onClick={() => { tap(); snookerHit(); }}>Hit +1</Button>
+          <Button variant="danger" size="sm" onClick={() => { tap(); snookerMiss(); }}>Snooker miss −2</Button>
+          <Button variant="gold" size="sm" onClick={() => { tap(); snookerHit(); }}>Solve snooker +1</Button>
           <Button variant="outline" size="sm" onClick={() => { tap(); undo(); }} disabled={!canUndo}>Undo</Button>
         </div>
+        <p className="mt-2 text-[11px] text-muted-foreground">
+          Foul = ordinary foul · Snooker miss = tried to solve a snooker but didn't (−2) · Solve snooker = hit it (+1)
+        </p>
         <div className="mt-2 grid grid-cols-3 gap-2">
           <Button variant="default" size="lg" onClick={() => { tap(); endTurn(); }}>
             <ArrowRight size={18} /> End turn
@@ -189,7 +220,7 @@ export function LiveMatch({ onFinish }: { onFinish?: (a: ArchivedGame) => void }
             <ChevronLeft size={16} /> Prev
           </Button>
           <Button variant="danger" size="lg" onClick={handleEndFrame}>
-            <Flag size={16} /> End game
+            <Flag size={16} /> End session
           </Button>
         </div>
       </div>

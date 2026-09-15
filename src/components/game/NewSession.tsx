@@ -20,6 +20,7 @@ export function NewSession({
     moneyRate: number;
     moneyPer: MoneyRateUnit;
     redCount: number;
+    tableFee?: number;
   }) => void;
   initialPlayers?: Player[];
 }) {
@@ -34,6 +35,7 @@ export function NewSession({
   );
   const [count, setCount] = useState(2);
   const [redCount, setRedCount] = useState(15);
+  const [tableFee, setTableFee] = useState(0);
 
   const shown = names.slice(0, count);
   const validPlayers = shown.filter((n) => n.trim());
@@ -66,7 +68,7 @@ export function NewSession({
       avatar: avatars[i] || AVATAR_PRESETS[i % AVATAR_PRESETS.length],
     }));
     if (players.length < 2) return;
-    onStart({ players, mode, moneyRate, moneyPer, redCount });
+    onStart({ players, mode, moneyRate, moneyPer, redCount, tableFee });
   }
 
   return (
@@ -132,6 +134,23 @@ export function NewSession({
           <Button variant="gold" size="icon" onClick={() => setMoneyRate(moneyRate + 0.5)} aria-label="Increase rate">
             <Plus size={18} />
           </Button>
+        </div>
+        <div className="mt-2 flex items-center gap-3">
+          <span className="text-sm font-medium">Table fee (split evenly)</span>
+          <Button variant="glass" size="icon" onClick={() => setTableFee(Math.max(0, tableFee - 10))} aria-label="Decrease table fee">
+            <Minus size={18} />
+          </Button>
+          <div className="h-12 min-w-20 rounded-2xl border border-white/15 bg-white/5 px-3 text-center text-lg font-bold tabular-nums">
+            ฿{tableFee}
+          </div>
+          <Button variant="gold" size="icon" onClick={() => setTableFee(tableFee + 10)} aria-label="Increase table fee">
+            <Plus size={18} />
+          </Button>
+          {tableFee > 0 && count > 0 ? (
+            <span className="text-[11px] text-muted-foreground">
+              = ฿{Math.round(tableFee / count)} each
+            </span>
+          ) : null}
         </div>
       </div>
 

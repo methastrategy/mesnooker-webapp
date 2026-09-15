@@ -79,7 +79,7 @@ interface PersistShape {
 }
 
 interface GameStore extends PersistShape {
-  startSession: (o: { players: Player[]; mode: GameMode; moneyRate: number; moneyPer: MoneyRateUnit; redCount: number }) => void;
+  startSession: (o: { players: Player[]; mode: GameMode; moneyRate: number; moneyPer: MoneyRateUnit; redCount: number; tableFee?: number }) => void;
   endSession: () => SessionSummary | null;
   /** archive the finished game into history and reset to a blank slate (back to setup) */
   archiveAndReset: () => ArchivedGame | null;
@@ -122,7 +122,7 @@ export const useGameStore = create<GameStore>()(
       startCounts: initialCounts(),
       history: [],
 
-      startSession: ({ players, mode, moneyRate, moneyPer, redCount = 15 }) => {
+      startSession: ({ players, mode, moneyRate, moneyPer, redCount = 15, tableFee = 0 }) => {
         if (players.length < 2) return;
         const id = nid();
         const frame = makeFrame(players, mode);
@@ -132,6 +132,7 @@ export const useGameStore = create<GameStore>()(
           mode,
           moneyRate,
           moneyPer,
+          tableFee,
           redCount,
           players,
           frameIds: [frame.id],
@@ -192,6 +193,14 @@ export const useGameStore = create<GameStore>()(
         const running = currentNet
           ? mergeRunning(st.session.runningBalance, currentNet)
           : st.session.runningBalance;
+        // apply table fee: each player owes tableFee / playerCount (kept separate
+        // from game winnings so the summary can show "win (table) = net")
+        const tableShare =
+          st.players.length > 0 ? st.session.tableFee / st.players.length : 0;
+        const netAfterTable = { ...running };
+        for (const p of st.players) {
+          netAfterTable[p.id] = Math.round(((netAfterTable[p.id] ?? 0) - tableShare) * 100) / 100;
+        }
         const totalPoints = st.frames.reduce(
           (s, fr) =>
             s +
@@ -205,8 +214,9 @@ export const useGameStore = create<GameStore>()(
           moneyRate: st.session.moneyRate,
           moneyPer: st.session.moneyPer,
           redCount: st.session.redCount,
+          tableFee: st.session.tableFee,
           players: st.players.map((p) => ({ ...p })),
-          balances: running,
+          balances: netAfterTable,
           frames: st.frames.length,
           totalPoints,
         };
