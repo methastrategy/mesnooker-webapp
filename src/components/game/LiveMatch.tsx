@@ -28,15 +28,14 @@ import {
 } from "@/lib/rules";
 import type { ArchivedGame, BallColor } from "@/types";
 
-import { useElapsed } from "@/hooks/useElapsed";
+import { useElapsed, useElapsedSum } from "@/hooks/useElapsed";
 
-export function LiveMatch({ onFinish }: { onFinish?: (a: ArchivedGame) => void }) {
+export function LiveMatch({ onPause, onFinish }: { onPause?: () => void; onFinish?: (a: ArchivedGame) => void }) {
   const store = useGameStore();
   const frame = useActiveFrame();
   const running = useRunningBalance();
-  const sessionStartedAt = store.session?.createdAt;
   const frameStartedAt = frame?.startedAt;
-  const sessionClock = useElapsed(sessionStartedAt);
+  const sessionClock = useElapsedSum(store.frames);
   const frameClock = useElapsed(frameStartedAt);
   const [detailsOpen, setDetailsOpen] = useState(false);
 
@@ -128,8 +127,10 @@ export function LiveMatch({ onFinish }: { onFinish?: (a: ArchivedGame) => void }
   const canUndo = store.events.length > 0;
 
   function handleEndFrame() {
-    const archived = store.archiveAndReset();
-    if (archived && onFinish) onFinish(archived);
+    // End THIS frame only; the match page then shows the frame summary with
+    // the choice to continue (next frame) or end the whole session.
+    store.endFrame();
+    if (onPause) onPause();
     if (haptics && typeof navigator !== "undefined" && "vibrate" in navigator) {
       try { navigator.vibrate?.([20, 40, 20]); } catch {}
     }
@@ -223,7 +224,7 @@ export function LiveMatch({ onFinish }: { onFinish?: (a: ArchivedGame) => void }
             <ChevronLeft size={16} /> Prev
           </Button>
           <Button variant="danger" size="lg" onClick={handleEndFrame}>
-            <Flag size={16} /> End session
+            <Flag size={16} /> End frame
           </Button>
         </div>
       </div>

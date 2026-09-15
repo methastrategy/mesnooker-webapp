@@ -174,12 +174,16 @@ export const useGameStore = create<GameStore>()(
         const f = st.frames[st.frames.length - 1];
         let currentNet: Record<string, number> | null = null;
         if (f && !f.endedAt) {
+          // An un-ended frame (e.g. mid-play) gets ended now. Its money is then
+          // merged below. Frames already ended via endFrame() had their money
+          // merged into runningBalance at that time, so we must NOT add again.
+          const frameEvents = st.events.filter((e) => e.frameId === f.id && !e.undone);
           const money: MoneyResult = computeFrameMoney({
             mode: f.mode,
             players: st.players,
             scores: f.scores,
             ballCounts: Object.fromEntries(
-              st.players.map((p) => [p.id, pottedBallsPerPlayer(st.events, p.id)])
+              st.players.map((p) => [p.id, pottedBallsPerPlayer(frameEvents, p.id)])
             ),
             targetCycle: f.targetCycle,
             moneyPer: st.moneyPer,
@@ -188,8 +192,6 @@ export const useGameStore = create<GameStore>()(
           f.money = money.net;
           f.endedAt = Date.now();
           currentNet = money.net;
-        } else if (f?.money) {
-          currentNet = f.money;
         }
         // merge the last frame's net into the running balance
         const running = currentNet
@@ -402,13 +404,15 @@ export const useGameStore = create<GameStore>()(
         if (!f || !st.session) return;
         f.endedAt = Date.now();
 
+        // Per-frame money: count balls potted in THIS frame only.
+        const frameEvents = st.events.filter((e) => e.frameId === f.id && !e.undone);
         const money: MoneyResult = computeFrameMoney({
           mode: f.mode,
           players: st.players,
           scores: f.scores,
           // per-ball money: pass each player's OWN potted-ball counts from events
           ballCounts: Object.fromEntries(
-            st.players.map((p) => [p.id, pottedBallsPerPlayer(st.events, p.id)])
+            st.players.map((p) => [p.id, pottedBallsPerPlayer(frameEvents, p.id)])
           ),
           targetCycle: f.targetCycle,
           moneyPer: st.moneyPer,
