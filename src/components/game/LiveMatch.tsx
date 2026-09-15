@@ -8,7 +8,7 @@ import { useGameStore, useActiveFrame, useRunningBalance } from "@/store/gameSto
 import { BallPad } from "@/components/game/BallPad";
 import { PlayerCard } from "@/components/game/PlayerCard";
 import { EventLog } from "@/components/game/EventLog";
-import { Button, Badge, Stat, AnimatedNumber, Confetti } from "@/components/ui";
+import { Button, Badge, Stat, AnimatedNumber } from "@/components/ui";
 import {
   BALL_HEX,
   BALL_NAME,
@@ -19,13 +19,12 @@ import {
   inferBreakPhase,
   legalBalls,
 } from "@/lib/rules";
-import type { BallColor } from "@/types";
+import type { ArchivedGame, BallColor } from "@/types";
 
-export function LiveMatch() {
+export function LiveMatch({ onFinish }: { onFinish?: (a: ArchivedGame) => void }) {
   const store = useGameStore();
   const frame = useActiveFrame();
   const running = useRunningBalance();
-  const [dialogOpen, setDialogOpen] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
 
   const {
@@ -42,8 +41,6 @@ export function LiveMatch() {
     endTurn,
     undo,
     setShooterManual,
-    endFrame,
-    newFrame,
   } = store;
 
   if (!frame || !store.session) {
@@ -115,8 +112,8 @@ export function LiveMatch() {
   const canUndo = store.events.length > 0;
 
   function handleEndFrame() {
-    endFrame();
-    setDialogOpen(true);
+    const archived = store.archiveAndReset();
+    if (archived && onFinish) onFinish(archived);
     if (haptics && typeof navigator !== "undefined" && "vibrate" in navigator) {
       try { navigator.vibrate?.([20, 40, 20]); } catch {}
     }
@@ -192,7 +189,7 @@ export function LiveMatch() {
             <ChevronLeft size={16} /> Prev
           </Button>
           <Button variant="danger" size="lg" onClick={handleEndFrame}>
-            <Flag size={16} /> End frame
+            <Flag size={16} /> End game
           </Button>
         </div>
       </div>
@@ -280,15 +277,9 @@ export function LiveMatch() {
         </div>
       ) : null}
 
-      <FrameEndDialog
-        open={dialogOpen}
-        onClose={() => setDialogOpen(false)}
-        onNext={() => { newFrame(); setDialogOpen(false); }}
-        frameNumber={store.frames.length}
-      />
-    </LiveShell>
-  );
-}
+          </LiveShell>
+        );
+      }
 
 /** Simple content shell so both live and empty states share layout */
 function LiveShell({ children }: { children: React.ReactNode }) {
@@ -300,47 +291,5 @@ function LiveShell({ children }: { children: React.ReactNode }) {
     >
       {children}
     </motion.div>
-  );
-}
-
-/** End-of-frame celebration dialog with confetti + next frame */
-function FrameEndDialog({
-  open,
-  onClose,
-  onNext,
-  frameNumber,
-}: {
-  open: boolean;
-  onClose: () => void;
-  onNext: () => void;
-  frameNumber: number;
-}) {
-  if (!open) return null;
-  return (
-    <>
-      <Confetti />
-      <motion.div
-        className="fixed inset-0 z-50 flex items-center justify-center p-5 bg-black/80 backdrop-blur-sm"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        onClick={onClose}
-      >
-        <motion.div
-          initial={{ scale: 0.85, y: 20, opacity: 0 }}
-          animate={{ scale: 1, y: 0, opacity: 1 }}
-          transition={{ type: "spring", stiffness: 260, damping: 20 }}
-          className="glass-strong flex w-full max-w-sm flex-col items-center gap-4 p-8 text-center"
-        >
-          <span className="text-4xl">🏆</span>
-          <h2 className="text-2xl font-bold">Frame {frameNumber}</h2>
-          <p className="text-muted-foreground">Frame complete — money settled.</p>
-          <Button size="lg" className="w-full" onClick={onNext}>
-            Start next frame →
-          </Button>
-          <Button variant="ghost" onClick={onClose}>Close</Button>
-        </motion.div>
-      </motion.div>
-    </>
   );
 }

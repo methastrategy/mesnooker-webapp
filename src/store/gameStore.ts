@@ -15,6 +15,7 @@ import {
   type MoneyResult,
 } from "@/lib/money";
 import type {
+  ArchivedGame,
   BallColor,
   BallCounts,
   FrameSnapshot,
@@ -74,11 +75,14 @@ interface PersistShape {
   frames: FrameSnapshot[];
   events: GameEvent[];
   startCounts: BallCounts;
+  history: ArchivedGame[];
 }
 
 interface GameStore extends PersistShape {
   startSession: (o: { players: Player[]; mode: GameMode; moneyRate: number; moneyPer: MoneyRateUnit; redCount: number }) => void;
   endSession: () => SessionSummary | null;
+  /** archive the finished game into history and reset to a blank slate (back to setup) */
+  archiveAndReset: () => ArchivedGame | null;
   setMode: (m: GameMode) => void;
   setMoneyRate: (r: number) => void;
   setMoneyPer: (u: MoneyRateUnit) => void;
@@ -116,6 +120,7 @@ export const useGameStore = create<GameStore>()(
       frames: [],
       events: [],
       startCounts: initialCounts(),
+      history: [],
 
       startSession: ({ players, mode, moneyRate, moneyPer, redCount = 15 }) => {
         if (players.length < 2) return;
@@ -159,6 +164,64 @@ export const useGameStore = create<GameStore>()(
         return { ...session, status: "ended" };
       },
 
+      archiveAndReset: () => {
+        const st = get();
+        if (!st.session) return null;
+        // finalize active frame (settle money into running balance as endFrame does)
+        const f = st.frames[st.frames.length - 1];
+        let currentNet: Record<string, number> | null = null;
+        if (f && !f.endedAt) {
+          const money: MoneyResult = computeFrameMoney({
+            mode: f.mode,
+            players: st.players,
+            scores: f.scores,
+            ballCounts: Object.fromEntries(
+              st.players.map((p) => [p.id, pottedBallsPerPlayer(st.events, p.id)])
+            ),
+            targetCycle: f.targetCycle,
+            moneyPer: st.moneyPer,
+            moneyRate: st.moneyRate,
+          });
+          f.money = money.net;
+          f.endedAt = Date.now();
+          currentNet = money.net;
+        } else if (f?.money) {
+          currentNet = f.money;
+        }
+        // merge the last frame's net into the running balance
+        const running = currentNet
+          ? mergeRunning(st.session.runningBalance, currentNet)
+          : st.session.runningBalance;
+        const totalPoints = st.frames.reduce(
+          (s, fr) =>
+            s +
+            Object.values(fr.scores).reduce((x, y) => x + (y > 0 ? y : 0), 0),
+          0
+        );
+        const archived: ArchivedGame = {
+          id: nid(),
+          endedAt: Date.now(),
+          mode: st.session.mode,
+          moneyRate: st.session.moneyRate,
+          moneyPer: st.session.moneyPer,
+          redCount: st.session.redCount,
+          players: st.players.map((p) => ({ ...p })),
+          balances: running,
+          frames: st.frames.length,
+          totalPoints,
+        };
+        set({
+          history: [archived, ...st.history],
+          session: null,
+          players: [],
+          frames: [],
+          events: [],
+          ballCounts: initialCounts(),
+          startCounts: initialCounts(),
+          shooterIndex: 0,
+        });
+        return archived;
+      },
       setMode: (mode) => set({ mode }),
       setMoneyRate: (moneyRate) => set({ moneyRate }),
       setMoneyPer: (moneyPer) => set({ moneyPer }),
@@ -171,7 +234,14 @@ export const useGameStore = create<GameStore>()(
         const scorer = st.players[st.shooterIndex];
         if (!scorer) return;
         const counts = { ...st.ballCounts };
-        if (counts[ball] > 0) counts[ball] -= 1;
+        // Re-spotting: while reds remain on the table, potting a COLOUR puts it
+        // back (count stays available for every red round). A RED pot is consumed.
+        // Colours are only actually removed once reds run out.
+        if (ball === "red") {
+          if (counts.red > 0) counts.red -= 1;
+        } else {
+          if (counts.red === 0 && counts[ball] > 0) counts[ball] -= 1;
+        }
 
         const evt: PottedEvent = {
           id: nid(),
@@ -283,7 +353,13 @@ export const useGameStore = create<GameStore>()(
           const pe = evt as PottedEvent;
           f.scores[evt.playerId] = Math.max(-999, (f.scores[evt.playerId] ?? 0) - pe.points);
           const counts = { ...st.ballCounts };
-          counts[pe.ball] = Math.min((st.startCounts[pe.ball] ?? BALL_START[pe.ball]), counts[pe.ball] + 1);
+          // mirror pot's re-spot logic: a red pot is restored; a colour pot is
+          // only restored if it was actually removed (i.e. reds were already 0)
+          if (pe.ball === "red") {
+            counts.red = Math.min(st.startCounts.red ?? BALL_START.red, counts.red + 1);
+          } else if (st.ballCounts.red === 0) {
+            counts[pe.ball] = Math.min((st.startCounts[pe.ball] ?? BALL_START[pe.ball]), counts[pe.ball] + 1);
+          }
           f.eventIds = f.eventIds.filter((id) => id !== evt.id);
           set({ ballCounts: counts, frames: [...st.frames], events: st.events.slice(0, -1) });
         } else if (evt.type === "foul") {
@@ -394,6 +470,7 @@ export const useGameStore = create<GameStore>()(
         frames: s.frames,
         events: s.events,
         startCounts: s.startCounts,
+        history: s.history,
       }),
       version: 1,
     }
@@ -412,4 +489,8 @@ export function useRunningBalance() {
   return useGameStore((s) =>
     s.session?.runningBalance ? s.session.runningBalance : EMPTY_BAL
   );
+}
+/** selector: archived finished games (newest first) */
+export function useHistory() {
+  return useGameStore((s) => s.history);
 }

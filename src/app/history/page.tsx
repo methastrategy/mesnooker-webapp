@@ -2,55 +2,57 @@
 
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { Search, Trophy, History as HistoryIcon, Filter } from "lucide-react";
-import { useGameStore } from "@/store/gameStore";
+import { Search, Trophy, History as HistoryIcon, Filter, Users, ArrowRight } from "lucide-react";
+import { useHistory } from "@/store/gameStore";
 import { GlassCard, Badge, Button, BallDot } from "@/components/ui";
+import { AvatarBubble } from "@/components/game/AvatarPicker";
 import { formatMoney, formatDateTime } from "@/lib/utils";
-import type { GameMode } from "@/types";
+import { optimizeTransfers } from "@/lib/money";
+import type { ArchivedGame, GameMode } from "@/types";
 
 export default function HistoryPage() {
-  const players = useGameStore((s) => s.players);
-  const frames = useGameStore((s) => s.frames);
-  const session = useGameStore((s) => s.session);
+  const history = useHistory();
 
   const [playerId, setPlayerId] = useState<string>("all");
   const [mode, setMode] = useState<"all" | GameMode>("all");
   const [date, setDate] = useState<string>("");
   const [query, setQuery] = useState<string>("");
 
-  const byId = useMemo(
-    () => Object.fromEntries(players.map((p) => [p.id, p])),
-    [players]
-  );
+  // Union of all players who ever appeared in an archived game (newest first).
+  const allPlayers = useMemo(() => {
+    const map = new Map<string, ArchivedGame["players"][number]>();
+    for (const g of history) {
+      for (const p of g.players) {
+        if (!map.has(p.id)) map.set(p.id, p);
+      }
+    }
+    return [...map.values()];
+  }, [history]);
 
   const filtered = useMemo(() => {
-    return frames.filter((f) => {
-      if (playerId !== "all" && !(playerId in f.scores)) return false;
-      if (mode !== "all" && f.mode !== mode) return false;
+    return history.filter((g: ArchivedGame) => {
+      if (playerId !== "all" && !(playerId in g.balances)) return false;
+      if (mode !== "all" && g.mode !== mode) return false;
       if (date) {
-        const d = new Date(f.startedAt);
+        const d = new Date(g.endedAt);
         const local = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
         if (local !== date) return false;
       }
       if (query.trim()) {
         const q = query.trim().toLowerCase();
-        const names = Object.keys(f.scores)
-          .map((id) => byId[id]?.nickname ?? id)
-          .join(" ")
-          .toLowerCase();
-        const winner = f.winnerId ? byId[f.winnerId]?.nickname ?? "" : "";
-        if (!names.includes(q) && !winner.toLowerCase().includes(q)) return false;
+        const names = g.players.map((p) => p.nickname.toLowerCase()).join(" ");
+        if (!names.includes(q)) return false;
       }
       return true;
     });
-  }, [frames, playerId, mode, date, query, byId]);
+  }, [history, playerId, mode, date, query]);
 
   const groups = useMemo(() => {
-    const map = new Map<string, typeof filtered>();
-    for (const f of filtered) {
-      const key = new Date(f.startedAt).toDateString();
+    const map = new Map<string, ArchivedGame[]>();
+    for (const g of filtered) {
+      const key = new Date(g.endedAt).toDateString();
       const arr = map.get(key) ?? [];
-      arr.push(f);
+      arr.push(g);
       map.set(key, arr);
     }
     const sorted = [...map.entries()].sort(
@@ -58,7 +60,7 @@ export default function HistoryPage() {
     );
     return sorted.map(([day, list]) => ({
       day,
-      frames: [...list].sort((a, b) => b.startedAt - a.startedAt),
+      games: [...list].sort((a, b) => b.endedAt - a.endedAt),
     }));
   }, [filtered]);
 
@@ -69,7 +71,9 @@ export default function HistoryPage() {
           <HistoryIcon size={26} className="text-primary" /> History
         </h1>
         <p className="text-sm text-muted-foreground">
-          {session ? `${session.players.length} players · ${frames.length} frame(s)` : "Completed frames across all sessions"}
+          {history.length > 0
+            ? `${history.length} finished game(s) · net money per player`
+            : "Finished games settle up the table and live here"}
         </p>
       </motion.div>
 
@@ -83,7 +87,7 @@ export default function HistoryPage() {
               className="h-10 flex-1 min-w-[140px] rounded-xl bg-white/5 px-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-primary/60"
             >
               <option value="all">All players</option>
-              {players.map((p) => (
+              {allPlayers.map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.nickname}
                 </option>
@@ -110,7 +114,7 @@ export default function HistoryPage() {
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search by player or winner…"
+              placeholder="Search by player nickname…"
               className="h-10 w-full rounded-xl bg-white/5 pl-9 pr-3 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/60"
             />
           </div>
@@ -127,7 +131,9 @@ export default function HistoryPage() {
             <HistoryIcon size={24} />
           </span>
           <p className="text-sm text-muted-foreground">
-            No frames match. Complete a match to build your history.
+            {history.length === 0
+              ? "No finished games yet — start a match and End game to save it here."
+              : "No finished games match these filters."}
           </p>
         </motion.div>
       ) : (
@@ -139,54 +145,88 @@ export default function HistoryPage() {
                 month: "short",
                 day: "numeric",
               })}
-              <span className="ml-2 text-muted-foreground">{group.frames.length} frame(s)</span>
+              <span className="ml-2 text-muted-foreground">{group.games.length} game(s)</span>
             </h2>
-            {group.frames.map((f) => {
-              const sorted = Object.keys(f.scores).sort(
-                (a, b) => (f.scores[b] ?? 0) - (f.scores[a] ?? 0)
-              );
-              const winner = f.winnerId ? byId[f.winnerId] : undefined;
+            {group.games.map((g) => {
+              const rateLabel =
+                g.moneyPer === "ball"
+                  ? `${formatMoney(g.moneyRate)}/ball`
+                  : `${formatMoney(g.moneyRate)}/pt`;
+              const paid = optimizeTransfers(g.balances, g.players);
+              const shown = paid.slice(0, 2);
+              const extra = paid.length - shown.length;
               return (
-                <GlassCard key={f.id} glow="emerald" className="p-4">
+                <GlassCard key={g.id} glow="emerald" className="p-4">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
-                      <Badge variant={f.mode === "points" ? "default" : "gold"}>
-                        {f.mode === "points" ? "Points" : "Balls"}
+                      <Badge variant={g.mode === "points" ? "default" : "gold"}>
+                        {g.mode === "points" ? "Points" : "Balls"}
                       </Badge>
-                      {winner && (
-                        <Badge variant="success">
-                          <Trophy size={11} /> {winner.nickname}
-                        </Badge>
-                      )}
+                      <Badge variant="neutral">{rateLabel}</Badge>
+                      <Badge variant="info">
+                        <Users size={11} /> {g.players.length} players
+                      </Badge>
                     </div>
                     <span className="text-[11px] text-muted-foreground">
-                      {formatDateTime(f.startedAt)}
+                      {formatDateTime(g.endedAt)}
                     </span>
                   </div>
+
+                  {/* per-player net money */}
                   <div className="mt-3 flex flex-col gap-1.5">
-                    {sorted.map((id, i) => {
-                      const p = byId[id];
-                      const score = f.scores[id] ?? 0;
-                      const money = f.money[id];
-                      const isWinner = f.winnerId === id;
+                    {g.players.map((p) => {
+                      const net = g.balances[p.id] ?? 0;
                       return (
-                        <div key={id} className="flex items-center gap-2 rounded-xl bg-white/[0.03] px-3 py-2">
-                          <span className={`w-5 text-center text-xs font-bold ${i === 0 ? "text-gold" : "text-muted-foreground"}`}>
-                            {i + 1}
-                          </span>
-                          {p && <BallDot color={p.color} size={10} />}
-                          <span className="flex-1 text-sm font-medium">{p?.nickname ?? id}</span>
-                          <span className="text-sm font-semibold tabular-nums">{score}</span>
-                          {money !== undefined && money !== 0 && (
-                            <span className={`text-sm font-semibold tabular-nums ${money > 0 ? "text-primary" : "text-destructive"}`}>
-                              {money > 0 ? "+" : ""}
-                              {formatMoney(money)}
-                            </span>
+                        <div key={p.id} className="flex items-center gap-2 rounded-xl bg-white/[0.03] px-3 py-2">
+                          {p.avatar ? (
+                            <AvatarBubble avatar={p.avatar} size={26} />
+                          ) : (
+                            <BallDot color={p.color} size={10} />
                           )}
-                          {isWinner && <Trophy size={14} className="text-gold" />}
+                          <span className="flex-1 text-sm font-medium">{p.nickname}</span>
+                          <span
+                            className={`text-sm font-semibold tabular-nums ${
+                              net > 0 ? "text-primary" : net < 0 ? "text-destructive" : "text-muted-foreground"
+                            }`}
+                          >
+                            {net > 0 ? "+" : ""}
+                            {formatMoney(net)}
+                          </span>
                         </div>
                       );
                     })}
+                  </div>
+
+                  <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-white/5 pt-2">
+                    <div className="flex flex-col gap-1">
+                      {paid.length > 0 ? (
+                        <>
+                          {shown.map((t, i) => (
+                            <span key={i} className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                              <span>{t.fromName}</span>
+                              <ArrowRight size={11} className="text-gold" />
+                              <span>{t.toName}</span>
+                              <span className="font-semibold text-gold">{formatMoney(t.amount)}</span>
+                            </span>
+                          ))}
+                          {extra > 0 && (
+                            <span className="text-[11px] text-muted-foreground">
+                              +{extra} more transfer(s)
+                            </span>
+                          )}
+                        </>
+                      ) : (
+                        <span className="text-[11px] text-muted-foreground">
+                          Table settled — nobody owes.
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
+                      <span className="inline-flex items-center gap-1">
+                        <Trophy size={11} className="text-gold" /> {g.totalPoints} pts
+                      </span>
+                      <span>{g.frames} frame(s)</span>
+                    </div>
                   </div>
                 </GlassCard>
               );
@@ -196,7 +236,10 @@ export default function HistoryPage() {
       )}
 
       {groups.length > 0 && (
-        <Button variant="glass" onClick={() => { setDate(""); setQuery(""); setPlayerId("all"); setMode("all"); }}>
+        <Button
+          variant="glass"
+          onClick={() => { setDate(""); setQuery(""); setPlayerId("all"); setMode("all"); }}
+        >
           <Filter size={16} /> Reset filters
         </Button>
       )}

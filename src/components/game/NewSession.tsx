@@ -1,13 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Trash2 } from "lucide-react";
+import { Minus, Plus, Trash2 } from "lucide-react";
 import { Button, Badge } from "@/components/ui";
-import { BALL_ORDER, BALL_HEX } from "@/lib/rules";
+import { BALL_ORDER } from "@/lib/rules";
+import { AVATAR_PRESETS } from "@/lib/avatar";
+import { AvatarPicker } from "@/components/game/AvatarPicker";
 import type { GameMode, MoneyRateUnit, Player } from "@/types";
 import { uid } from "@/lib/utils";
 
-/** New session setup: players, mode, money rate, red-count */
+/** New session setup: players (default 2), avatars, mode, money rate, red-count */
 export function NewSession({
   onStart,
   initialPlayers,
@@ -25,9 +27,12 @@ export function NewSession({
   const [moneyPer, setMoneyPer] = useState<MoneyRateUnit>("point");
   const [moneyRate, setMoneyRate] = useState(1);
   const [names, setNames] = useState<string[]>(
-    initialPlayers?.map((p) => p.nickname) ?? ["Metha", "", "", ""]
+    initialPlayers?.map((p) => p.nickname) ?? ["Metha", "Player 2"]
   );
-  const [count, setCount] = useState(4);
+  const [avatars, setAvatars] = useState<string[]>(
+    initialPlayers?.map((p) => p.avatar ?? "") ?? [AVATAR_PRESETS[0], AVATAR_PRESETS[1]]
+  );
+  const [count, setCount] = useState(2);
   const [redCount, setRedCount] = useState(15);
 
   const shown = names.slice(0, count);
@@ -36,11 +41,21 @@ export function NewSession({
   function bump(d: number) {
     const nc = Math.max(2, Math.min(8, count + d));
     setCount(nc);
-    setNames((prev) => {
-      const next = [...prev];
-      while (next.length < nc) next.push("");
-      return next.slice(0, nc);
-    });
+    // grow names & avatars to new count
+    const nextNames = [...names];
+    const nextAvatars = [...avatars];
+    while (nextNames.length < nc) {
+      nextNames.push("");
+      nextAvatars.push(AVATAR_PRESETS[nextAvatars.length % AVATAR_PRESETS.length]);
+    }
+    setNames(nextNames.slice(0, nc));
+    setAvatars(nextAvatars.slice(0, nc));
+  }
+
+  function setAvatar(i: number, v: string) {
+    const next = [...avatars];
+    next[i] = v;
+    setAvatars(next);
   }
 
   function start() {
@@ -48,6 +63,7 @@ export function NewSession({
       id: uid(),
       nickname: n.trim() || `P${i + 1}`,
       color: BALL_ORDER[i % BALL_ORDER.length],
+      avatar: avatars[i] || AVATAR_PRESETS[i % AVATAR_PRESETS.length],
     }));
     if (players.length < 2) return;
     onStart({ players, mode, moneyRate, moneyPer, redCount });
@@ -57,7 +73,7 @@ export function NewSession({
     <div className="glass flex flex-col gap-5 p-5">
       <div>
         <h2 className="text-lg font-bold">New session</h2>
-        <p className="text-sm text-muted-foreground">Set up tonight's table, mode and money rate.</p>
+        <p className="text-sm text-muted-foreground">Choose your rule, rate and players.</p>
       </div>
 
       {/* Mode */}
@@ -67,101 +83,76 @@ export function NewSession({
           <Badge>({mode === "points" ? "point count" : "ball count"})</Badge>
         </div>
         <div className="grid grid-cols-2 gap-2">
-          <Button
-            variant={mode === "points" ? "default" : "glass"}
-            onClick={() => setMode("points")}
-          >
+          <Button variant={mode === "points" ? "default" : "glass"} onClick={() => setMode("points")}>
             Point count
           </Button>
-          <Button
-            variant={mode === "balls" ? "default" : "glass"}
-            onClick={() => setMode("balls")}
-          >
+          <Button variant={mode === "balls" ? "default" : "glass"} onClick={() => setMode("balls")}>
             Ball count
           </Button>
         </div>
         <p className="mt-2 text-[11px] text-muted-foreground">
-          {mode === "points"
-            ? "red=1, yellow=2 … black=7 · foul −4"
-            : "every colour 1 (pink/black 2) · foul −2"}
+          {mode === "points" ? "red=1, yellow=2 … black=7 · foul −4" : "every colour 1 (pink/black 2) · foul −2"}
         </p>
       </div>
 
       {/* Red count */}
       <div>
         <div className="mb-2 flex items-center justify-between">
-          <span className="text-sm font-medium">Red balls on table</span>
+          <span className="text-sm font-medium">Red balls</span>
           <Badge>{redCount} reds</Badge>
         </div>
         <div className="grid grid-cols-3 gap-2">
           {[6, 10, 15].map((n) => (
-            <Button
-              key={n}
-              variant={redCount === n ? "default" : "glass"}
-              size="sm"
-              onClick={() => setRedCount(n)}
-            >
-              {n} red
+            <Button key={n} variant={redCount === n ? "default" : "glass"} size="sm" onClick={() => setRedCount(n)}>
+              {n}
             </Button>
           ))}
         </div>
-        <p className="mt-2 text-[11px] text-muted-foreground">
-          Break sequence: red → colour → red … Reset on foul / miss. First pot of a break must be red.
-        </p>
       </div>
 
       {/* Money */}
       <div>
-        <div className="mb-2 flex flex-col gap-2">
-          <span className="text-sm font-medium">Money unit</span>
-          <div className="grid grid-cols-2 gap-2">
-            <Button
-              variant={moneyPer === "point" ? "gold" : "glass"}
-              size="sm"
-              onClick={() => setMoneyPer("point")}
-            >
-              per point
-            </Button>
-            <Button
-              variant={moneyPer === "ball" ? "gold" : "glass"}
-              size="sm"
-              onClick={() => setMoneyPer("ball")}
-            >
-              per ball
-            </Button>
-          </div>
+        <div className="mb-2 grid grid-cols-2 gap-2">
+          <Button variant={moneyPer === "point" ? "gold" : "glass"} size="sm" onClick={() => setMoneyPer("point")}>
+            per point
+          </Button>
+          <Button variant={moneyPer === "ball" ? "gold" : "glass"} size="sm" onClick={() => setMoneyPer("ball")}>
+            per ball
+          </Button>
         </div>
         <div className="flex items-center gap-3">
-          <label className="text-sm">Rate (฿/{moneyPer})</label>
-          <input
-            type="number"
-            min={0.5}
-            step={0.5}
-            value={moneyRate}
-            onChange={(e) => setMoneyRate(parseFloat(e.target.value) || moneyRate)}
-            className="h-11 w-24 rounded-2xl border border-white/10 bg-white/5 px-3 text-center text-lg font-bold"
-          />
+          <span className="text-sm font-medium">Rate</span>
+          <Button variant="glass" size="icon" onClick={() => setMoneyRate(Math.max(0.5, moneyRate - 0.5))} aria-label="Decrease rate">
+            <Minus size={18} />
+          </Button>
+          <div className="h-12 min-w-24 rounded-2xl border border-gold/40 bg-white/5 px-4 text-center text-xl font-bold text-gold tabular-nums">
+            ฿{moneyRate.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 1 })}
+            <span className="text-[10px] text-gold/70">/{moneyPer}</span>
+          </div>
+          <Button variant="gold" size="icon" onClick={() => setMoneyRate(moneyRate + 0.5)} aria-label="Increase rate">
+            <Plus size={18} />
+          </Button>
         </div>
       </div>
 
       {/* Players */}
       <div>
         <div className="mb-2 flex items-center justify-between">
-          <span className="text-sm font-medium">Players ({count})</span>
-          <div className="flex gap-1">
-            <Button variant="ghost" size="iconSm" onClick={() => bump(-1)} aria-label="Remove player">−</Button>
-            <Button variant="ghost" size="iconSm" onClick={() => bump(1)} aria-label="Add player">
-              <Plus size={16} />
+          <span className="text-sm font-medium">Players</span>
+          <div className="flex items-center gap-1 rounded-full bg-white/5 px-2">
+            <Button variant="glass" size="iconSm" onClick={() => bump(-1)} aria-label="Remove player">
+              <Minus size={15} />
+            </Button>
+            <span className="min-w-7 text-center font-bold tabular-nums">{count}</span>
+            <Button variant="glass" size="iconSm" onClick={() => bump(1)} aria-label="Add player">
+              <Plus size={15} />
             </Button>
           </div>
         </div>
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-3">
           {shown.map((n, i) => (
-            <div key={i} className="flex items-center gap-2">
-              <span
-                className="h-5 w-5 shrink-0 rounded-full"
-                style={{ background: BALL_HEX[BALL_ORDER[i % BALL_ORDER.length]] }}
-              />
+            <div key={i} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-2">
+              <AvatarPicker value={avatars[i] ?? ""} onChange={(v) => setAvatar(i, v)} />
               <input
                 value={n}
                 onChange={(e) => {
@@ -170,7 +161,7 @@ export function NewSession({
                   setNames(next);
                 }}
                 placeholder={`Player ${i + 1}`}
-                className="h-11 flex-1 rounded-2xl border border-white/10 bg-white/5 px-3 text-sm outline-none focus:ring-2 focus:ring-primary/60"
+                className="h-11 min-w-0 flex-1 rounded-2xl border border-white/10 bg-white/5 px-3 text-sm outline-none focus:ring-2 focus:ring-primary/60"
               />
               {i > 0 && (
                 <Button
@@ -189,6 +180,9 @@ export function NewSession({
             </div>
           ))}
         </div>
+        <p className="mt-2 text-[11px] text-muted-foreground">
+          Tap a player's avatar to pick, upload or shuffle. Min 2 players.
+        </p>
       </div>
 
       <Button onClick={start} disabled={validPlayers.length < 2} size="lg" className="w-full">

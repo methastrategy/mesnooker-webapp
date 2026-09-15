@@ -2,9 +2,9 @@
 
 import { motion } from "framer-motion";
 import { Crosshair } from "lucide-react";
-import type { BallColor, Player } from "@/types";
+import type { Player } from "@/types";
 import { AnimatedNumber, Badge } from "@/components/ui";
-import { BallDot } from "@/components/ui/snooker-ball";
+import { AvatarBubble } from "@/components/game/AvatarPicker";
 import { cn } from "@/lib/utils";
 
 export function PlayerCard({
@@ -36,7 +36,7 @@ export function PlayerCard({
       )}
     >
       <div className="flex items-center gap-3">
-        <BallDot color={player.color as BallColor} size={28} />
+        <AvatarBubble avatar={player.avatar} size={30} />
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <span className="truncate font-semibold">{player.nickname}</span>

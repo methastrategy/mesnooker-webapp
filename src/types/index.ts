@@ -104,6 +104,21 @@ export interface SessionSummary {
 
 export type MoneyRateUnit = "point" | "ball";
 
+/** A finished game archived into history with its final money result. */
+export interface ArchivedGame {
+  id: string;
+  endedAt: number;
+  mode: GameMode;
+  moneyRate: number;
+  moneyPer: MoneyRateUnit;
+  redCount: number;
+  players: Player[];
+  /** final net money per playerId (the settlement basis) */
+  balances: Record<string, number>;
+  frames: number;
+  totalPoints: number;
+}
+
 export type SettlementPayment = {
   id: string;
   fromPlayerId: string;

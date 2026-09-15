@@ -57,10 +57,12 @@ export function computeFrameMoney(args: {
     const id = p.id;
     let value: number;
     if (moneyPer === "ball") {
+      // ballCounts here = per-player potted-ball counts (sum of all colours)
       const counts = args.ballCounts?.[id];
-      value = counts ? ballsPotted(counts) : (scores[id] ?? 0);
-      // a foul reduces the ball value (fewer net balls credited): approximate via points floor
-      value *= moneyRate;
+      const pottedTotal = counts
+        ? Object.values(counts).reduce((a, b) => a + b, 0)
+        : (scores[id] ?? 0);
+      value = pottedTotal * moneyRate;
     } else {
       value = (scores[id] ?? 0) * moneyRate;
     }

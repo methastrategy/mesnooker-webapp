@@ -11,14 +11,15 @@ export const POINTS_RULES: Record<BallColor, number> = {
   black: 7,
 };
 
-/** Point values per ball for Ball Count mode */
+/** Point values per ball for Ball Count mode.
+ *  User rule: red=1, every colour=1 EXCEPT brown(น้ำตาล) and black(ดำ)=2. */
 export const BALLS_RULES: Record<BallColor, number> = {
   red: 1,
   yellow: 1,
   green: 1,
-  brown: 1,
+  brown: 2,
   blue: 1,
-  pink: 2,
+  pink: 1,
   black: 2,
 };
 
@@ -122,14 +123,18 @@ export function inferBreakPhase(
 }
 
 /** Which balls are legally pottable right now.
- *  RED_FIRST: only red (the first pot of a break must be red).
- *  COLOUR:    only the six colours (red returns after a colour). */
+ *  RED_FIRST: only red while reds remain; once reds run out, the colours are
+ *             potted to clear the table.
+ *  COLOUR:    the six colours (red returns after a colour while reds remain). */
 export function legalBalls(
   phase: BreakPhase,
   counts: BallCounts
 ): BallColor[] {
   const available = BALL_ORDER.filter((c) => counts[c] > 0);
-  if (phase === BreakPhase.RED_FIRST) return available.filter((c) => c === "red");
+  if (phase === BreakPhase.RED_FIRST) {
+    // reds still available → must pot red; else clear the colours
+    return counts.red > 0 ? available.filter((c) => c === "red") : available;
+  }
   // COLOUR phase: show colours only (no red until a colour has been potted)
   return available.filter((c) => c !== "red");
 }
