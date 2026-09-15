@@ -93,7 +93,7 @@ export function NewSession({
           </Button>
         </div>
         <p className="mt-2 text-[11px] text-muted-foreground">
-          {mode === "points" ? "red=1, yellow=2 … black=7 · foul −4" : "every colour 1 (pink/black 2) · foul −2"}
+          {mode === "points" ? "red=1, yellow=2 … black=7 · foul −4" : "every colour 1 (brown/black 2) · foul −2"}
         </p>
       </div>
 
