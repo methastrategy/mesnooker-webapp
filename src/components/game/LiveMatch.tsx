@@ -20,12 +20,14 @@ import {
   BALL_HEX,
   BALL_NAME,
   BALL_ORDER,
+  COLOUR_ORDER,
   ballValue,
   BreakPhase,
   currentBreakCount,
   inferBreakPhase,
   legalBalls,
 } from "@/lib/rules";
+import { SnookerBall } from "@/components/ui/snooker-ball";
 import type { ArchivedGame, BallColor } from "@/types";
 
 import { useElapsed, useElapsedSum } from "@/hooks/useElapsed";
@@ -310,6 +312,84 @@ export function LiveMatch({ onPause, onFinish }: { onPause?: () => void; onFinis
             <EventLog events={frameEventsText} max={30} />
           </div>
         </div>
+      ) : null}
+
+      {/* 🔒 CLEAR-THE-TABLE MODAL — appears the moment all reds are potted.
+          Shows the official colour order and lets you pot ONLY the next colour
+          in sequence (yellow→green→brown→blue→pink→black). Cannot skip. */}
+      {clearingColours ? (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+        >
+          <div
+            className="absolute inset-0 -z-10 bg-black/70 backdrop-blur-sm"
+          />
+          <motion.div
+            initial={{ scale: 0.94, y: 8 }}
+            animate={{ scale: 1, y: 0 }}
+            transition={{ type: "spring", stiffness: 260, damping: 22 }}
+            className="glass-strong glow-emerald relative w-full max-w-sm p-5"
+          >
+            <div className="mb-3 flex items-center justify-between">
+              <Badge variant="danger">Clear the table</Badge>
+              <span className="text-[11px] text-muted-foreground tabular-nums">
+                {store.ballCounts.red} reds left
+              </span>
+            </div>
+            <p className="mb-4 text-sm text-foreground/85">
+              All reds are gone. Pot the colours in order — you can only pot the
+              next ball in the rack (yellow, green, brown, blue, pink, black).
+            </p>
+
+            {/* official order rack */}
+            <div className="mb-4 flex items-center justify-center gap-1.5">
+              {COLOUR_ORDER.map((c) => {
+                const done = (store.startCounts[c] ?? 1) - (store.ballCounts[c] ?? 0) > 0;
+                const onNow = c === nextColour;
+                return (
+                  <div key={c} className="flex flex-col items-center gap-1">
+                    <span
+                      className={`flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold ${
+                        onNow ? "ring-2 ring-gold text-black/80" : done ? "text-white/50" : "text-black/60"
+                      }`}
+                      style={{ background: BALL_HEX[c], opacity: done ? 0.4 : 1 }}
+                    >
+                      {COLOUR_ORDER.indexOf(c) + 1}
+                    </span>
+                    <span className={`text-[8px] leading-none ${onNow ? "font-bold text-white" : "text-white/45"}`}>
+                      {BALL_NAME[c]}
+                    </span>
+                    {done ? <span className="text-[8px] text-white/40">✔</span> : null}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* only the next colour is pottable */}
+            {nextColour ? (
+              <div className="flex flex-col items-center gap-2">
+                <SnookerBall
+                  color={nextColour}
+                  size={88}
+                  value={ballValues[nextColour]}
+                  selected
+                  onClick={() => onPot(nextColour)}
+                />
+                <span className="text-xs text-foreground/70">
+                  Pot the{" "}
+                  <span className="font-bold" style={{ color: BALL_HEX[nextColour] }}>
+                    {BALL_NAME[nextColour]}
+                  </span>{" "}
+                  ball
+                </span>
+              </div>
+            ) : (
+              <p className="py-4 text-center text-sm text-gold">Table cleared — nice shuffle! 🎉</p>
+            )}
+          </motion.div>
+        </motion.div>
       ) : null}
 
           </LiveShell>

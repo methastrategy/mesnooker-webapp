@@ -11,13 +11,13 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground shadow-[0_8px_24px_rgba(22,199,132,0.35)] hover:bg-primary/90",
-        gold: "bg-gold text-black shadow-[0_8px_24px_rgba(245,158,11,0.3)] hover:bg-gold/90",
-        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        outline: "border border-white/10 bg-white/5 text-foreground hover:bg-white/10",
-        ghost: "text-foreground hover:bg-white/5",
-        danger: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        glass: "glass text-foreground hover:bg-white/5",
+          "bg-primary text-primary-foreground border border-primary/40 shadow-[0_1px_0_rgba(255,255,255,0.15),0_8px_24px_rgba(22,199,132,0.35)] hover:bg-primary/90",
+        gold: "bg-gold text-black border border-gold/40 shadow-[0_1px_0_rgba(255,255,255,0.15),0_8px_24px_rgba(245,158,11,0.3)] hover:bg-gold/90",
+        secondary: "bg-secondary text-secondary-foreground border border-secondary/40 hover:bg-secondary/80",
+        outline: "border border-white/20 bg-white/5 text-foreground shadow-[0_1px_0_rgba(255,255,255,0.08)] hover:bg-white/10",
+        ghost: "border border-white/10 text-foreground hover:bg-white/5",
+        danger: "bg-destructive text-destructive-foreground border border-destructive/50 shadow-[0_1px_0_rgba(255,255,255,0.12),0_6px_18px_rgba(239,68,68,0.3)] hover:bg-destructive/90",
+        glass: "glass text-foreground border border-white/15 hover:bg-white/5",
       },
       size: {
         default: "h-11 px-5 text-sm",
