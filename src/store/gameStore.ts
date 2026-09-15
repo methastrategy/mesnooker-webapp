@@ -343,7 +343,22 @@ export const useGameStore = create<GameStore>()(
       endTurn: () => {
         const st = get();
         const n = st.players.length;
-        if (!n) return;
+        const f = st.frames[st.frames.length - 1];
+        if (!n || !f) return;
+        const scorer = st.players[st.shooterIndex];
+        // Record an end_turn event so the break engine knows this visit is over.
+        // The next shooter starts a fresh visit, which means "pot red first"
+        // (if any reds remain) rather than carrying on a stale colour shot.
+        if (scorer) {
+          const evt: GameEvent = {
+            id: nid(), ts: Date.now(), playerId: scorer.id, playerName: scorer.nickname,
+            targetId: f.targetCycle[scorer.id],
+            targetName: st.players.find((p) => p.id === f.targetCycle[scorer.id])?.nickname,
+            type: "end_turn", points: 0, frameId: f.id, turnIndex: st.shooterIndex,
+          };
+          f.eventIds.push(evt.id);
+          set({ frames: [...st.frames], events: [...st.events, evt] });
+        }
         const idx = st.reverse ? (st.shooterIndex - 1 + n) % n : (st.shooterIndex + 1) % n;
         set({ shooterIndex: idx });
       },

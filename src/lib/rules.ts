@@ -116,6 +116,12 @@ export function inferBreakPhase(
   for (let i = events.length - 1; i >= 0; i--) {
     const e = events[i];
     if (e.undone) continue;
+    // An end_turn means this visit/break is over: whoever shoots next starts a
+    // fresh visit, so they must pot a red first (while reds remain). Do NOT
+    // carry a stale "must play a colour" from a previous visit.
+    if (e.type === "end_turn") {
+      return BreakPhase.RED_FIRST;
+    }
     // only consider this shooter's active break
     if (e.playerId && e.playerId !== shooterId) continue;
     if (e.type === "foul" || e.type === "snooker_miss") {
@@ -125,8 +131,8 @@ export function inferBreakPhase(
       // A red pot means "must now play a colour"; a colour pot means "red next".
       return e.ball === "red" ? BreakPhase.COLOUR : BreakPhase.RED_FIRST;
     }
-    if (e.type === "snooker_hit" || e.type === "end_turn") {
-      continue; // hit continues the break state; end_turn flips shooter but phase derives from last pot
+    if (e.type === "snooker_hit") {
+      continue; // hit continues the break state
     }
   }
   return BreakPhase.RED_FIRST;
