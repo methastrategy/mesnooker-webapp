@@ -1,11 +1,11 @@
 "use client";
 
 import { ArrowRight, ChevronLeft, RotateCcw, SkipForward } from "lucide-react";
-import { Button } from "@/components/ui";
+import { ActionButton } from "@/components/ui";
 
-/** Turn cluster: one consistent equal-height control surface.
- *  End turn is the primary action; Prev / Reverse / Skip are compact icons
- *  (corrective / rota helpers, not headline scoring). */
+/** Turn cluster — the headline scoring control (End turn) plus turn-flow
+ *  helpers, all sharing the same tactile keycap family as the violation
+ *  tiles so every Match action button reads as one physical button. */
 export function TurnCluster({
   onEndTurn,
   onPrev,
@@ -20,26 +20,25 @@ export function TurnCluster({
   reverse: boolean;
 }) {
   return (
-    <div className="flex items-center gap-2">
-      <Button variant="outline" size="tile" onClick={onPrev} aria-label="Previous shooter" title="Previous shooter" className="h-14 w-14 shrink-0">
+    <div className="flex items-stretch gap-2">
+      <ActionButton tone="outline" onClick={onPrev} aria-label="Previous shooter" title="Previous shooter" className="w-14 shrink-0 px-0">
         <ChevronLeft size={18} />
-      </Button>
-      <Button variant="default" size="tile" onClick={onEndTurn} className="h-14 flex-1">
+      </ActionButton>
+      <ActionButton tone="primary" onClick={onEndTurn} className="flex-1">
         <ArrowRight size={18} /> End turn
-      </Button>
-      <Button
-        variant={reverse ? "gold" : "outline"}
-        size="tile"
+      </ActionButton>
+      <ActionButton
+        tone={reverse ? "gold" : "outline"}
         onClick={onReverse}
         aria-label="Reverse order"
         title="Reverse order"
-        className="h-14 w-14 shrink-0"
+        className="w-14 shrink-0 px-0"
       >
         <RotateCcw size={18} />
-      </Button>
-      <Button variant="ghost" size="tile" onClick={onSkip} aria-label="Skip player" title="Skip player" className="h-14 w-12 shrink-0">
+      </ActionButton>
+      <ActionButton tone="outline" onClick={onSkip} aria-label="Skip player" title="Skip player" className="w-12 shrink-0 px-0">
         <SkipForward size={18} />
-      </Button>
+      </ActionButton>
     </div>
   );
 }

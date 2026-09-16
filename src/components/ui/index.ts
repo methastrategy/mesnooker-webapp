@@ -7,3 +7,4 @@ export { AnimatedNumber, Stat } from "./stat";
 export { Sheet } from "./sheet";
 export { Confetti } from "./confetti";
 export { SnookerBall, BallDot } from "./snooker-ball";
+export { ActionButton } from "./action-button";
