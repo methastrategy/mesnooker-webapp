@@ -28,7 +28,7 @@ export function BallPad({
   }
   const legalSet = new Set(legal);
   return (
-    <div className="relative mx-auto w-full max-w-xl rounded-2xl bg-[radial-gradient(120%_120%_at_50%_0%,#0e7a3a_0%,#0a5a27_55%,#073d1a_100%)] p-4 shadow-[inset_0_0_30px_rgba(0,0,0,0.45),0_12px_30px_rgba(0,0,0,0.5)]">
+    <div className="relative mx-auto w-full max-w-xl rounded-2xl bg-[radial-gradient(120%_120%_at_50%_0%,#118a44_0%,#0d6b2f_55%,#0a5426_100%)] p-4 shadow-[inset_0_0_30px_rgba(0,0,0,0.45),0_12px_30px_rgba(0,0,0,0.5)]">
       {/* soft top light reflection on the felt */}
       <div className="pointer-events-none absolute inset-x-4 top-2 h-6 rounded-t-2xl bg-white/[0.06] blur-md" />
 
@@ -48,8 +48,8 @@ export function BallPad({
                   {i + 1}
                 </span>
                 <span
-                  className={`text-[9px] leading-none ${
-                    onNow ? "font-semibold text-white" : done ? "text-white/30 line-through" : "text-white/45"
+                  className={`text-[10px] leading-none ${
+                    onNow ? "font-semibold text-white" : done ? "text-white/60 line-through" : "text-white/75"
                   }`}
                 >
                   {BALL_NAME[c]}
@@ -74,7 +74,7 @@ export function BallPad({
                 selected
                 onClick={() => onPot(c)}
               />
-              <span className="text-[10px] text-white/70 leading-none">
+              <span className="rounded-[5px] bg-black/50 px-1 text-[10px] text-white/90 leading-none">
                 {BALL_NAME[c]}
                 {left > 0 ? (
                   <span className="ml-1 rounded-full bg-black/60 px-1.5 text-[10px] text-white">×{left}</span>

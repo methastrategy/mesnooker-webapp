@@ -16,9 +16,11 @@
 
   /* Match-page additions — Emerald Noir kept */
   --color-violation: #ea580c;            /* amber: snooker miss / solve grey-area */
-  --color-felt-hi: #0e7a3a;              /* BallPad felt base */
-  --color-felt-mid: #0a5a27;
-  --color-felt-deep: #073d1a;
+  --color-destructive: #ef4444;
+  --color-destructive-foreground: #050505;
+  --color-felt-hi: #118a44;              /* BallPad felt base (lifted for ball contrast) */
+  --color-felt-mid: #0d6b2f;
+  --color-felt-deep: #0a5426;
   --color-pos-soft: rgba(22, 199, 132, 0.10);
   --color-neg-soft: rgba(239, 68, 68, 0.10);
   --color-rail: rgba(16, 20, 18, 0.62);  /* side rail glass on ≥lg */
@@ -44,7 +46,7 @@
   --accent: #14532d;
   --accent-foreground: #f3f7f4;
   --destructive: #ef4444;
-  --destructive-foreground: #fff;
+  --destructive-foreground: #050505;
   --border: rgba(255, 255, 255, 0.08);
   --input: rgba(255, 255, 255, 0.1);
   --ring: #16c784;
@@ -134,6 +136,18 @@ body {
 .snooker-ball {
   border-radius: 9999px;
   box-shadow:
+    inset 0 -7px 0 rgba(0, 0, 0, 0.35),
+    inset 3px 4px 7px rgba(255, 255, 255, 0.28),
+    inset -4px -4px 8px rgba(0, 0, 0, 0.25),
+    0 6px 14px rgba(0, 0, 0, 0.55),
+    0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+/* Light separation rim for balls sitting on the dark felt (P0-1 WCAG fix) */
+.ball-rim {
+  border-radius: 9999px;
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.45),
     inset 0 -7px 0 rgba(0, 0, 0, 0.35),
     inset 3px 4px 7px rgba(255, 255, 255, 0.28),
     inset -4px -4px 8px rgba(0, 0, 0, 0.25),

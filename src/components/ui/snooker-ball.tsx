@@ -30,7 +30,7 @@ export function SnookerBall({
       whileHover={disabled ? undefined : { scale: 1.06 }}
       transition={{ type: "spring", stiffness: 400, damping: 20 }}
       className={cn(
-        "snooker-ball relative flex items-center justify-center font-bold text-black/80 select-none",
+        "snooker-ball ball-rim relative flex items-center justify-center font-bold text-black/80 select-none",
         disabled && "opacity-15 pointer-events-none",
         selected && "ring-2 ring-gold ring-offset-2 ring-offset-black"
       )}

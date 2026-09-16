@@ -50,10 +50,9 @@ export function ClearRack({
               >
                 {i + 1}
               </span>
-              <span className={`text-[8px] leading-none ${onNow ? "font-bold text-white" : "text-white/45"}`}>
+              <span className={`text-[11px] leading-none ${onNow ? "font-bold text-white" : isDone ? "text-white/60 line-through" : "text-white/75"}`}>
                 {BALL_NAME[c]}
               </span>
-              {isDone ? <span className="text-[8px] text-white/40">✔</span> : null}
             </div>
           );
         })}
