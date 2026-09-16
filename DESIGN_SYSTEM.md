@@ -37,6 +37,13 @@ All values as hex unless noted. **bg** = surface of the page, **fg** = foregroun
 | `--color-muted`      | `#8a8f8c`                         | Muted/secondary text, disabled               |
 | `--color-foreground` | `#f3f7f4`                         | Primary text (soft white)                    |
 | `--color-line`       | `rgba(255, 255, 255, 0.08)`       | Hairlines, borders, dividers                 |
+| `--color-violation`  | `#ea580c`                         | **Amber** — snooker miss / solve (rule grey-area, distinct from foul red) |
+| `--color-felt-hi`    | `#0e7a3a`                         | BallPad felt base (top)                      |
+| `--color-felt-mid`   | `#0a5a27`                         | BallPad felt base (mid)                      |
+| `--color-felt-deep`  | `#073d1a`                         | BallPad felt base (deep)                     |
+| `--color-pos-soft`   | `rgba(22,199,132,0.10)`           | Money-chip positive background               |
+| `--color-neg-soft`   | `rgba(239,68,68,0.10)`            | Money-chip negative background               |
+| `--color-rail`       | `rgba(16,20,18,0.62)`             | Desktop side-rail glass (≥lg)                |
 
 ### Semantic component layer (`:root`)
 
@@ -93,6 +100,8 @@ San Francisco on iOS/macOS.
   `text-lg` 18, `text-xl` 20, `text-2xl` 24, `text-3xl` 30, `text-4xl` 36.
 - **Money / score numerals** are the hero typography — large, tabular, with the emerald
   or gold color. Live score uses the `.roll-num` roll animation container.
+- **Match-page scale** (refined): labels 11px uppercase `tracking-wider`, values 16–20px
+  tabular, hero money 28–34px tabular; superscript action value-tags (`−4`, `−2`, `+1`) 10px.
 - Weights: `font-normal` 400, `font-medium` 500, `font-semibold` 600, `font-bold` 700.
 - Headings: `font-semibold`/`font-bold`, tight `leading-tight`. Body: `font-normal`,
   `leading-relaxed`.
@@ -214,8 +223,8 @@ durations forced to ~0.
 
 UI primitives live in `src/components/ui/`;
 
-- `button.tsx` — variants: default (emerald), secondary, ghost, destructive,
-  `size` sm/md/lg/icon. `rounded-full`, active glow.
+- `button.tsx` — variants: default (emerald), gold, **violation (amber)**, secondary, ghost,
+  destructive, glass; `size` sm/md/lg/**tile (equal 56px)**/icon/iconSm. `rounded-full`, active glow.
 - `card.tsx` — glass surface (24px radius) with optional header/footer.
 - `badge.tsx` — pill labels (e.g. frame status, player color, "LIVE").
 - `sheet.tsx` — mobile slide-over panel (glass-strong).
@@ -225,9 +234,12 @@ UI primitives live in `src/components/ui/`;
 
 ### Game / feature components (`src/components/game`, `layout`, `settlement`)
 
-- `LiveMatch.tsx` — the full live scoring board.
+- `LiveMatch.tsx` — the full live scoring board (two-zone: action + analytics).
+- `TurnHeader.tsx` / `MoneyStrip.tsx` — compact shooter identity with always-visible money + live running-balance rail.
+- `ViolationPanel.tsx` / `TurnCluster.tsx` — segmented fouls and equal-height turn controls.
+- `ClearRack.tsx` — non-blocking inline colour-order rack (replaces the old modal).
 - `NewSession.tsx` — session setup (players, mode, money rate, per-point/per-ball).
-- `PlayerCard.tsx`, `BallPad.tsx`, `TurnControls.tsx`, `EventLog.tsx`.
+- `PlayerCard.tsx`, `BallPad.tsx`, `EventLog.tsx`.
 - `app-shell.tsx` — layout shell: ambient glow, `Sidebar` (desktop), `BottomNav` (mobile),
   safely padded main area.
 - `SettlementPanel.tsx` — runs `optimizeTransfers` and renders the minimal transfer table.

@@ -1,38 +1,37 @@
 "use client";
 
 import * as React from "react";
-import { useState } from "react";
-import { motion } from "framer-motion";
-import {
-  Flag,
-  ChevronDown,
-  ArrowRight,
-  ChevronLeft,
-  Timer,
-  Hourglass,
-} from "lucide-react";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronDown, Flag } from "lucide-react";
 import { useGameStore, useActiveFrame, useRunningBalance } from "@/store/gameStore";
 import { BallPad } from "@/components/game/BallPad";
 import { PlayerCard } from "@/components/game/PlayerCard";
 import { EventLog } from "@/components/game/EventLog";
-import { Button, Badge, Stat, AnimatedNumber } from "@/components/ui";
+import { TurnHeader, ClockStrip } from "@/components/game/TurnHeader";
+import { MoneyStrip } from "@/components/game/MoneyStrip";
+import { ViolationPanel } from "@/components/game/ViolationPanel";
+import { TurnCluster } from "@/components/game/TurnCluster";
+import { ClearRack } from "@/components/game/ClearRack";
+import { Button, Badge, Stat } from "@/components/ui";
 import {
-  BALL_HEX,
   BALL_NAME,
   BALL_ORDER,
-  COLOUR_ORDER,
   ballValue,
   BreakPhase,
   currentBreakCount,
   inferBreakPhase,
   legalBalls,
 } from "@/lib/rules";
-import { SnookerBall } from "@/components/ui/snooker-ball";
 import type { ArchivedGame, BallColor } from "@/types";
 
 import { useElapsed, useElapsedSum } from "@/hooks/useElapsed";
 
-export function LiveMatch({ onPause, onFinish }: { onPause?: () => void; onFinish?: (a: ArchivedGame) => void }) {
+export function LiveMatch({ onPause }: {
+  onPause?: () => void;
+  /** @deprecated accepted for signature parity; completion flows via onPause → FramePauseSummary */
+  onFinish?: (a: ArchivedGame) => void;
+}) {
   const store = useGameStore();
   const frame = useActiveFrame();
   const running = useRunningBalance();
@@ -40,6 +39,8 @@ export function LiveMatch({ onPause, onFinish }: { onPause?: () => void; onFinis
   const sessionClock = useElapsedSum(store.frames);
   const frameClock = useElapsed(frameStartedAt);
   const [detailsOpen, setDetailsOpen] = useState(false);
+  // Desktop analytics rail renders inline on ≥lg regardless of the accordion.
+  const [isDesktop, setIsDesktop] = useState(false);
 
   const {
     players,
@@ -55,7 +56,18 @@ export function LiveMatch({ onPause, onFinish }: { onPause?: () => void; onFinis
     endTurn,
     undo,
     setShooterManual,
+    toggleReverse,
+    skipPlayer,
+    reverse,
   } = store;
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const update = () => setIsDesktop(mq.matches);
+    update();
+    mq.addEventListener?.("change", update);
+    return () => mq.removeEventListener?.("change", update);
+  }, []);
 
   if (!frame || !store.session) {
     return (
@@ -72,7 +84,6 @@ export function LiveMatch({ onPause, onFinish }: { onPause?: () => void; onFinis
   const targetName = players.find((p) => p.id === targetId)?.nickname;
 
   const events = store.events.filter((e) => e.frameId === frame.id && !e.undone);
-  const frameEventsText = events;
 
   // Break engine: legal phase + consecutive break count for the current shooter
   const phase = inferBreakPhase(events, shooter?.id ?? "");
@@ -138,7 +149,7 @@ export function LiveMatch({ onPause, onFinish }: { onPause?: () => void; onFinis
     }
   }
 
-  // Frame summary (shown in details): total points, sets potted, per-colour potted
+  // Frame summary: total points, sets potted, per-colour potted
   const startC = store.startCounts;
   const potted: Record<BallColor, number> = { red: 0, yellow: 0, green: 0, brown: 0, blue: 0, pink: 0, black: 0 };
   BALL_ORDER.forEach((c) => {
@@ -151,113 +162,106 @@ export function LiveMatch({ onPause, onFinish }: { onPause?: () => void; onFinis
   const setsPot = Math.min(redsPot, coloursPot);
   const totalPoints = players.reduce((s, p) => s + (frame.scores[p.id] ?? 0), 0);
 
+  // clear-the-table "done" set (colours already potted, in official order)
+  const clearDone: Record<BallColor, boolean> = {
+    red: false, yellow: false, green: false, brown: false, blue: false, pink: false, black: false,
+  };
+  BALL_ORDER.forEach((c) => {
+    clearDone[c] = (startC?.[c] ?? ballCounts[c]) - ballCounts[c] > 0;
+  });
+
   return (
     <LiveShell>
-      {/* Shooter header — the star of the frame */}
-      <div className="glass glow-emerald flex items-center gap-3 p-4">
-        <span
-          className="h-10 w-10 rounded-full snooker-ball"
-          style={{ background: BALL_HEX[shooter.color as BallColor] }}
-        />
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <span className="truncate font-bold text-lg">{shooter.nickname}</span>
-            <Badge>ON BREAK</Badge>
+      {/* Turn identity + money + break — one compact header row */}
+      <TurnHeader
+        shooter={shooter}
+        targetName={targetName}
+        breakCount={breakCount}
+        runningMoney={running[shooter?.id] ?? 0}
+        isClearing={clearingColours}
+        clearingLabel={nextColour ? BALL_NAME[nextColour] : undefined}
+      />
+
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
+        {/* ══════════ ZONE A — ACTION (input, always in thumb reach) ══════════ */}
+        <div className="flex flex-col gap-3">
+          {/* quick money peek — always visible on mobile */}
+          <div className="lg:hidden">
+            <MoneyStrip players={players} balances={running} activeId={shooter?.id} />
           </div>
-          <div className="text-[12px] text-muted-foreground">
-            shooting vs {targetName}
+
+          <ClockStrip frameNumber={store.frames.length} frameClock={frameClock} sessionClock={sessionClock} />
+
+          {/* ACTION PAD — one input control at a time: the felt ball pad normally,
+              or the non-blocking ClearRack the instant reds run out. */}
+          {clearingColours ? (
+            <ClearRack done={clearDone} nextColour={nextColour} ballValues={ballValues} onPot={onPot} />
+          ) : (
+            <div className="glass-strong glow-emerald p-3 md:p-4">
+              <div className="mb-2 flex items-center justify-between">
+                <h3 className="text-sm font-bold uppercase tracking-wider text-foreground/80">
+                  Tap to play
+                </h3>
+                <Badge variant={canStartBreak ? "default" : "danger"}>
+                  {canStartBreak ? "pick a colour" : "red first"}
+                </Badge>
+              </div>
+              <BallPad
+                legal={legal}
+                ballValues={ballValues}
+                onPot={onPot}
+                showCount={(c) => store.ballCounts[c]}
+                clearingColours={clearingColours}
+              />
+            </div>
+          )}
+
+          {/* Turn cluster — consistent equal-height controls */}
+          <TurnCluster
+            onEndTurn={() => { tap(); endTurn(); }}
+            onPrev={() => setShooterManual((shooterIndex - 1 + players.length) % players.length)}
+            onReverse={() => { tap(); toggleReverse(); }}
+            onSkip={() => { tap(); skipPlayer(); }}
+            reverse={reverse}
+          />
+
+          {/* Segmented violations — Foul vs Snooker-miss visually distinct */}
+          <ViolationPanel
+            mode={mode}
+            onFoul={() => { tap(); foul(); }}
+            onMiss={() => { tap(); snookerMiss(); }}
+            onSolve={() => { tap(); snookerHit(); }}
+            onUndo={() => { tap(); undo(); }}
+            canUndo={canUndo}
+          />
+
+          <div className="mt-1 flex items-center justify-between text-[11px] text-muted-foreground">
+            <span>Foul = ordinary foul · Miss = tried but didn't (−2) · Solve = hit it (+1)</span>
+            <Button variant="ghost" size="sm" onClick={handleEndFrame} className="text-destructive">
+              <Flag size={14} /> End frame
+            </Button>
           </div>
         </div>
-        <div className="text-right leading-tight">
-          <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Break</div>
-          <div className="text-2xl font-bold tabular-nums text-gold">
-            <AnimatedNumber value={breakCount} />
+
+        {/* ══════════ ZONE B — ANALYTICS (visible on lg; accordion on mobile) ══════════ */}
+        <aside className="flex flex-col gap-4">
+          <div className="hidden lg:block">
+            <MoneyStrip variant="rail" players={players} balances={running} activeId={shooter?.id} />
           </div>
-        </div>
-      </div>
 
-      {/* Live clocks + frame step */}
-      <div className="glass flex items-center justify-between px-4 py-3 text-[12px] tabular-nums">
-        <span className="flex items-center gap-1.5 text-foreground/85">
-          <Timer className="text-primary" size={14} /> Frame {store.frames.length}: {frameClock}
-        </span>
-        <span className="flex items-center gap-1.5 text-foreground/70">
-          <Hourglass className="text-gold" size={14} /> Session: {sessionClock}
-        </span>
-      </div>
-
-      {/* ⭐ ACTION PAD — the primary control, big & few */}
-      <div className="glass-strong glow-emerald p-4">
-        <div className="mb-2 flex items-center justify-between">
-          <h3 className="text-sm font-bold uppercase tracking-wider text-foreground/80">
-            Tap to play
-          </h3>
-          <Badge variant={canStartBreak ? "default" : "danger"}>
-            {canStartBreak ? "pick a colour" : clearingColours ? `clear: ${nextColour ? BALL_NAME[nextColour] : "table done"}` : "red first"}
-          </Badge>
-        </div>
-        <BallPad
-          legal={legal}
-          ballValues={ballValues}
-          onPot={onPot}
-          showCount={(c) => store.ballCounts[c]}
-          clearingColours={clearingColours}
-        />
-      </div>
-
-      {/* Essential actions — big, thumb-friendly */}
-      <div className="glass p-4">
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-          <Button variant="danger" size="lg" onClick={() => { tap(); foul(); }}>
-            Foul {mode === "points" ? "-4" : "-2"}
-          </Button>
-          <Button variant="danger" size="sm" onClick={() => { tap(); snookerMiss(); }}>Snooker miss −2</Button>
-          <Button variant="gold" size="sm" onClick={() => { tap(); snookerHit(); }}>Solve snooker +1</Button>
-          <Button variant="outline" size="sm" onClick={() => { tap(); undo(); }} disabled={!canUndo}>Undo</Button>
-        </div>
-        <p className="mt-2 text-[11px] text-muted-foreground">
-          Foul = ordinary foul · Snooker miss = tried to solve a snooker but didn't (−2) · Solve snooker = hit it (+1)
-        </p>
-        <div className="mt-2 grid grid-cols-3 gap-2">
-          <Button variant="default" size="lg" onClick={() => { tap(); endTurn(); }}>
-            <ArrowRight size={18} /> End turn
-          </Button>
-          <Button variant="outline" size="lg" onClick={() => setShooterManual((shooterIndex - 1 + players.length) % players.length)}>
-            <ChevronLeft size={16} /> Prev
-          </Button>
-          <Button variant="danger" size="lg" onClick={handleEndFrame}>
-            <Flag size={16} /> End frame
-          </Button>
-        </div>
-      </div>
-
-      {/* Details (collapsible) — scoreboard, potted, sets, money, history */}
-      <button
-        type="button"
-        onClick={() => setDetailsOpen((v) => !v)}
-        className="glass flex w-full items-center justify-between rounded-2xl px-4 py-3 text-left"
-        aria-expanded={detailsOpen}
-      >
-        <span className="text-sm font-semibold text-foreground/80">Frame details</span>
-        <motion.span
-          animate={{ rotate: detailsOpen ? 180 : 0 }}
-          transition={{ duration: 0.2 }}
-        >
-          <ChevronDown size={18} className="text-foreground/60" />
-        </motion.span>
-      </button>
-      {(detailsOpen) ? (
-        <div className="flex flex-col gap-4">
           {/* quick frame summary chips */}
           <div className="grid grid-cols-3 gap-2">
             <Stat label="Total pts" value={totalPoints} variant="accent" />
-            <Stat label="Sets (1=red+colour)" value={setsPot} suffix="" />
-            <Stat label="Reds potted" value={redsPot} />
+            <Stat label="Sets" value={setsPot} suffix="" />
+            <Stat label="Reds" value={redsPot} />
           </div>
 
           {/* Scoreboard */}
-          <div className="glass">
-            <h3 className="mb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Scoreboard</h3>
+          <div className="glass p-3">
+            <div className="mb-2 flex items-center justify-between">
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Scoreboard</h3>
+              <Badge variant="gold">{mode === "points" ? "per point" : "per ball"}</Badge>
+            </div>
             <div className="flex flex-col gap-2">
               {players.map((p, i) => (
                 <PlayerCard
@@ -274,8 +278,8 @@ export function LiveMatch({ onPause, onFinish }: { onPause?: () => void; onFinis
             </div>
           </div>
 
-          {/* potted detail per colour (in official order when clearing) */}
-          <div className="glass">
+          {/* potted detail per colour */}
+          <div className="glass p-3">
             <h3 className="mb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
               Potted this frame
             </h3>
@@ -293,108 +297,53 @@ export function LiveMatch({ onPause, onFinish }: { onPause?: () => void; onFinis
             </div>
           </div>
 
-          {/* Money tonight */}
-          <div className="glass">
-            <div className="mb-2 flex items-center justify-between">
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Money tonight</h3>
-              <Badge variant="gold">{mode === "points" ? "per point" : "per ball"}</Badge>
-            </div>
-            <div className="flex flex-wrap gap-4">
-              {players.map((p) => (
-                <Stat key={p.id} label={p.nickname} value={running[p.id] ?? 0} variant="money" />
-              ))}
-            </div>
-          </div>
-
           {/* Live events */}
-          <div className="glass">
+          <div className="glass p-3">
             <h3 className="mb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Events</h3>
-            <EventLog events={frameEventsText} max={30} />
+            <EventLog events={events} max={30} />
           </div>
-        </div>
-      ) : null}
+        </aside>
+      </div>
 
-      {/* 🔒 CLEAR-THE-TABLE MODAL — appears the moment all reds are potted.
-          Shows the official colour order and lets you pot ONLY the next colour
-          in sequence (yellow→green→brown→blue→pink→black). Cannot skip. */}
-      {clearingColours ? (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-        >
-          <div
-            className="absolute inset-0 -z-10 bg-black/70 backdrop-blur-sm"
-          />
+      {/* Mobile-only more-details drawer */}
+      <button
+        type="button"
+        onClick={() => setDetailsOpen((v) => !v)}
+        className="glass flex w-full items-center justify-between rounded-2xl px-4 py-3 text-left lg:hidden"
+        aria-expanded={detailsOpen}
+      >
+        <span className="text-sm font-semibold text-foreground/80">More details</span>
+        <motion.span animate={{ rotate: detailsOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
+          <ChevronDown size={18} className="text-foreground/60" />
+        </motion.span>
+      </button>
+      <AnimatePresence initial={false}>
+        {detailsOpen && !isDesktop ? (
           <motion.div
-            initial={{ scale: 0.94, y: 8 }}
-            animate={{ scale: 1, y: 0 }}
-            transition={{ type: "spring", stiffness: 260, damping: 22 }}
-            className="glass-strong glow-emerald relative w-full max-w-sm p-5"
+            key="details"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            className="overflow-hidden"
           >
-            <div className="mb-3 flex items-center justify-between">
-              <Badge variant="danger">Clear the table</Badge>
-              <span className="text-[11px] text-muted-foreground tabular-nums">
-                {store.ballCounts.red} reds left
-              </span>
-            </div>
-            <p className="mb-4 text-sm text-foreground/85">
-              All reds are gone. Pot the colours in order — you can only pot the
-              next ball in the rack (yellow, green, brown, blue, pink, black).
-            </p>
-
-            {/* official order rack */}
-            <div className="mb-4 flex items-center justify-center gap-1.5">
-              {COLOUR_ORDER.map((c) => {
-                const done = (store.startCounts[c] ?? 1) - (store.ballCounts[c] ?? 0) > 0;
-                const onNow = c === nextColour;
-                return (
-                  <div key={c} className="flex flex-col items-center gap-1">
-                    <span
-                      className={`flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold ${
-                        onNow ? "ring-2 ring-gold text-black/80" : done ? "text-white/50" : "text-black/60"
-                      }`}
-                      style={{ background: BALL_HEX[c], opacity: done ? 0.4 : 1 }}
-                    >
-                      {COLOUR_ORDER.indexOf(c) + 1}
-                    </span>
-                    <span className={`text-[8px] leading-none ${onNow ? "font-bold text-white" : "text-white/45"}`}>
-                      {BALL_NAME[c]}
-                    </span>
-                    {done ? <span className="text-[8px] text-white/40">✔</span> : null}
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* only the next colour is pottable */}
-            {nextColour ? (
-              <div className="flex flex-col items-center gap-2">
-                <SnookerBall
-                  color={nextColour}
-                  size={88}
-                  value={ballValues[nextColour]}
-                  selected
-                  onClick={() => onPot(nextColour)}
-                />
-                <span className="text-xs text-foreground/70">
-                  Pot the{" "}
-                  <span className="font-bold" style={{ color: BALL_HEX[nextColour] }}>
-                    {BALL_NAME[nextColour]}
-                  </span>{" "}
-                  ball
-                </span>
+            <div className="flex flex-col gap-3 pt-2 pb-1">
+              {/* Money tonight (mobile) */}
+              <div className="glass p-3">
+                <h3 className="mb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Money tonight</h3>
+                <div className="flex flex-wrap gap-4">
+                  {players.map((p) => (
+                    <Stat key={p.id} label={p.nickname} value={running[p.id] ?? 0} variant="money" />
+                  ))}
+                </div>
               </div>
-            ) : (
-              <p className="py-4 text-center text-sm text-gold">Table cleared — nice shuffle! 🎉</p>
-            )}
+            </div>
           </motion.div>
-        </motion.div>
-      ) : null}
-
-          </LiveShell>
-        );
-      }
+        ) : null}
+      </AnimatePresence>
+    </LiveShell>
+  );
+}
 
 /** Simple content shell so both live and empty states share layout */
 function LiveShell({ children }: { children: React.ReactNode }) {
@@ -402,7 +351,7 @@ function LiveShell({ children }: { children: React.ReactNode }) {
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="mx-auto flex w-full max-w-3xl flex-col gap-4"
+      className="mx-auto flex w-full max-w-6xl flex-col gap-4"
     >
       {children}
     </motion.div>

@@ -14,6 +14,15 @@
   --color-foreground: #f3f7f4;
   --color-line: rgba(255, 255, 255, 0.08);
 
+  /* Match-page additions — Emerald Noir kept */
+  --color-violation: #ea580c;            /* amber: snooker miss / solve grey-area */
+  --color-felt-hi: #0e7a3a;              /* BallPad felt base */
+  --color-felt-mid: #0a5a27;
+  --color-felt-deep: #073d1a;
+  --color-pos-soft: rgba(22, 199, 132, 0.10);
+  --color-neg-soft: rgba(239, 68, 68, 0.10);
+  --color-rail: rgba(16, 20, 18, 0.62);  /* side rail glass on ≥lg */
+
   --font-sans: "Inter Variable", "Inter", -apple-system, BlinkMacSystemFont,
     "SF Pro Display", "SF Pro Text", system-ui, sans-serif;
 }
@@ -41,6 +50,9 @@
   --ring: #16c784;
   --radius: 0.9rem;
   --gold: #f59e0b;
+  --violation: #ea580c;
+  --pos-soft: rgba(22, 199, 132, 0.10);
+  --neg-soft: rgba(239, 68, 68, 0.10);
 }
 
 * {
