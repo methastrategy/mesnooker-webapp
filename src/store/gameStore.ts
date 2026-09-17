@@ -72,6 +72,7 @@ interface PersistShape {
   reverse: boolean;
   sound: boolean;
   haptics: boolean;
+  theme: string;
   frames: FrameSnapshot[];
   events: GameEvent[];
   startCounts: BallCounts;
@@ -101,6 +102,7 @@ interface GameStore extends PersistShape {
   renamePlayer: (id: string, nickname: string) => void;
   toggleSound: () => void;
   toggleHaptics: () => void;
+  setTheme: (theme: string) => void;
   setActiveFrameId: () => void;
   /** apply (or clear) the table fee to an archived game's balances; fee split evenly */
   setArchivedTableFee: (gameId: string, fee: number) => void;
@@ -119,6 +121,7 @@ export const useGameStore = create<GameStore>()(
       reverse: false,
       sound: true,
       haptics: true,
+      theme: "emerald",
       frames: [],
       events: [],
       startCounts: initialCounts(),
@@ -474,6 +477,7 @@ export const useGameStore = create<GameStore>()(
         set((s) => ({ players: s.players.map((p) => (p.id === id ? { ...p, nickname } : p)) })),
       toggleSound: () => set((s) => ({ sound: !s.sound })),
       toggleHaptics: () => set((s) => ({ haptics: !s.haptics })),
+      setTheme: (theme) => set({ theme }),
       setActiveFrameId: () => {
         const st = get();
         if (st.session && st.frames.length) {
@@ -508,6 +512,7 @@ export const useGameStore = create<GameStore>()(
         reverse: s.reverse,
         sound: s.sound,
         haptics: s.haptics,
+        theme: s.theme,
         frames: s.frames,
         events: s.events,
         startCounts: s.startCounts,

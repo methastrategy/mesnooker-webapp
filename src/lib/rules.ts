@@ -144,16 +144,25 @@ export function inferBreakPhase(
  *  COLOUR:    the six colours (red returns after a colour while reds remain).
  *
  *  Once all reds are gone, the colours MUST be potted in their official order
- *  (yellow → green → brown → blue → pink → black) — no skipping. */
+ *  (yellow → green → brown → blue → pink → black) — no skipping.
+ *  Thai-snooker nuance: the shooter who pots the LAST red is still in their
+ *  COLOUR phase, so they may pot ANY colour of their choice that one finishing
+ *  time. Only once they have potted that free colour (phase cycles back to
+ *  RED_FIRST) does strict ordered clearing begin. */
 export function legalBalls(
   phase: BreakPhase,
   counts: BallCounts
 ): BallColor[] {
   const available = BALL_ORDER.filter((c) => counts[c] > 0);
 
-  // Reds all gone → the six colours are cleared strictly in sequence. Only the
-  // next colour yet to be potted is legal (each colour is potted exactly once).
+  // Reds all gone → colours are cleared.
   if (counts.red === 0) {
+    // Right after potting the last red, the shooter is still entitled to a
+    // FREE colour of their choosing (completing their visit). Only after that
+    // free colour do the remaining colours lock in order.
+    if (phase === BreakPhase.COLOUR) {
+      return available.filter((c) => c !== "red");
+    }
     const next = COLOUR_ORDER.find((c) => counts[c] > 0);
     return next ? [next] : [];
   }

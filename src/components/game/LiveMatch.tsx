@@ -97,7 +97,11 @@ export function LiveMatch({ onPause }: {
   const canStartBreak = phase === BreakPhase.COLOUR;
   // Once reds are gone, legal[0] is the exact next colour in sequence.
   const clearingColours = store.ballCounts.red === 0;
-  const nextColour = clearingColours ? legal[0] : undefined;
+  // Ordered "ClearRack" only engages once the free finishing colour has been
+  // potted (phase back to RED_FIRST). Right after the last red the shooter is
+  // still entitled to any colour — show the free ball pad.
+  const clearOrderLocked = clearingColours && phase === BreakPhase.RED_FIRST;
+  const nextColour = clearOrderLocked ? legal[0] : undefined;
   const ballValues: Record<BallColor, number> = {
     red: ballValue("red", mode),
     yellow: ballValue("yellow", mode),
@@ -203,7 +207,7 @@ export function LiveMatch({ onPause }: {
         targetName={targetName}
         breakCount={breakCount}
         runningMoney={running[shooter?.id] ?? 0}
-        isClearing={clearingColours}
+        isClearing={clearOrderLocked}
         clearingLabel={nextColour ? BALL_NAME[nextColour] : undefined}
       />
 
@@ -212,9 +216,10 @@ export function LiveMatch({ onPause }: {
         <div className="flex flex-col gap-3">
           <ClockStrip frameNumber={store.frames.length} frameClock={frameClock} sessionClock={sessionClock} />
 
-          {/* ACTION PAD — one input control at a time: the felt ball pad normally,
-              or the non-blocking ClearRack the instant reds run out. */}
-          {clearingColours ? (
+          {/* ACTION PAD — one input control at a time: the free ball pad while a
+              shooter may play any colour, or the ordered ClearRack once the
+              table is actually locked into yellow→…→black. */}
+          {clearOrderLocked ? (
             <ClearRack done={clearDone} nextColour={nextColour} ballValues={ballValues} onPot={onPot} />
           ) : (
             <div className="glass-strong glow-emerald p-3 md:p-4">
@@ -231,7 +236,7 @@ export function LiveMatch({ onPause }: {
                 ballValues={ballValues}
                 onPot={onPot}
                 showCount={(c) => store.ballCounts[c]}
-                clearingColours={clearingColours}
+                clearingColours={clearOrderLocked}
               />
             </div>
           )}

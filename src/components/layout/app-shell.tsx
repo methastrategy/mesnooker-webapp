@@ -1,34 +1,48 @@
 "use client";
 
-import { useEffect } from "react";
-import Link from "next/link";
+import { useEffect, useState } from "react";
 import { Settings as SettingsIcon } from "lucide-react";
 import { Sidebar, BottomNav } from "./nav";
+import { SettingsSheet } from "./settings-sheet";
+import { useGameStore } from "@/store/gameStore";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
+  const theme = useGameStore((s) => s.theme);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+
+  // Apply the active theme to the root <html data-theme="…"> so the Tailwind
+  // `@theme` utility tokens (bg-*, text-*, border-*, ring-*) re-theme app-wide.
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+  }, [theme]);
+
   useEffect(() => {
     if ("serviceWorker" in navigator && process.env.NODE_ENV === "production") {
       navigator.serviceWorker.register("/sw.js").catch(() => {});
     }
   }, []);
-    return (
-    <div className="relative flex min-h-screen bg-[#050505] text-foreground">
-      {/* ambient emerald glow */}
+
+  return (
+    <div className="relative flex min-h-screen bg-background text-foreground">
+      {/* ambient glow — theme-aware via tokens */}
       <div
         className="pointer-events-none fixed inset-0 z-0"
         style={{
           background:
-            "radial-gradient(60% 40% at 85% 0%, rgba(22,199,132,0.08), transparent 60%), radial-gradient(50% 35% at 0% 100%, rgba(245,158,11,0.05), transparent 60%)",
+            "radial-gradient(60% 40% at 85% 0%, color-mix(in srgb, var(--primary) 13%, #000 87%), transparent 60%), radial-gradient(50% 35% at 0% 100%, color-mix(in srgb, var(--gold) 9%, #000 91%), transparent 60%)",
         }}
       />
-      {/* small gear top-right (keeps Settings reachable on mobile without bottom tab) */}
-      <Link
-        href="/settings"
+      {/* Settings gear — opens the popup, doesn't navigate away */}
+      <button
+        type="button"
+        onClick={() => setSettingsOpen(true)}
         aria-label="Settings"
+        aria-haspopup="dialog"
         className="fixed right-4 top-4 z-30 rounded-full bg-black/50 p-2.5 text-muted-foreground backdrop-blur-md hover:bg-white/10 hover:text-foreground"
       >
         <SettingsIcon size={18} />
-      </Link>
+      </button>
+      <SettingsSheet open={settingsOpen} onClose={() => setSettingsOpen(false)} />
       <Sidebar />
       <main className="relative z-10 w-full min-w-0 flex-1 px-4 pb-28 pt-16 md:px-8 md:pb-12 md:pt-8">
         <div className="mx-auto w-full max-w-6xl">{children}</div>
