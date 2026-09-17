@@ -123,6 +123,36 @@ export interface ArchivedGame {
   balances: Record<string, number>;
   frames: number;
   totalPoints: number;
+  /** per-frame analytics snapshot, captured when the session was archived.
+   *  Optional so older archived games (which predate frame details) still
+   *  render; when absent the History detail view falls back to the session
+   *  summary only. */
+  frameDetails?: ArchivedFrame[];
+}
+
+/** Per-frame snapshot for the History drill-down. Captured at archive time so
+ *  it is immutable and survives store resets. */
+export interface ArchivedFrame {
+  /** 0-based index into the session's frame sequence */
+  index: number;
+  startedAt: number;
+  endedAt?: number;
+  mode: GameMode;
+  /** playerId -> points score this frame */
+  scores: Record<string, number>;
+  /** playerId -> net money this frame */
+  money: Record<string, number>;
+  winnerId?: string;
+  highestBreak: number;
+  breaks: Record<string, number>;
+  fouls: Record<string, number>;
+  snookerMisses: Record<string, number>;
+  snookerHits: Record<string, number>;
+  /** playerId -> potted-ball counts (start minus remaining); includes re-spotted
+   *  colour count from startCounts so cleared-table frames are readable */
+  potted: Record<string, BallCounts>;
+  /** per-colour totals across all players this frame */
+  totalPotted: BallCounts;
 }
 
 export type SettlementPayment = {

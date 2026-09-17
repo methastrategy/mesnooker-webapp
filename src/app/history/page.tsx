@@ -2,9 +2,10 @@
 
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { Search, Trophy, History as HistoryIcon, Filter, Users, ArrowRight } from "lucide-react";
+import { Search, Trophy, History as HistoryIcon, Filter, Users, ArrowRight, ChevronRight } from "lucide-react";
 import { useHistory } from "@/store/gameStore";
 import { GlassCard, Badge, Button, BallDot } from "@/components/ui";
+import { HistorySessionSheet } from "@/components/history/HistorySessionSheet";
 import { AvatarBubble } from "@/components/game/AvatarPicker";
 import { formatMoney, formatDateTime } from "@/lib/utils";
 import { optimizeTransfers } from "@/lib/money";
@@ -17,6 +18,7 @@ export default function HistoryPage() {
   const [mode, setMode] = useState<"all" | GameMode>("all");
   const [date, setDate] = useState<string>("");
   const [query, setQuery] = useState<string>("");
+  const [selected, setSelected] = useState<ArchivedGame | null>(null);
 
   // Union of all players who ever appeared in an archived game (newest first).
   const allPlayers = useMemo(() => {
@@ -155,8 +157,23 @@ export default function HistoryPage() {
               const paid = optimizeTransfers(g.balances, g.players);
               const shown = paid.slice(0, 2);
               const extra = paid.length - shown.length;
+              const openDetails = () => setSelected(g);
               return (
-                <GlassCard key={g.id} glow="emerald" className="p-4">
+                <GlassCard
+                  key={g.id}
+                  glow="emerald"
+                  className="p-4"
+                  onClick={openDetails}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      openDetails();
+                    }
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`View details for ${g.mode} game with ${g.players.length} players`}
+                >
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
                       <Badge variant={g.mode === "points" ? "default" : "gold"}>
@@ -228,6 +245,18 @@ export default function HistoryPage() {
                       <span>{g.frames} frame(s)</span>
                     </div>
                   </div>
+
+                  {/* tap affordance — the whole card is a button */}
+                  <div className="mt-2.5 flex items-center justify-between border-t border-white/5 pt-2">
+                    <span className="text-[11px] text-muted-foreground">
+                      {g.frameDetails && g.frameDetails.length > 0
+                        ? "Per-frame details recorded"
+                        : "Summary only"}
+                    </span>
+                    <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary">
+                      View details <ChevronRight size={12} />
+                    </span>
+                  </div>
                 </GlassCard>
               );
             })}
@@ -243,6 +272,9 @@ export default function HistoryPage() {
           <Filter size={16} /> Reset filters
         </Button>
       )}
+
+      {/* per-frame drill-down for the tapped session */}
+      <HistorySessionSheet game={selected} onClose={() => setSelected(null)} />
     </div>
   );
 }

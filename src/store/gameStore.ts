@@ -3,6 +3,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import {
+  BALL_ORDER,
   BALL_START,
   ballValue,
   BreakPhase,
@@ -17,6 +18,7 @@ import {
   type MoneyResult,
 } from "@/lib/money";
 import type {
+  ArchivedFrame,
   ArchivedGame,
   BallColor,
   BallCounts,
@@ -261,6 +263,37 @@ export const useGameStore = create<GameStore>()(
         // rawBalances = winnings before any table fee. The fee itself is decided
         // AFTER the game ends (at the summary), so archive with fee 0 here and let
         // setArchivedTableFee recompute the net from rawBalances later.
+        // Per-frame snapshot so History can drill into each frame separately.
+        const frameDetails: ArchivedFrame[] = st.frames.map((fr, i) => {
+          const frameEvents = st.events.filter(
+            (e) => e.frameId === fr.id && !e.undone
+          );
+          const potted: Record<string, BallCounts> = {};
+          const totalPotted: BallCounts = {
+            red: 0, yellow: 0, green: 0, brown: 0, blue: 0, pink: 0, black: 0,
+          };
+          for (const p of st.players) {
+            const pc = pottedBallsPerPlayer(frameEvents, p.id);
+            potted[p.id] = pc;
+            for (const c of BALL_ORDER) totalPotted[c] += pc[c];
+          }
+          return {
+            index: i,
+            startedAt: fr.startedAt,
+            endedAt: fr.endedAt,
+            mode: fr.mode,
+            scores: { ...fr.scores },
+            money: { ...(fr.money ?? {}) },
+            winnerId: fr.winnerId,
+            highestBreak: fr.highestBreak,
+            breaks: { ...fr.breaks },
+            fouls: { ...fr.fouls },
+            snookerMisses: { ...fr.snookerMisses },
+            snookerHits: { ...fr.snookerHits },
+            potted,
+            totalPotted,
+          };
+        });
         const archived: ArchivedGame = {
           id: nid(),
           endedAt: Date.now(),
@@ -274,6 +307,7 @@ export const useGameStore = create<GameStore>()(
           balances: { ...running },
           frames: st.frames.length,
           totalPoints,
+          frameDetails,
         };
         set({
           history: [archived, ...st.history],
