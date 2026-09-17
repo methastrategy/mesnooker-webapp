@@ -60,15 +60,19 @@ function Row({
 
 /** Settings as a popup — opens/closes over whatever page is live so the user
  *  never has to leave a screen to change a preference, and can close it again
- *  without navigating to another tab. Includes a 5-theme picker. */
-export function SettingsSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
+ *  without navigating to another tab. Driven by store.settingsOpen so the gear,
+ *  the sidebar item and the /settings route all open the SAME popup — there is
+ *  exactly one settings surface in the app. */
+export function SettingsSheet() {
   const store = useGameStore();
+  const open = useGameStore((s) => s.settingsOpen);
   const sound = useGameStore((s) => s.sound);
   const haptics = useGameStore((s) => s.haptics);
   const theme = useGameStore((s) => s.theme);
   const toggleSound = store.toggleSound;
   const toggleHaptics = store.toggleHaptics;
   const setTheme = store.setTheme;
+  const onClose = store.closeSettings;
 
   const resetApp = () => {
     if (confirm("Reset all data? This clears every session, frame, player and stat.")) {

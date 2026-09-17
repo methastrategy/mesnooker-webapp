@@ -55,14 +55,10 @@ export function LiveMatch({ onPause }: {
     sound,
     haptics,
     pot,
-    foul,
-    snookerMiss,
-    snookerHit,
+    applyScoring,
     endTurn,
     undo,
-    setShooterManual,
-    toggleReverse,
-    skipPlayer,
+    redo,
     reverse,
   } = store;
 
@@ -156,17 +152,18 @@ export function LiveMatch({ onPause }: {
     return players[idx];
   }
 
-  /** Record a penalty/solve, then AUTO-advance to the next player (the user's
-   *  stated flow: pressing Foul / Snooker miss / Solve ends the round). */
-  function scoringAction(action: () => void, verb: string, value: string, tone: ToastTone) {
+  /** Record a penalty/solve, then AUTO-advance to the next player in ONE store
+   *  transaction (applyScoring), so a single Undo reverts the whole wrong press
+   *  including the turn that passed. */
+  function scoringAction(kind: "foul" | "miss" | "solve", verb: string, value: string, tone: ToastTone) {
     tap();
-    action();
+    applyScoring(kind);
     const next = nextShooter();
-    endTurn();
     setToast({ id: Date.now(), msg: `${verb} ${value} · → ${next?.nickname ?? "next"}`, tone });
   }
 
-  const canUndo = store.events.length > 0;
+  const canUndo = store.undoStack.length > 0;
+  const canRedo = store.redoStack.length > 0;
 
   function handleEndFrame() {
     // End THIS frame only; the match page then shows the frame summary with
@@ -249,23 +246,21 @@ export function LiveMatch({ onPause }: {
           {/* The three scoring inputs — equal-size keys that auto-advance turn */}
           <ViolationPanel
             mode={mode}
-            onFoul={() => scoringAction(foul, "Foul", mode === "points" ? "-4" : "-2", "danger")}
-            onMiss={() => scoringAction(snookerMiss, "Snooker miss", "-2", "danger")}
-            onSolve={() => scoringAction(snookerHit, "Solve", "+1", "success")}
+            onFoul={() => scoringAction("foul", "Foul", mode === "points" ? "-4" : "-2", "danger")}
+            onMiss={() => scoringAction("miss", "Snooker miss", "-2", "danger")}
+            onSolve={() => scoringAction("solve", "Solve", "+1", "success")}
           />
 
-          {/* End turn primary + ⋯ More popup */}
+          {/* End turn primary + ⋯ More (Undo/Redo only) + staged End frame */}
           <TurnCluster
             onEndTurn={() => { tap(); endTurn(); setToast({ id: Date.now(), msg: `→ ${nextShooter()?.nickname ?? "next"}`, tone: "info" }); }}
             moreOpen={moreOpen}
             onMoreOpen={() => setMoreOpen(true)}
             onMoreClose={() => setMoreOpen(false)}
             canUndo={canUndo}
+            canRedo={canRedo}
             onUndo={() => { setMoreOpen(false); tap(); undo(); }}
-            onPrev={() => { setMoreOpen(false); tap(); setShooterManual((shooterIndex - 1 + players.length) % players.length); }}
-            onReverse={() => { setMoreOpen(false); tap(); toggleReverse(); }}
-            onSkip={() => { setMoreOpen(false); tap(); skipPlayer(); }}
-            reverse={reverse}
+            onRedo={() => { setMoreOpen(false); tap(); redo(); }}
             onEndFrame={() => { setMoreOpen(false); handleEndFrame(); }}
           />
 

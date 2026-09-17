@@ -12,6 +12,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useGameStore } from "@/store/gameStore";
 
 const NAV = [
   { href: "/", label: "Dashboard", icon: Home },
@@ -31,6 +32,7 @@ const NAV_BOTTOM = [
 /** Desktop left sidebar */
 export function Sidebar() {
   const pathname = usePathname();
+  const openSettings = useGameStore((s) => s.openSettings);
   return (
     <aside className="sticky top-0 hidden h-screen w-60 flex-col gap-2 border-r border-white/5 bg-black/40 p-4 backdrop-blur-xl md:flex">
       <div className="mb-6 flex items-center gap-2 px-2 pt-2">
@@ -43,6 +45,26 @@ export function Sidebar() {
         </div>
       </div>
       {NAV.map((item) => {
+        if (item.href === "/settings") {
+          // Settings lives in ONE place now: the global popup (same sheet the
+          // gear opens). Opening it here never navigates the user away.
+          return (
+            <button
+              key={item.href}
+              type="button"
+              onClick={openSettings}
+              aria-haspopup="dialog"
+              className={cn(
+                "relative flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-left text-sm font-medium transition-colors",
+                "text-muted-foreground hover:bg-white/5 hover:text-foreground"
+              )}
+            >
+              <item.icon size={18} />
+              <span className="flex-1">{item.label}</span>
+              <span className="text-[9px] text-muted-foreground/70">popup</span>
+            </button>
+          );
+        }
         const active = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
         return (
           <Link key={item.href} href={item.href}>

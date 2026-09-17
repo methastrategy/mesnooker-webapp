@@ -5,8 +5,10 @@ import { persist } from "zustand/middleware";
 import {
   BALL_START,
   ballValue,
+  BreakPhase,
   buildTargetCycle,
   FOUL_VALUES,
+  inferBreakPhase,
   pottedBallsPerPlayer,
 } from "@/lib/rules";
 import {
@@ -77,6 +79,9 @@ interface PersistShape {
   events: GameEvent[];
   startCounts: BallCounts;
   history: ArchivedGame[];
+  /** undo/redo stacks (in-memory only, not persisted) */
+  undoStack: StateSnapshot[];
+  redoStack: StateSnapshot[];
 }
 
 interface GameStore extends PersistShape {
@@ -91,6 +96,9 @@ interface GameStore extends PersistShape {
   foul: () => void;
   snookerMiss: () => void;
   snookerHit: () => void;
+  /** one composite scoring action (foul/miss/solve) that ALSO auto-advances the
+   *  turn, so a single Undo reverts the whole "wrong press" to before it */
+  applyScoring: (kind: "foul" | "miss" | "solve") => void;
   endTurn: () => void;
   undo: () => void;
   redo: () => void;
@@ -104,8 +112,46 @@ interface GameStore extends PersistShape {
   toggleHaptics: () => void;
   setTheme: (theme: string) => void;
   setActiveFrameId: () => void;
+  /** settings popup (global) */
+  settingsOpen: boolean;
+  openSettings: () => void;
+  closeSettings: () => void;
   /** apply (or clear) the table fee to an archived game's balances; fee split evenly */
   setArchivedTableFee: (gameId: string, fee: number) => void;
+}
+
+/** A full state snapshot used for undo/redo. Deep-copied because frames/events
+ *  are mutated in place; the snapshot must capture the full story so Undo can
+ *  truly return to the instant before a wrong press. */
+export interface StateSnapshot {
+  events: GameEvent[];
+  frames: FrameSnapshot[];
+  ballCounts: BallCounts;
+  shooterIndex: number;
+  session: SessionSummary | null;
+  reverse: boolean;
+}
+
+const MAX_HISTORY = 60;
+
+function cloneSnapshot(st: PersistShape): StateSnapshot {
+  return {
+    events: JSON.parse(JSON.stringify(st.events)) as GameEvent[],
+    frames: JSON.parse(JSON.stringify(st.frames)) as FrameSnapshot[],
+    ballCounts: { ...st.ballCounts },
+    shooterIndex: st.shooterIndex,
+    session: st.session ? (JSON.parse(JSON.stringify(st.session)) as SessionSummary) : null,
+    reverse: st.reverse,
+  };
+}
+
+/** Record the current state on the undo stack (and clear redo, since the
+ *  timeline forks). Call BEFORE mutating state. Mutates `st` in place so the
+ *  caller includes the updated stacks in the following set(). */
+function pushUndo(st: PersistShape) {
+  st.undoStack.push(cloneSnapshot(st));
+  if (st.undoStack.length > MAX_HISTORY) st.undoStack.shift();
+  st.redoStack = [];
 }
 
 export const useGameStore = create<GameStore>()(
@@ -126,6 +172,9 @@ export const useGameStore = create<GameStore>()(
       events: [],
       startCounts: initialCounts(),
       history: [],
+      undoStack: [],
+      redoStack: [],
+      settingsOpen: false,
 
       startSession: ({ players, mode, moneyRate, moneyPer, redCount = 15, tableFee = 0 }) => {
         if (players.length < 2) return;
@@ -152,6 +201,9 @@ export const useGameStore = create<GameStore>()(
           mode,
           moneyRate,
           moneyPer,
+          undoStack: [],
+          redoStack: [],
+          settingsOpen: false,
           ballCounts: counts,
           startCounts: counts,
           shooterIndex: 0,
@@ -232,6 +284,9 @@ export const useGameStore = create<GameStore>()(
           ballCounts: initialCounts(),
           startCounts: initialCounts(),
           shooterIndex: 0,
+          undoStack: [],
+          redoStack: [],
+          settingsOpen: false,
         });
         return archived;
       },
@@ -247,13 +302,24 @@ export const useGameStore = create<GameStore>()(
         const scorer = st.players[st.shooterIndex];
         if (!scorer) return;
         const counts = { ...st.ballCounts };
-        // Re-spotting: while reds remain on the table, potting a COLOUR puts it
-        // back (count stays available for every red round). A RED pot is consumed.
-        // Colours are only actually removed once reds run out.
+        // TURN BOUNDARY BEHAVIOUR — a pot is the start of a fresh undoable step.
+        pushUndo(st);
+
+        // Re-spotting rule:
+        // - A RED pot is always consumed (removed from the table).
+        // - A COLOUR pot RE-SPOTS (count stays) while any red remains on the
+        //   table, AND also while the shooter is still in their COLOUR phase —
+        //   i.e. right after the last red, they may pot ANY colour for free and
+        //   it is put back. A colour is only actually removed (consumed) once
+        //   reds are gone AND the phase has cycled back to RED_FIRST (ordered
+        //   clear: yellow → green → brown → blue → pink → black).
+        const frameEvents = st.events.filter((e) => e.frameId === f.id && !e.undone);
+        const phase = inferBreakPhase(frameEvents, scorer.id);
         if (ball === "red") {
           if (counts.red > 0) counts.red -= 1;
         } else {
-          if (counts.red === 0 && counts[ball] > 0) counts[ball] -= 1;
+          const clearing = counts.red === 0 && phase === BreakPhase.RED_FIRST;
+          if (clearing && counts[ball] > 0) counts[ball] -= 1;
         }
 
         const evt: PottedEvent = {
@@ -279,6 +345,8 @@ export const useGameStore = create<GameStore>()(
           ballCounts: counts,
           frames: [...st.frames],
           events: [...st.events, evt],
+          undoStack: st.undoStack,
+          redoStack: st.redoStack,
         });
       },
 
@@ -343,11 +411,67 @@ export const useGameStore = create<GameStore>()(
         set({ frames: [...st.frames], events: [...st.events, evt] });
       },
 
+      // One composite tap: scoring event + auto end-turn + advance in a SINGLE
+      // snapshot, so one Undo reverts the whole "wrong press" (foul AND the
+      // turn that passed) back to the instant before.
+      applyScoring: (kind) => {
+        const st = get();
+        const f = st.frames[st.frames.length - 1];
+        const n = st.players.length;
+        if (!f || !st.session || !n) return;
+        const scorer = st.players[st.shooterIndex];
+        if (!scorer) return;
+        pushUndo(st);
+
+        let type: GameEvent["type"];
+        let points: number;
+        if (kind === "foul") {
+          type = "foul";
+          points = FOUL_VALUES[f.mode];
+          f.fouls[scorer.id] = (f.fouls[scorer.id] ?? 0) + 1;
+        } else if (kind === "miss") {
+          type = "snooker_miss";
+          points = -2;
+          f.snookerMisses[scorer.id] = (f.snookerMisses[scorer.id] ?? 0) + 1;
+        } else {
+          type = "snooker_hit";
+          points = 1;
+          f.snookerHits[scorer.id] = (f.snookerHits[scorer.id] ?? 0) + 1;
+        }
+        f.scores[scorer.id] = (f.scores[scorer.id] ?? 0) + points;
+
+        const evt: GameEvent = {
+          id: nid(), ts: Date.now(), playerId: scorer.id, playerName: scorer.nickname,
+          targetId: f.targetCycle[scorer.id],
+          targetName: st.players.find((p) => p.id === f.targetCycle[scorer.id])?.nickname,
+          type, points, frameId: f.id, turnIndex: st.shooterIndex,
+        };
+        f.eventIds.push(evt.id);
+
+        const passEvt: GameEvent = {
+          id: nid(), ts: Date.now(), playerId: scorer.id, playerName: scorer.nickname,
+          targetId: f.targetCycle[scorer.id],
+          targetName: st.players.find((p) => p.id === f.targetCycle[scorer.id])?.nickname,
+          type: "end_turn", points: 0, frameId: f.id, turnIndex: st.shooterIndex,
+        };
+        f.eventIds.push(passEvt.id);
+
+        const nextShooter = st.reverse ? (st.shooterIndex - 1 + n) % n : (st.shooterIndex + 1) % n;
+        set({
+          frames: [...st.frames],
+          events: [...st.events, evt, passEvt],
+          shooterIndex: nextShooter,
+          undoStack: st.undoStack,
+          redoStack: st.redoStack,
+        });
+      },
+
       endTurn: () => {
         const st = get();
         const n = st.players.length;
         const f = st.frames[st.frames.length - 1];
         if (!n || !f) return;
+        pushUndo(st);
         const scorer = st.players[st.shooterIndex];
         // Record an end_turn event so the break engine knows this visit is over.
         // The next shooter starts a fresh visit, which means "pot red first"
@@ -360,60 +484,57 @@ export const useGameStore = create<GameStore>()(
             type: "end_turn", points: 0, frameId: f.id, turnIndex: st.shooterIndex,
           };
           f.eventIds.push(evt.id);
-          set({ frames: [...st.frames], events: [...st.events, evt] });
         }
         const idx = st.reverse ? (st.shooterIndex - 1 + n) % n : (st.shooterIndex + 1) % n;
-        set({ shooterIndex: idx });
+        set({
+          frames: [...st.frames],
+          events: st.events,
+          shooterIndex: idx,
+          undoStack: st.undoStack,
+          redoStack: st.redoStack,
+        });
       },
 
-      setShooterManual: (idx) => set({ shooterIndex: idx }),
-      toggleReverse: () => set((s) => ({ reverse: !s.reverse })),
+      setShooterManual: (idx) => {
+        const st = get();
+        pushUndo(st);
+        set({ shooterIndex: idx, undoStack: st.undoStack, redoStack: st.redoStack });
+      },
+      toggleReverse: () => {
+        const st = get();
+        pushUndo(st);
+        set({ reverse: !st.reverse, undoStack: st.undoStack, redoStack: st.redoStack });
+      },
       skipPlayer: () => get().endTurn(),
 
       undo: () => {
         const st = get();
-        if (!st.events.length || !st.frames.length) return;
-        const evt = st.events[st.events.length - 1];
-        const f = st.frames.find((x) => x.id === evt.frameId);
-        if (!f) return;
-
-        if (evt.type === "pot") {
-          const pe = evt as PottedEvent;
-          f.scores[evt.playerId] = Math.max(-999, (f.scores[evt.playerId] ?? 0) - pe.points);
-          const counts = { ...st.ballCounts };
-          // mirror pot's re-spot logic: a red pot is restored; a colour pot is
-          // only restored if it was actually removed (i.e. reds were already 0)
-          if (pe.ball === "red") {
-            counts.red = Math.min(st.startCounts.red ?? BALL_START.red, counts.red + 1);
-          } else if (st.ballCounts.red === 0) {
-            counts[pe.ball] = Math.min((st.startCounts[pe.ball] ?? BALL_START[pe.ball]), counts[pe.ball] + 1);
-          }
-          f.eventIds = f.eventIds.filter((id) => id !== evt.id);
-          set({ ballCounts: counts, frames: [...st.frames], events: st.events.slice(0, -1) });
-        } else if (evt.type === "foul") {
-          f.scores[evt.playerId] = Math.max(-999, (f.scores[evt.playerId] ?? 0) - evt.points);
-          f.fouls[evt.playerId] = Math.max(0, (f.fouls[evt.playerId] ?? 0) - 1);
-          f.eventIds = f.eventIds.filter((id) => id !== evt.id);
-          set({ frames: [...st.frames], events: st.events.slice(0, -1) });
-        } else if (evt.type === "snooker_miss") {
-          f.scores[evt.playerId] = (f.scores[evt.playerId] ?? 0) + 2;
-          f.snookerMisses[evt.playerId] = Math.max(0, (f.snookerMisses[evt.playerId] ?? 0) - 1);
-          f.eventIds = f.eventIds.filter((id) => id !== evt.id);
-          set({ frames: [...st.frames], events: st.events.slice(0, -1) });
-        } else if (evt.type === "snooker_hit") {
-          f.scores[evt.playerId] = Math.max(-999, (f.scores[evt.playerId] ?? 0) - 1);
-          f.snookerHits[evt.playerId] = Math.max(0, (f.snookerHits[evt.playerId] ?? 0) - 1);
-          f.eventIds = f.eventIds.filter((id) => id !== evt.id);
-          set({ frames: [...st.frames], events: st.events.slice(0, -1) });
-        } else {
-          set({ events: st.events.slice(0, -1) });
-        }
+        if (!st.session || !st.undoStack.length) return;
+        const prev = st.undoStack[st.undoStack.length - 1];
+        const cur = cloneSnapshot(st);
+        st.redoStack.push(cur);
+        if (st.redoStack.length > MAX_HISTORY) st.redoStack.shift();
+        st.undoStack.pop();
+        set({
+          ...prev,
+          undoStack: st.undoStack,
+          redoStack: st.redoStack,
+        });
       },
 
       redo: () => {
         const st = get();
-        // Single-direction undo; redo applied as: refresh current frame (no-op for persist model).
-        set({ frames: [...st.frames] });
+        if (!st.session || !st.redoStack.length) return;
+        const next = st.redoStack[st.redoStack.length - 1];
+        const cur = cloneSnapshot(st);
+        st.undoStack.push(cur);
+        if (st.undoStack.length > MAX_HISTORY) st.undoStack.shift();
+        st.redoStack.pop();
+        set({
+          ...next,
+          undoStack: st.undoStack,
+          redoStack: st.redoStack,
+        });
       },
 
       endFrame: () => {
@@ -470,6 +591,8 @@ export const useGameStore = create<GameStore>()(
           ballCounts: initialCounts(st.session.redCount),
           startCounts: initialCounts(st.session.redCount),
           shooterIndex: 0,
+          undoStack: [],
+          redoStack: [],
         });
       },
 
@@ -484,6 +607,8 @@ export const useGameStore = create<GameStore>()(
           set({ session: { ...st.session, activeFrameId: st.frames[st.frames.length - 1].id } });
         }
       },
+      openSettings: () => set({ settingsOpen: true }),
+      closeSettings: () => set({ settingsOpen: false }),
       setArchivedTableFee: (gameId, fee) => {
         const st = get();
         const feeVal = Math.max(0, fee);

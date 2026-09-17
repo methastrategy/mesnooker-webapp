@@ -1,23 +1,23 @@
 "use client";
 
-import { ArrowRight, MoreHorizontal } from "lucide-react";
+import { ArrowRight, MoreHorizontal, Flag } from "lucide-react";
 import { ActionButton } from "@/components/ui";
 import { MoreActionsSheet } from "@/components/game/MoreActionsSheet";
 
 /** Primary turn cluster — the headline scoring control (End turn) plus a single
- *  "⋯ More" key that opens the popup holding the seldom-used, easy-to-misfire
- *  controls (Undo / Prev / Reverse / Skip / End frame). */
+ *  "⋯ More" key that opens the popup holding the two safe-to-misfire controls
+ *  (Undo / Redo) the operator uses to fix a wrong press. End frame stays on the
+ *  main surface, visually separated so it can never be hit by accident, but it
+ *  is always reachable without a popup. */
 export function TurnCluster({
   onEndTurn,
   moreOpen,
   onMoreOpen,
   onMoreClose,
   canUndo,
+  canRedo,
   onUndo,
-  onPrev,
-  onReverse,
-  onSkip,
-  reverse,
+  onRedo,
   onEndFrame,
 }: {
   onEndTurn: () => void;
@@ -25,11 +25,9 @@ export function TurnCluster({
   onMoreOpen: () => void;
   onMoreClose: () => void;
   canUndo: boolean;
+  canRedo: boolean;
   onUndo: () => void;
-  onPrev: () => void;
-  onReverse: () => void;
-  onSkip: () => void;
-  reverse: boolean;
+  onRedo: () => void;
   onEndFrame: () => void;
 }) {
   return (
@@ -46,13 +44,22 @@ export function TurnCluster({
         open={moreOpen}
         onClose={onMoreClose}
         canUndo={canUndo}
+        canRedo={canRedo}
         onUndo={onUndo}
-        onPrev={onPrev}
-        onReverse={onReverse}
-        onSkip={onSkip}
-        reverse={reverse}
-        onEndFrame={onEndFrame}
+        onRedo={onRedo}
       />
+      {/* End frame deliberately below the cluster, styled quiet so a mistake
+          requires a deliberate second look. */}
+      <div className="flex justify-center pt-1">
+        <ActionButton
+          tone="outline"
+          onClick={onEndFrame}
+          aria-label="End frame"
+          className="h-10 w-auto min-w-0 px-3 text-destructive shadow-none"
+        >
+          <Flag size={15} /> End frame
+        </ActionButton>
+      </div>
     </>
   );
 }
