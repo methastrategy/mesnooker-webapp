@@ -2,18 +2,18 @@
 
 import * as React from "react";
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, Flag } from "lucide-react";
+import { motion } from "framer-motion";
+import { ChevronDown } from "lucide-react";
 import { useGameStore, useActiveFrame, useRunningBalance } from "@/store/gameStore";
 import { BallPad } from "@/components/game/BallPad";
-import { PlayerCard } from "@/components/game/PlayerCard";
-import { EventLog } from "@/components/game/EventLog";
 import { TurnHeader, ClockStrip } from "@/components/game/TurnHeader";
 import { MoneyStrip } from "@/components/game/MoneyStrip";
 import { ViolationPanel } from "@/components/game/ViolationPanel";
 import { TurnCluster } from "@/components/game/TurnCluster";
 import { ClearRack } from "@/components/game/ClearRack";
-import { Button, Badge, Stat } from "@/components/ui";
+import { FrameDetailsPanel } from "@/components/game/FrameDetailsPanel";
+import { ActionToast } from "@/components/game/ActionToast";
+import { Badge, Stat } from "@/components/ui";
 import {
   BALL_NAME,
   BALL_ORDER,
@@ -23,9 +23,11 @@ import {
   inferBreakPhase,
   legalBalls,
 } from "@/lib/rules";
-import type { ArchivedGame, BallColor } from "@/types";
+import type { ArchivedGame, BallColor, Player } from "@/types";
 
 import { useElapsed, useElapsedSum } from "@/hooks/useElapsed";
+
+type ToastTone = "info" | "success" | "danger";
 
 export function LiveMatch({ onPause }: {
   onPause?: () => void;
@@ -39,6 +41,9 @@ export function LiveMatch({ onPause }: {
   const sessionClock = useElapsedSum(store.frames);
   const frameClock = useElapsed(frameStartedAt);
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
+  // Transient toast — flashes the consequence of a scoring tap.
+  const [toast, setToast] = useState<{ id: number; msg: string; tone: ToastTone } | null>(null);
   // Desktop analytics rail renders inline on ≥lg regardless of the accordion.
   const [isDesktop, setIsDesktop] = useState(false);
 
@@ -135,6 +140,26 @@ export function LiveMatch({ onPause }: {
   function onPot(ball: BallColor) {
     tap();
     pot(ball);
+    // Potting continues the shooter's own break (red → colour → red); it does
+    // NOT end the turn. Only the scoring-penalty inputs auto-advance.
+    setToast({ id: Date.now(), msg: `${BALL_NAME[ball]} potted`, tone: "info" });
+  }
+
+  /** Next shooter the store will rotate to (matches endTurn's reverse-aware math). */
+  function nextShooter(): Player | undefined {
+    const n = players.length;
+    const idx = reverse ? (shooterIndex - 1 + n) % n : (shooterIndex + 1) % n;
+    return players[idx];
+  }
+
+  /** Record a penalty/solve, then AUTO-advance to the next player (the user's
+   *  stated flow: pressing Foul / Snooker miss / Solve ends the round). */
+  function scoringAction(action: () => void, verb: string, value: string, tone: ToastTone) {
+    tap();
+    action();
+    const next = nextShooter();
+    endTurn();
+    setToast({ id: Date.now(), msg: `${verb} ${value} · → ${next?.nickname ?? "next"}`, tone });
   }
 
   const canUndo = store.events.length > 0;
@@ -185,11 +210,6 @@ export function LiveMatch({ onPause }: {
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
         {/* ══════════ ZONE A — ACTION (input, always in thumb reach) ══════════ */}
         <div className="flex flex-col gap-3">
-          {/* quick money peek — always visible on mobile */}
-          <div className="lg:hidden">
-            <MoneyStrip players={players} balances={running} activeId={shooter?.id} />
-          </div>
-
           <ClockStrip frameNumber={store.frames.length} frameClock={frameClock} sessionClock={sessionClock} />
 
           {/* ACTION PAD — one input control at a time: the felt ball pad normally,
@@ -216,92 +236,59 @@ export function LiveMatch({ onPause }: {
             </div>
           )}
 
-          {/* Turn cluster — consistent equal-height controls */}
-          <TurnCluster
-            onEndTurn={() => { tap(); endTurn(); }}
-            onPrev={() => setShooterManual((shooterIndex - 1 + players.length) % players.length)}
-            onReverse={() => { tap(); toggleReverse(); }}
-            onSkip={() => { tap(); skipPlayer(); }}
-            reverse={reverse}
-          />
+          {/* quick money peek — always visible on mobile */}
+          <div className="lg:hidden">
+            <MoneyStrip players={players} balances={running} activeId={shooter?.id} />
+          </div>
 
-          {/* Segmented violations — Foul vs Snooker-miss visually distinct */}
+          {/* The three scoring inputs — equal-size keys that auto-advance turn */}
           <ViolationPanel
             mode={mode}
-            onFoul={() => { tap(); foul(); }}
-            onMiss={() => { tap(); snookerMiss(); }}
-            onSolve={() => { tap(); snookerHit(); }}
-            onUndo={() => { tap(); undo(); }}
-            canUndo={canUndo}
+            onFoul={() => scoringAction(foul, "Foul", mode === "points" ? "-4" : "-2", "danger")}
+            onMiss={() => scoringAction(snookerMiss, "Snooker miss", "-2", "danger")}
+            onSolve={() => scoringAction(snookerHit, "Solve", "+1", "success")}
           />
 
-          <div className="mt-1 flex items-center justify-between text-[11px] text-muted-foreground">
-            <span>Foul = ordinary foul · Miss = tried but didn't (−2) · Solve = hit it (+1)</span>
-            <Button variant="ghost" size="sm" onClick={handleEndFrame} className="text-destructive">
-              <Flag size={14} /> End frame
-            </Button>
+          {/* End turn primary + ⋯ More popup */}
+          <TurnCluster
+            onEndTurn={() => { tap(); endTurn(); setToast({ id: Date.now(), msg: `→ ${nextShooter()?.nickname ?? "next"}`, tone: "info" }); }}
+            moreOpen={moreOpen}
+            onMoreOpen={() => setMoreOpen(true)}
+            onMoreClose={() => setMoreOpen(false)}
+            canUndo={canUndo}
+            onUndo={() => { setMoreOpen(false); tap(); undo(); }}
+            onPrev={() => { setMoreOpen(false); tap(); setShooterManual((shooterIndex - 1 + players.length) % players.length); }}
+            onReverse={() => { setMoreOpen(false); tap(); toggleReverse(); }}
+            onSkip={() => { setMoreOpen(false); tap(); skipPlayer(); }}
+            reverse={reverse}
+            onEndFrame={() => { setMoreOpen(false); handleEndFrame(); }}
+          />
+
+          <div className="text-center text-[11px] text-muted-foreground">
+            Foul · Miss · Solve pass to the next player automatically.
           </div>
         </div>
 
-        {/* ══════════ ZONE B — ANALYTICS (visible on lg; accordion on mobile) ══════════ */}
+        {/* ══════════ ZONE B — ANALYTICS (dashboard table on lg; expand below on mobile) ══════════ */}
         <aside className="flex flex-col gap-4">
           <div className="hidden lg:block">
             <MoneyStrip variant="rail" players={players} balances={running} activeId={shooter?.id} />
           </div>
 
-          {/* quick frame summary chips */}
-          <div className="grid grid-cols-3 gap-2">
-            <Stat label="Total pts" value={totalPoints} variant="accent" />
-            <Stat label="Sets" value={setsPot} suffix="" />
-            <Stat label="Reds" value={redsPot} />
-          </div>
-
-          {/* Scoreboard */}
-          <div className="glass p-3">
-            <div className="mb-2 flex items-center justify-between">
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Scoreboard</h3>
-              <Badge variant="gold">{mode === "points" ? "per point" : "per ball"}</Badge>
-            </div>
-            <div className="flex flex-col gap-2">
-              {players.map((p, i) => (
-                <PlayerCard
-                  key={p.id}
-                  player={p}
-                  points={frame.scores[p.id] ?? 0}
-                  money={running[p.id] ?? 0}
-                  isShooter={i === shooterIndex}
-                  targetName={players.find((x) => x.id === frame.targetCycle[p.id])?.nickname}
-                  breakValue={breakCount}
-                  isHolder={p.id === shooter?.id}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* potted detail per colour */}
-          <div className="glass p-3">
-            <h3 className="mb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-              Potted this frame
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {BALL_ORDER
-                .filter((c) => potted[c] > 0)
-                .map((c) => (
-                  <Badge key={c} variant="neutral">
-                    {BALL_NAME[c]}: {potted[c]}
-                  </Badge>
-                ))}
-              {!BALL_ORDER.some((c) => potted[c] > 0) ? (
-                <span className="text-xs text-muted-foreground">Nothing potted yet</span>
-              ) : null}
-            </div>
-          </div>
-
-          {/* Live events */}
-          <div className="glass p-3">
-            <h3 className="mb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Events</h3>
-            <EventLog events={events} max={30} />
-          </div>
+          {/* One modern frame-details dashboard (scoreboard table + potted + events).
+              Stat / PlayerCard / EventLog render below the fold on mobile. */}
+          <FrameDetailsPanel
+            players={players}
+            scores={frame.scores}
+            balances={running}
+            activeId={shooter?.id}
+            potted={potted}
+            events={events}
+            mode={mode}
+            totalPoints={totalPoints}
+            setsPot={setsPot}
+            redsPot={redsPot}
+          />
         </aside>
       </div>
 
@@ -317,30 +304,28 @@ export function LiveMatch({ onPause }: {
           <ChevronDown size={18} className="text-foreground/60" />
         </motion.span>
       </button>
-      <AnimatePresence initial={false}>
-        {detailsOpen && !isDesktop ? (
-          <motion.div
-            key="details"
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="overflow-hidden"
-          >
-            <div className="flex flex-col gap-3 pt-2 pb-1">
-              {/* Money tonight (mobile) */}
-              <div className="glass p-3">
-                <h3 className="mb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Money tonight</h3>
-                <div className="flex flex-wrap gap-4">
-                  {players.map((p) => (
-                    <Stat key={p.id} label={p.nickname} value={running[p.id] ?? 0} variant="money" />
-                  ))}
-                </div>
-              </div>
+      {detailsOpen && !isDesktop ? (
+        <div className="flex flex-col gap-3 pt-2 pb-1">
+          <div className="glass p-3">
+            <h3 className="mb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Money tonight</h3>
+            <div className="flex flex-wrap gap-4">
+              {players.map((p) => (
+                <Stat key={p.id} label={p.nickname} value={running[p.id] ?? 0} variant="money" />
+              ))}
             </div>
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
+          </div>
+        </div>
+      ) : null}
+
+      {/* Action consequence toast — flashes clearly on every scoring tap */}
+      {toast ? (
+        <ActionToast
+          key={toast.id}
+          message={toast.msg}
+          tone={toast.tone}
+          onDone={() => setToast(null)}
+        />
+      ) : null}
     </LiveShell>
   );
 }
