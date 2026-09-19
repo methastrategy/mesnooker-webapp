@@ -8,9 +8,8 @@ import { useGameStore, useActiveFrame, useRunningBalance } from "@/store/gameSto
 import { BallPad } from "@/components/game/BallPad";
 import { TurnHeader, ClockStrip } from "@/components/game/TurnHeader";
 import { MoneyStrip } from "@/components/game/MoneyStrip";
-import { ViolationPanel } from "@/components/game/ViolationPanel";
-import { TurnCluster } from "@/components/game/TurnCluster";
 import { ClearRack } from "@/components/game/ClearRack";
+import { ControlDock } from "@/components/game/ControlDock";
 import { FrameDetailsPanel } from "@/components/game/FrameDetailsPanel";
 import { ActionToast } from "@/components/game/ActionToast";
 import { Badge, Stat } from "@/components/ui";
@@ -209,25 +208,25 @@ export function LiveMatch({ onPause }: {
       />
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
-        {/* ══════════ ZONE A — ACTION (input, always in thumb reach) ══════════ */}
+        {/* ══════════ ZONE A — THE TABLE (baize hero + deck; thumb-reach) ══════════ */}
         <div className="flex flex-col gap-3">
           <ClockStrip frameNumber={store.frames.length} frameClock={frameClock} sessionClock={sessionClock} />
 
-          {/* ACTION PAD — one input control at a time: the free ball pad while a
-              shooter may play any colour, or the ordered ClearRack once the
-              table is actually locked into yellow→…→black. */}
-          {clearOrderLocked ? (
-            <ClearRack done={clearDone} nextColour={nextColour} ballValues={ballValues} onPot={onPot} />
-          ) : (
-            <div className="glass-strong glow-emerald p-3 md:p-4">
-              <div className="mb-2 flex items-center justify-between">
-                <h3 className="text-sm font-bold uppercase tracking-wider text-foreground/80">
-                  Tap to play
-                </h3>
-                <Badge variant={canStartBreak ? "default" : "danger"}>
-                  {canStartBreak ? "pick a colour" : "red first"}
-                </Badge>
-              </div>
+          {/* THE TABLE — the baize is the hero of the screen. The free ball pad
+              while a shooter may play any colour, or the ordered ClearRack once
+              the table locks into yellow→…→black. */}
+          <div className="table-stage">
+            <div className="scoreboard-head">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-foreground/80">
+                Tap to play
+              </h3>
+              <Badge variant={canStartBreak ? "default" : "danger"}>
+                {canStartBreak ? "pick a colour" : "red first"}
+              </Badge>
+            </div>
+            {clearOrderLocked ? (
+              <ClearRack done={clearDone} nextColour={nextColour} ballValues={ballValues} onPot={onPot} />
+            ) : (
               <BallPad
                 legal={legal}
                 ballValues={ballValues}
@@ -235,24 +234,22 @@ export function LiveMatch({ onPause }: {
                 showCount={(c) => store.ballCounts[c]}
                 clearingColours={clearOrderLocked}
               />
-            </div>
-          )}
+            )}
+          </div>
 
-          {/* quick money peek — always visible on mobile */}
+          {/* quick money peek — always visible on mobile, above the deck */}
           <div className="lg:hidden">
             <MoneyStrip players={players} balances={running} activeId={shooter?.id} />
           </div>
 
-          {/* The three scoring inputs — equal-size keys that auto-advance turn */}
-          <ViolationPanel
+          {/* The control deck — three round-ending keys, End turn, ⋯ More and
+              staged End frame. Fixed bottom rail on mobile, in-flow under the
+              baize on desktop. */}
+          <ControlDock
             mode={mode}
             onFoul={() => scoringAction("foul", "Foul", mode === "points" ? "-4" : "-2", "danger")}
             onMiss={() => scoringAction("miss", "Snooker miss", mode === "points" ? "-2" : "-1", "danger")}
             onSolve={() => scoringAction("solve", "Solve", "+1", "success")}
-          />
-
-          {/* End turn primary + ⋯ More (Undo/Redo only) + staged End frame */}
-          <TurnCluster
             onEndTurn={() => { tap(); endTurn(); setToast({ id: Date.now(), msg: `→ ${nextShooter()?.nickname ?? "next"}`, tone: "info" }); }}
             moreOpen={moreOpen}
             onMoreOpen={() => setMoreOpen(true)}
@@ -326,6 +323,10 @@ export function LiveMatch({ onPause }: {
           onDone={() => setToast(null)}
         />
       ) : null}
+
+      {/* Bottom clearance on mobile so the fixed control deck never covers
+          the details accordion (desktop deck is in-flow, no spacer needed). */}
+      <div className="h-24 lg:hidden" aria-hidden />
     </LiveShell>
   );
 }

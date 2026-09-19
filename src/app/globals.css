@@ -337,6 +337,86 @@ body {
     0 10px 22px rgba(0, 0, 0, 0.5);
 }
 
+/* ───────── Match table stage ─────────
+ * .table-stage   — the brass-railed frame holding the baize pad: the whole
+ *                  screen reads as THE table, not a card in a feed.
+ * .scoreboard-head — scoreboard-style header strip on the table rail
+ *                    (left: instruction · right: phase badge). */
+.table-stage {
+  position: relative;
+  border-radius: 26px;
+  background: linear-gradient(180deg, rgba(243, 239, 228, 0.05), rgba(243, 239, 228, 0.015)),
+    rgba(22, 29, 23, 0.86);
+  backdrop-filter: blur(26px) saturate(160%);
+  -webkit-backdrop-filter: blur(26px) saturate(160%);
+  border: 1px solid rgba(217, 164, 65, 0.22);   /* brass rail */
+  box-shadow:
+    inset 0 1px 0 rgba(243, 239, 228, 0.1),
+    0 16px 40px rgba(0, 0, 0, 0.55);
+  padding: 0.75rem 1rem;
+}
+.table-stage::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 34%;
+  border-radius: 26px;
+  pointer-events: none;
+  background: radial-gradient(70% 60% at 50% 0%, rgba(240, 194, 92, 0.05), transparent 62%);
+}
+.scoreboard-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+/* ───────── Control dock (table-side deck) ─────────
+ * On mobile (<lg) the deck is FIXED just above the bottom nav, clear of any
+ * safe-area inset, so the scorer's thumb always lands on the keys without
+ * covering navigation. On desktop (≥lg) it flips to static and sits in-flow
+ * directly under the baize — the rail of the table. */
+.control-dock {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: max(5rem, calc(5rem + env(safe-area-inset-bottom, 0px)));
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(180deg, rgba(20, 26, 22, 0.94), rgba(13, 18, 16, 0.98));
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  border: 1px solid rgba(217, 164, 65, 0.16);
+  border-radius: 24px;
+  box-shadow:
+    inset 0 1px 0 rgba(243, 239, 228, 0.08),
+    0 18px 44px rgba(0, 0, 0, 0.6);
+}
+@media (min-width: 1024px) {
+  .control-dock {
+    position: static;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    z-index: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.9rem 1rem;
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border: none;
+    box-shadow: none;
+  }
+}
+
 /* Hide scrollbar */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }

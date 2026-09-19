@@ -43,7 +43,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </button>
       <SettingsSheet />
       <Sidebar />
-      <main className="relative z-10 w-full min-w-0 flex-1 px-4 pb-28 pt-16 md:px-8 md:pb-12 md:pt-8">
+      <main className="relative z-10 w-full min-w-0 flex-1 px-4 pb-36 pt-16 md:px-8 md:pb-12 md:pt-8">
         <div className="mx-auto w-full max-w-6xl">{children}</div>
       </main>
       <BottomNav />

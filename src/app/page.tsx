@@ -2,11 +2,15 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Plus, Play, Timer, Trophy } from "lucide-react";
+import { Play, Timer, Trophy } from "lucide-react";
 import { useGameStore, useRunningBalance } from "@/store/gameStore";
 import { GlassCard, Stat, Button } from "@/components/ui";
+import { BALL_HEX, BALL_ORDER } from "@/lib/rules";
 import { formatMoney } from "@/lib/utils";
 
+/** Dashboard — the green room: a big baize table when idle (set the table),
+ *  a live scoreboard when a session is running. Same data as before, arranged
+ *  around the table metaphor instead of a plain stat-card stack. */
 export default function DashboardPage() {
   const session = useGameStore((s) => s.session);
   const players = useGameStore((s) => s.players);
@@ -18,9 +22,9 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col gap-5">
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-3xl font-bold">Dashboard</h1>
+        <h1 className="text-3xl font-bold">The green room</h1>
         <p className="text-sm text-muted-foreground">
-          {session ? "Tonight's session in progress" : "Welcome back — start or join a session"}
+          {session ? "Tonight's session is on the table" : "Set the table and get the balls rolling"}
         </p>
       </motion.div>
 
@@ -28,28 +32,43 @@ export default function DashboardPage() {
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          className="glass flex flex-col items-center gap-4 p-10 text-center"
+          className="table-stage flex flex-col items-center gap-5 p-8 text-center"
         >
-          <span className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/15 text-primary">
-            <Play size={28} />
-          </span>
+          {/* Mini baize under the headline — the table you're about to set */}
+          <div className="baize relative h-28 w-full max-w-md rounded-[20px] overflow-hidden">
+            <div className="felt-spot" />
+            <div className="relative flex flex-wrap items-center justify-center gap-2 py-6">
+              {Array.from({ length: 6 }, (_, i) => (
+                <span
+                  key={i}
+                  className={`flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-bold text-black/75 shadow ${i >= 3 ? "opacity-70" : ""}`}
+                  style={{ background: BALL_HEX[BALL_ORDER[i]] }}
+                >
+                  {i + 1}
+                </span>
+              ))}
+              <span className="flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-bold text-black/75 shadow" style={{ background: BALL_HEX.black }}>
+                7
+              </span>
+            </div>
+          </div>
           <div>
             <h2 className="text-xl font-bold">Start a match</h2>
             <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-              Set up 2–8 players, choose point or ball count, and set your money rate. Scoring and
-              settlement is instant.
+              Two steps — set the rules, then the players. Pick point or ball count,
+              name your rate, and the settlement writes itself.
             </p>
           </div>
           <Link href="/setup">
             <Button size="lg">
-              <Plus size={18} /> New session
+              <Play size={18} /> Set the table
             </Button>
           </Link>
         </motion.div>
       ) : (
         <div className="flex flex-col gap-5">
-          {/* Active session hero */}
-          <GlassCard glow="emerald" className="flex flex-col gap-4 p-5">
+          {/* Active session hero — scoreboard rail over the table stage */}
+          <GlassCard glow="gold" className="flex flex-col gap-4 p-5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Timer size={18} className="text-primary" />
@@ -72,7 +91,7 @@ export default function DashboardPage() {
             <div className="flex flex-wrap items-center gap-2">
               <Link href="/match" className="flex-1 sm:flex-none">
                 <Button className="w-full">
-                  <Play size={16} /> Open live match
+                  <Play size={16} /> Back to the table
                 </Button>
               </Link>
               <Link href="/settlement" className="flex-1 sm:flex-none">
