@@ -340,10 +340,21 @@ export const useGameStore = create<GameStore>()(
         // TURN BOUNDARY BEHAVIOUR — a pot is the start of a fresh undoable step.
         pushUndo(st);
 
-        // Potting a ball always REMOVES it from the table — red or colour.
-        // (User rule: potting a colour takes that ball off / "set aside", even
-        // while reds remain. It is not re-spotted.)
-        if (counts[ball] > 0) counts[ball] -= 1;
+        // Re-spotting rule (USER-CONFIRMED):
+        // - A RED pot is always consumed (removed from the table).
+        // - A COLOUR pot RE-SPOTS (put back up) while any red remains on the
+        //   table AND while the shooter is still in their COLOUR phase — the
+        //   colour stays pressable so it can be potted again. A colour is only
+        //   actually removed once reds are gone AND the phase has cycled back
+        //   to RED_FIRST (ordered clear: yellow → … → black).
+        const frameEvents = st.events.filter((e) => e.frameId === f.id && !e.undone);
+        const phase = inferBreakPhase(frameEvents, scorer.id);
+        if (ball === "red") {
+          if (counts.red > 0) counts.red -= 1;
+        } else {
+          const clearing = counts.red === 0 && phase === BreakPhase.RED_FIRST;
+          if (clearing && counts[ball] > 0) counts[ball] -= 1;
+        }
 
         const evt: PottedEvent = {
           id: nid(),
