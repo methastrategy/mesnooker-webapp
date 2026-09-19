@@ -32,7 +32,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             "radial-gradient(60% 40% at 85% 0%, color-mix(in srgb, var(--primary) 13%, #000 87%), transparent 60%), radial-gradient(50% 35% at 0% 100%, color-mix(in srgb, var(--gold) 9%, #000 91%), transparent 60%)",
         }}
       />
-      {/* Settings gear — opens the SAME popup every other entry point uses */}
       <button
         type="button"
         onClick={() => store.openSettings()}

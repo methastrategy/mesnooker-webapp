@@ -28,7 +28,7 @@ export function BallPad({
   }
   const legalSet = new Set(legal);
   return (
-    <div className="relative mx-auto w-full max-w-xl rounded-2xl bg-[radial-gradient(120%_120%_at_50%_0%,#118a44_0%,#0d6b2f_55%,#0a5426_100%)] p-4 shadow-[inset_0_0_30px_rgba(0,0,0,0.45),0_12px_30px_rgba(0,0,0,0.5)]">
+    <div className="relative mx-auto w-full max-w-xl rounded-2xl bg-[radial-gradient(120%_120%_at_50%_0%,var(--color-felt-hi)_0%,var(--color-felt-mid)_55%,var(--color-felt-deep)_100%)] p-4 shadow-[inset_0_0_30px_rgba(0,0,0,0.45),0_12px_30px_rgba(0,0,0,0.5)]">
       {/* soft top light reflection on the felt */}
       <div className="pointer-events-none absolute inset-x-4 top-2 h-6 rounded-t-2xl bg-white/[0.06] blur-md" />
 

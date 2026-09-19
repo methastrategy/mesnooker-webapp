@@ -170,7 +170,7 @@ export const useGameStore = create<GameStore>()(
       reverse: false,
       sound: true,
       haptics: true,
-      theme: "emerald",
+      theme: "mono",
       frames: [],
       events: [],
       startCounts: initialCounts(),

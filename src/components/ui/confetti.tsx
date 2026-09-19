@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { motion } from "framer-motion";
 
-const COLORS = ["#16c784", "#f59e0b", "#ef4444", "#3b82f6", "#ec4899", "#22c55e"];
+const COLORS = ["#c7ccd1", "#cabfa0", "#ef4444", "#3b82f6", "#ec4899", "#8b8e93"];
 
 interface ConfettiPiece {
   x: number;

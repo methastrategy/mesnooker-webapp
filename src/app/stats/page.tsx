@@ -29,7 +29,7 @@ import { formatMoney } from "@/lib/utils";
 import type { Player } from "@/types";
 
 const COLORS = {
-  emerald: "#16c784",
+  emerald: "#c7ccd1",
   gold: "#f59e0b",
   red: "#ef4444",
   blue: "#3b82f6",

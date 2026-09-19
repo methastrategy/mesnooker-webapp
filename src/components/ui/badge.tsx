@@ -14,7 +14,7 @@ const badgeVariants = cva(
         danger: "bg-destructive/15 text-destructive border border-destructive/30",
         info: "bg-info/15 text-info border border-info/30",
         neutral: "bg-white/8 text-foreground/70 border border-white/10",
-        success: "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30",
+        success: "bg-[#c7ccd1]/15 text-[#f2f3f4] border border-[#c7ccd1]/30",
       },
     },
     defaultVariants: { variant: "default" },

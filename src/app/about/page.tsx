@@ -16,7 +16,7 @@ const FEATURES = [
   { icon: Target, title: "Two game modes", desc: "Official point count or fast ball count — pick what your table runs." },
   { icon: Clock, title: "Live scoring", desc: "Tap to pot, foul, miss or pot shots. Break tracking and running totals update instantly." },
   { icon: ShieldCheck, title: "Offline ready", desc: "Progressive Web App — your data stays on-device and works without a connection." },
-  { icon: Sparkles, title: "Dark emerald design", desc: "Emerald Noir aesthetic tuned for low-light table play." },
+  { icon: Sparkles, title: "Clean platinum design", desc: "Minimal Chrome aesthetic tuned for low-light table play." },
 ];
 
 const STACK = [

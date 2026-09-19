@@ -88,7 +88,7 @@ export function Sidebar() {
         );
       })}
       <div className="mt-auto px-2 text-[10px] text-muted-foreground">
-        Emerald Noir v1.0
+        Chrome v1.1
       </div>
     </aside>
   );
