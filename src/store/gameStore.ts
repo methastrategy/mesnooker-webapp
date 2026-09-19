@@ -511,6 +511,10 @@ export const useGameStore = create<GameStore>()(
         // Record an end_turn event so the break engine knows this visit is over.
         // The next shooter starts a fresh visit, which means "pot red first"
         // (if any reds remain) rather than carrying on a stale colour shot.
+        // NOTE: the event MUST be appended to the events array (not just
+        // eventIds) or inferBreakPhase can never see the visit boundary and a
+        // returning shooter would wrongly keep a colour continuation.
+        let nextEvents = st.events;
         if (scorer) {
           const evt: GameEvent = {
             id: nid(), ts: Date.now(), playerId: scorer.id, playerName: scorer.nickname,
@@ -519,11 +523,12 @@ export const useGameStore = create<GameStore>()(
             type: "end_turn", points: 0, frameId: f.id, turnIndex: st.shooterIndex,
           };
           f.eventIds.push(evt.id);
+          nextEvents = [...st.events, evt];
         }
         const idx = st.reverse ? (st.shooterIndex - 1 + n) % n : (st.shooterIndex + 1) % n;
         set({
           frames: [...st.frames],
-          events: st.events,
+          events: nextEvents,
           shooterIndex: idx,
           undoStack: st.undoStack,
           redoStack: st.redoStack,
