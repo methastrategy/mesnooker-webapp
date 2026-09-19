@@ -29,12 +29,12 @@ import { formatMoney } from "@/lib/utils";
 import type { Player } from "@/types";
 
 const COLORS = {
-  emerald: "#c7ccd1",
-  gold: "#f59e0b",
-  red: "#ef4444",
+  emerald: "#d9a441",
+  gold: "#f0c25c",
+  red: "#e8534a",
   blue: "#3b82f6",
   pink: "#ec4899",
-  grey: "#8a8f8c",
+  grey: "#9aa58f",
 };
 
 interface AggRow {

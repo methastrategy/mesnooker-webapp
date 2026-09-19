@@ -11,10 +11,10 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground border border-primary/40 shadow-[0_1px_0_rgba(255,255,255,0.15),0_8px_24px_rgba(22,199,132,0.35)] hover:bg-primary/90",
-        gold: "bg-gold text-black border border-gold/40 shadow-[0_1px_0_rgba(255,255,255,0.15),0_8px_24px_rgba(245,158,11,0.3)] hover:bg-gold/90",
+          "bg-primary text-primary-foreground border border-primary/40 shadow-[0_1px_0_rgba(255,255,255,0.15),0_8px_24px_rgba(217,164,65,0.28)] hover:bg-primary/90",
+        gold: "bg-gold text-black border border-gold/40 shadow-[0_1px_0_rgba(255,255,255,0.15),0_8px_24px_rgba(240,194,92,0.28)] hover:bg-gold/90",
         violation:
-          "bg-violation text-black border border-violation/50 shadow-[0_1px_0_rgba(255,255,255,0.15),0_8px_24px_rgba(234,88,12,0.28)] hover:bg-violation/90",
+          "bg-violation text-black border border-violation/50 shadow-[0_1px_0_rgba(255,255,255,0.15),0_8px_24px_rgba(242,115,30,0.26)] hover:bg-violation/90",
         secondary: "bg-secondary text-secondary-foreground border border-secondary/40 hover:bg-secondary/80",
         outline: "border border-white/20 bg-white/5 text-foreground shadow-[0_1px_0_rgba(255,255,255,0.08)] hover:bg-white/10",
         ghost: "border border-white/10 text-foreground hover:bg-white/5",

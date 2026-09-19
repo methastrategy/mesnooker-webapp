@@ -28,9 +28,15 @@ export function BallPad({
   }
   const legalSet = new Set(legal);
   return (
-    <div className="relative mx-auto w-full max-w-xl rounded-2xl bg-[radial-gradient(120%_120%_at_50%_0%,var(--color-felt-hi)_0%,var(--color-felt-mid)_55%,var(--color-felt-deep)_100%)] p-4 shadow-[inset_0_0_30px_rgba(0,0,0,0.45),0_12px_30px_rgba(0,0,0,0.5)]">
-      {/* soft top light reflection on the felt */}
-      <div className="pointer-events-none absolute inset-x-4 top-2 h-6 rounded-t-2xl bg-white/[0.06] blur-md" />
+    <div className="relative mx-auto w-full max-w-xl rounded-[26px] border border-black/50 bg-black/30 p-3 shadow-[0_18px_44px_rgba(0,0,0,0.62)]">
+      {/* cushion rail + tungsten-lit green baize */}
+      <div className="baize rounded-[20px] p-4">
+        {/* spotlight pool hovering over the felt */}
+        <div className="felt-spot" />
+        {/* chalk rail ticks along the top cushion */}
+        <div className="pointer-events-none absolute inset-x-5 top-1.5 flex items-center justify-center gap-1.5">
+          {[0, 1, 2, 3, 4].map((i) => <span key={i} className="felt-tick" />)}
+        </div>
 
       {clearingColours ? (
         /* When clearing, show the official colour rack with only the next
@@ -90,6 +96,7 @@ export function BallPad({
             </div>
           );
         })}
+        </div>
       </div>
     </div>
   );

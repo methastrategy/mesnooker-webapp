@@ -9,7 +9,7 @@ export default function Loading() {
       <motion.div
         animate={{ scale: [1, 1.12, 1], opacity: [0.6, 1, 0.6] }}
         transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
-        className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/15 text-primary shadow-[0_0_30px_rgba(22,199,132,0.4)]"
+        className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/15 text-primary shadow-[0_0_30px_rgba(217,164,65,0.32)]"
       >
         <Wallet size={30} />
       </motion.div>

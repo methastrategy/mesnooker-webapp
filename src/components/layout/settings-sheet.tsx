@@ -6,7 +6,7 @@ import { useGameStore } from "@/store/gameStore";
 import { cn } from "@/lib/utils";
 
 const THEMES: { id: string; name: string; swatch: string[] }[] = [
-  { id: "mono", name: "Chrome", swatch: ["#c7ccd1", "#cabfa0", "#0c0d0e"] },
+  { id: "mono", name: "Billiard", swatch: ["#d9a441", "#f0c25c", "#0d1210"] },
   { id: "emerald", name: "Emerald Noir", swatch: ["#16c784", "#f59e0b", "#050505"] },
   { id: "ember", name: "Ember", swatch: ["#f97316", "#f59e0b", "#100a06"] },
   { id: "forest", name: "Forest", swatch: ["#22c55e", "#eab308", "#05080a"] },
