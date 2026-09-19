@@ -22,7 +22,25 @@ shadcn components.
 
 ## 1. Color Tokens
 
-All values as hex unless noted. **bg** = surface of the page, **fg** = text.
+*All values as hex unless noted. **bg** = surface of the page, **fg** = text.*
+
+## 0. Structural Layout (2026-09, match/dashboard)
+
+The screen reads as **a table in a green room**, not a card feed:
+
+- **Match (mobile)** — top-to-bottom: TurnHeader scoreboard rail → ClockStrip →
+  `.table-stage` (brass frame containing the `.baize` ball pad) → inline MoneyStrip →
+  `.control-dock` **fixed** gamepad deck (Foul/Miss/Solve + Turn + ⋯ + End frame)
+  at `bottom: 5rem` (clears the 77 px BottomNav) → bottom spacer `h-24 lg:hidden`.
+- **Match (≥lg)** — 2-col grid `lg:grid-cols-[minmax(0,1fr)_360px]`: ZONE A table +
+  in-flow dock under the baize, ZONE B analytics `aside`.
+- **Setup** — 2-step wizard inside `NewSession` (step 0 The table w/ mini `.baize`
+  preview → step 1 Players & rate), brass step indicator `#1 / 2`.
+- **Dashboard** — idle = `.table-stage` hero (mini baize ball row + "Set the table"
+  CTA); live = Session-live hero + Money tonight + Leaderboard.
+- Custom CSS lives in `src/app/globals.css` under layers: `@theme` tokens, `:root`
+  semantic vars, component classes (`.glass`, `.glass-strong`, `.baize`, `.felt-spot`,
+  `.table-stage`, `.scoreboard-head`, `.control-dock`), Tailwind utilities.
 
 ### Brand palette (Tailwind `@theme`, default theme `mono` = Billiard)
 
