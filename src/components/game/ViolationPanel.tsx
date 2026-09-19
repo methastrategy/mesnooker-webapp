@@ -20,6 +20,7 @@ export function ViolationPanel({
   onSolve: () => void;
 }) {
   const foulValue = mode === "points" ? "-4" : "-2";
+  const missValue = mode === "points" ? "-2" : "-1";
   return (
     <div className="grid grid-cols-3 gap-2">
       <ActionButton tone="danger" onClick={onFoul} aria-label={`Foul ${foulValue}`}>
@@ -28,10 +29,10 @@ export function ViolationPanel({
           <span className="mt-0.5 text-[11px] font-bold opacity-80 tabular-nums">{foulValue}</span>
         </span>
       </ActionButton>
-      <ActionButton tone="violation" onClick={onMiss} aria-label="Snooker miss -2">
+      <ActionButton tone="violation" onClick={onMiss} aria-label={`Snooker miss ${missValue}`}>
         <span className="flex flex-col items-center leading-none">
           <span className="text-sm font-bold">Snooker miss</span>
-          <span className="mt-0.5 text-[11px] font-bold opacity-80 tabular-nums">-2</span>
+          <span className="mt-0.5 text-[11px] font-bold opacity-80 tabular-nums">{missValue}</span>
         </span>
       </ActionButton>
       <ActionButton tone="gold" onClick={onSolve} aria-label="Solve snooker +1">

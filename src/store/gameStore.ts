@@ -11,6 +11,7 @@ import {
   FOUL_VALUES,
   inferBreakPhase,
   pottedBallsPerPlayer,
+  SNOOKER_MISS_VALUES,
 } from "@/lib/rules";
 import {
   computeFrameMoney,
@@ -339,22 +340,10 @@ export const useGameStore = create<GameStore>()(
         // TURN BOUNDARY BEHAVIOUR — a pot is the start of a fresh undoable step.
         pushUndo(st);
 
-        // Re-spotting rule:
-        // - A RED pot is always consumed (removed from the table).
-        // - A COLOUR pot RE-SPOTS (count stays) while any red remains on the
-        //   table, AND also while the shooter is still in their COLOUR phase —
-        //   i.e. right after the last red, they may pot ANY colour for free and
-        //   it is put back. A colour is only actually removed (consumed) once
-        //   reds are gone AND the phase has cycled back to RED_FIRST (ordered
-        //   clear: yellow → green → brown → blue → pink → black).
-        const frameEvents = st.events.filter((e) => e.frameId === f.id && !e.undone);
-        const phase = inferBreakPhase(frameEvents, scorer.id);
-        if (ball === "red") {
-          if (counts.red > 0) counts.red -= 1;
-        } else {
-          const clearing = counts.red === 0 && phase === BreakPhase.RED_FIRST;
-          if (clearing && counts[ball] > 0) counts[ball] -= 1;
-        }
+        // Potting a ball always REMOVES it from the table — red or colour.
+        // (User rule: potting a colour takes that ball off / "set aside", even
+        // while reds remain. It is not re-spotted.)
+        if (counts[ball] > 0) counts[ball] -= 1;
 
         const evt: PottedEvent = {
           id: nid(),
@@ -409,13 +398,14 @@ export const useGameStore = create<GameStore>()(
         if (!f || !st.session) return;
         const scorer = st.players[st.shooterIndex];
         if (!scorer) return;
+        const value = SNOOKER_MISS_VALUES[f.mode];
         const evt: GameEvent = {
           id: nid(), ts: Date.now(), playerId: scorer.id, playerName: scorer.nickname,
           targetId: f.targetCycle[scorer.id],
           targetName: st.players.find((p) => p.id === f.targetCycle[scorer.id])?.nickname,
-          type: "snooker_miss", points: -2, frameId: f.id, turnIndex: st.shooterIndex,
+          type: "snooker_miss", points: value, frameId: f.id, turnIndex: st.shooterIndex,
         };
-        f.scores[scorer.id] = (f.scores[scorer.id] ?? 0) - 2;
+        f.scores[scorer.id] = (f.scores[scorer.id] ?? 0) + value;
         f.snookerMisses[scorer.id] = (f.snookerMisses[scorer.id] ?? 0) + 1;
         f.eventIds.push(evt.id);
         set({ frames: [...st.frames], events: [...st.events, evt] });
@@ -465,7 +455,7 @@ export const useGameStore = create<GameStore>()(
           f.fouls[scorer.id] = (f.fouls[scorer.id] ?? 0) + 1;
         } else if (kind === "miss") {
           type = "snooker_miss";
-          points = -2;
+          points = SNOOKER_MISS_VALUES[f.mode];
           f.snookerMisses[scorer.id] = (f.snookerMisses[scorer.id] ?? 0) + 1;
         } else {
           type = "snooker_hit";

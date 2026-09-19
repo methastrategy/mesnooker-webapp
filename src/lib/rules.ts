@@ -29,6 +29,13 @@ export const FOUL_VALUES: Record<GameMode, number> = {
   balls: -2,
 };
 
+/** Snooker "miss" (shoot the snook but it does not land / no foul): value is
+ *  mode-dependent. Point count: −2. Ball count: −1. */
+export const SNOOKER_MISS_VALUES: Record<GameMode, number> = {
+  points: -2,
+  balls: -1,
+};
+
 export const BALL_START: Record<BallColor, number> = {
   red: 15,
   yellow: 1,

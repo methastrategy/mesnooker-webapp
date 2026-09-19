@@ -247,7 +247,7 @@ export function LiveMatch({ onPause }: {
           <ViolationPanel
             mode={mode}
             onFoul={() => scoringAction("foul", "Foul", mode === "points" ? "-4" : "-2", "danger")}
-            onMiss={() => scoringAction("miss", "Snooker miss", "-2", "danger")}
+            onMiss={() => scoringAction("miss", "Snooker miss", mode === "points" ? "-2" : "-1", "danger")}
             onSolve={() => scoringAction("solve", "Solve", "+1", "success")}
           />
 

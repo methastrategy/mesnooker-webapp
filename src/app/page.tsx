@@ -40,7 +40,7 @@ export default function DashboardPage() {
               settlement is instant.
             </p>
           </div>
-          <Link href="/match">
+          <Link href="/setup">
             <Button size="lg">
               <Plus size={18} /> New session
             </Button>
