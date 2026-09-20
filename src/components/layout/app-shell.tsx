@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { Settings as SettingsIcon } from "lucide-react";
 import { Sidebar, BottomNav } from "./nav";
 import { SettingsSheet } from "./settings-sheet";
@@ -9,12 +10,21 @@ import { useGameStore } from "@/store/gameStore";
 export function AppShell({ children }: { children: React.ReactNode }) {
   const store = useGameStore();
   const theme = store.theme;
+  const pathname = usePathname();
 
   // Apply the active theme to the root <html data-theme="…"> so the Tailwind
   // `@theme` utility tokens (bg-*, text-*, border-*, ring-*) re-theme app-wide.
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
   }, [theme]);
+
+  // A sheet left open (e.g. Settings) must never follow the user to another
+  // page: its full-screen backdrop blocks every tap on the new screen and the
+  // nav z-order makes it look like "the buttons are dead". Close on route change.
+  useEffect(() => {
+    store.closeSettings();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
 
   useEffect(() => {
     if ("serviceWorker" in navigator && process.env.NODE_ENV === "production") {

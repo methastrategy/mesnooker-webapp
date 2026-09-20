@@ -1,7 +1,9 @@
 /* Snooker Money Tracker Pro — offline-first service worker (App Router compatible) */
 /* v2: network-first for navigations (never serve a stale shell after a deploy);
    cache-first only for versioned static chunks, which are immutable by hash.  */
-const CACHE = "smoke-cache-v2";
+/* v3 (2026-09): bump CACHE name so installed PWAs holding the pre-v2 shell are
+   purged on activate — old shell + new chunk hashes = dead buttons.          */
+const CACHE = "smoke-cache-v3";
 const STATIC = ["/manifest.webmanifest", "/icon.svg"];
 
 self.addEventListener("install", (e) => {
