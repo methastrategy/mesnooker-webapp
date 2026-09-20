@@ -1,41 +1,43 @@
 @import "tailwindcss";
 
 /* ═══════════════════════════════════════════════════════════════════
-   Arcade Neon — the default Mesnooker visual identity (2026-09 v2).
-   A money snooker night read as a lit arcade cabinet: deep black room,
-   electric-green neon as the house accent, amber for money, and the
-   table itself as a glowing felt pad under a cold spotlight. Tokens
-   below re-theme every Tailwind utility (bg-*, text-*, border-*,
-   ring-*) AND the shadcn-style :root component layer, so the whole
-   app re-skins through this one file. Legacy named themes remain
-   selectable (emerald/ember/forest/midnight/violet) — they just
-   declare their own --color-* overrides. Scoring rules are untouched.
+   Golden Lounge — the default Mesnooker visual identity (2026-09 v4).
+   A money snooker table read as a warm private lounge: espresso-dark
+   room, brass-gold action color, champagne money highlights, and the
+   table as a bottle-green felt pad under a soft tungsten spotlight.
+   Calmer and warmer than the Arcade neon it replaced — no screen glare
+   on a long night. Tokens below re-theme every Tailwind utility
+   (bg-*, text-*, border-*, ring-*) AND the shadcn-style :root
+   component layer, so the whole app re-skins through this one file.
+   Legacy named themes remain selectable (emerald/ember/forest/
+   midnight/violet) — they just declare their own --color-* overrides.
+   Scoring rules are untouched.
    ═══════════════════════════════════════════════════════════════════ */
 
 @theme {
-  --color-background: #070a0e;          /* deep black arcade room, cool lit */
-  --color-surface: #0c1116;             /* raised surfaces, popovers, inputs */
-  --color-card: rgba(13, 18, 23, 0.66); /* glass card fill, ink-tinted */
-  --color-card-solid: #0f1419;          /* opaque cards, sheets */
-  --color-primary: #34ffa0;             /* neon green: main actions + money */
-  --color-secondary: #0f6b3d;           /* deep green for secondary accents */
-  --color-gold: #ffc94d;                /* amber arcade: money highlights */
-  --color-danger: #ff4d5f;              /* foul red-pink */
-  --color-info: #4ad4ff;                /* cyan: focus assists, blue assist */
-  --color-muted: #8b98a2;               /* muted/secondary text */
-  --color-foreground: #eef4f6;          /* cool display white */
-  --color-line: rgba(238, 244, 246, 0.10);
+  --color-background: #0b0a07;          /* espresso room, warm near-black */
+  --color-surface: #151208;             /* raised surfaces, popovers, inputs */
+  --color-card: rgba(21, 18, 8, 0.70);  /* warm glass card fill */
+  --color-card-solid: #171409;          /* opaque cards, sheets */
+  --color-primary: #e2b96a;             /* brass gold: main actions + winning money */
+  --color-secondary: #9c7a35;           /* deep bronze for secondary accents */
+  --color-gold: #ffd27a;                /* champagne: money / settlement highlights */
+  --color-danger: #e5484d;              /* foul red */
+  --color-info: #7fb3ff;                /* soft blue: focus assists */
+  --color-muted: #9c9485;               /* muted/secondary text */
+  --color-foreground: #f4efe6;          /* warm ivory */
+  --color-line: rgba(244, 239, 230, 0.10);
 
-  /* Match-page tokens — the table as a lit arcade felt pad */
-  --color-violation: #ff8c1a;           /* amber-orange: snooker miss / solve */
-  --color-destructive: #ff4d5f;
-  --color-destructive-foreground: #070a0e;
-  --color-felt-hi: #1f9e4a;             /* neon felt, lamp-lit top */
-  --color-felt-mid: #116b38;
-  --color-felt-deep: #0a3d22;
-  --color-pos-soft: rgba(52, 255, 160, 0.14);
-  --color-neg-soft: rgba(255, 77, 95, 0.14);
-  --color-rail: rgba(12, 17, 22, 0.7);
+  /* Match-page tokens — the table as a tungsten-lit felt pad */
+  --color-violation: #f08c1f;           /* amber-orange: snooker miss / solve */
+  --color-destructive: #e5484d;
+  --color-destructive-foreground: #0b0a07;
+  --color-felt-hi: #2a8f4a;             /* bottle-green felt, lamp-lit top */
+  --color-felt-mid: #176b36;
+  --color-felt-deep: #0b4122;
+  --color-pos-soft: rgba(226, 185, 106, 0.16);
+  --color-neg-soft: rgba(229, 72, 77, 0.14);
+  --color-rail: rgba(21, 18, 8, 0.7);
 
   --font-sans: "Inter Variable", "Inter", -apple-system, BlinkMacSystemFont,
     "SF Pro Display", "SF Pro Text", system-ui, sans-serif;
@@ -43,30 +45,30 @@
 
 :root {
   color-scheme: dark;
-  --background: #070a0e;
-  --foreground: #eef4f6;
-  --card: #0f1419;
-  --card-foreground: #eef4f6;
-  --popover: #0c1116;
-  --popover-foreground: #eef4f6;
-  --primary: #34ffa0;
-  --primary-foreground: #04120a;
-  --secondary: #0f6b3d;
-  --secondary-foreground: #eef4f6;
-  --muted: #0c1116;
-  --muted-foreground: #8b98a2;
-  --accent: #0f6b3d;
-  --accent-foreground: #eef4f6;
-  --destructive: #ff4d5f;
+  --background: #0b0a07;
+  --foreground: #f4efe6;
+  --card: #171409;
+  --card-foreground: #f4efe6;
+  --popover: #151208;
+  --popover-foreground: #f4efe6;
+  --primary: #e2b96a;
+  --primary-foreground: #241a07;
+  --secondary: #9c7a35;
+  --secondary-foreground: #f4efe6;
+  --muted: #151208;
+  --muted-foreground: #9c9485;
+  --accent: #9c7a35;
+  --accent-foreground: #f4efe6;
+  --destructive: #e5484d;
   --destructive-foreground: #fff;
-  --border: rgba(238, 244, 246, 0.1);
-  --input: rgba(238, 244, 246, 0.12);
-  --ring: #34ffa0;
+  --border: rgba(244, 239, 230, 0.1);
+  --input: rgba(244, 239, 230, 0.12);
+  --ring: #e2b96a;
   --radius: 0.9rem;
-  --gold: #ffc94d;
-  --violation: #ff8c1a;
-  --pos-soft: rgba(52, 255, 160, 0.14);
-  --neg-soft: rgba(255, 77, 95, 0.14);
+  --gold: #ffd27a;
+  --violation: #f08c1f;
+  --pos-soft: rgba(226, 185, 106, 0.16);
+  --neg-soft: rgba(229, 72, 77, 0.14);
 }
 
 /* ───────── Themes — applied via <html data-theme="…"> ─────────
@@ -74,7 +76,7 @@
  * these custom properties on a [data-theme] selector re-themes every
  * utility class at runtime. Keep the attribute selector AFTER :root so
  * it wins on ties. The legacy color themes remain selectable; the base
- * is Arcade Neon. */
+ * is Golden Lounge. */
 [data-theme="emerald"] {
   --color-background: #050505;
   --color-surface: #0b0f0e;
@@ -134,6 +136,7 @@
   --primary: #22c55e;
   --muted-foreground: #7a8f80;
   --ring: #22c55e;
+  --gold: #eab308;
 }
 
 [data-theme="midnight"] {
@@ -153,6 +156,7 @@
   --primary: #4f8cff;
   --muted-foreground: #8a93a8;
   --ring: #4f8cff;
+  --gold: #f5c518;
 }
 
 [data-theme="violet"] {
@@ -172,30 +176,31 @@
   --primary: #a855f7;
   --muted-foreground: #9a8fa8;
   --ring: #a855f7;
+  --gold: #f59e0b;
 }
 
-/* `mono` now maps to Arcade Neon (default identity under the legacy
+/* `mono` now maps to Golden Lounge (default identity under the legacy
  * pull-down; kept as an explicit alias so old saved prefs still apply). */
 [data-theme="mono"] {
-  --color-background: #070a0e;
-  --color-surface: #0c1116;
-  --color-card: rgba(13, 18, 23, 0.66);
-  --color-card-solid: #0f1419;
-  --color-primary: #34ffa0;          /* neon green */
-  --color-secondary: #0f6b3d;
-  --color-gold: #ffc94d;             /* amber */
-  --color-danger: #ff4d5f;
-  --color-muted: #8b98a2;
-  --color-foreground: #eef4f6;
-  --color-line: rgba(238, 244, 246, 0.10);
-  --color-violation: #ff8c1a;
-  --background: #070a0e;
-  --foreground: #eef4f6;
-  --card: #0f1419;
-  --primary: #34ffa0;
-  --muted-foreground: #8b98a2;
-  --ring: #34ffa0;
-  --gold: #ffc94d;
+  --color-background: #0b0a07;
+  --color-surface: #151208;
+  --color-card: rgba(21, 18, 8, 0.70);
+  --color-card-solid: #171409;
+  --color-primary: #e2b96a;          /* brass gold */
+  --color-secondary: #9c7a35;
+  --color-gold: #ffd27a;             /* champagne */
+  --color-danger: #e5484d;
+  --color-muted: #9c9485;
+  --color-foreground: #f4efe6;
+  --color-line: rgba(244, 239, 230, 0.10);
+  --color-violation: #f08c1f;
+  --background: #0b0a07;
+  --foreground: #f4efe6;
+  --card: #171409;
+  --primary: #e2b96a;
+  --muted-foreground: #9c9485;
+  --ring: #e2b96a;
+  --gold: #ffd27a;
 }
 
 * {
@@ -210,10 +215,10 @@ html {
 body {
   background-color: var(--background);
   background-image:
-    radial-gradient(70% 48% at 82% -6%, rgba(52, 255, 160, 0.11), transparent 62%),
-    radial-gradient(55% 42% at -4% 100%, rgba(255, 201, 77, 0.07), transparent 58%),
-    radial-gradient(60% 55% at 104% 104%, rgba(31, 158, 74, 0.16), transparent 60%),
-    linear-gradient(180deg, #070a0e, #0a0f14);
+    radial-gradient(70% 48% at 82% -6%, rgba(226, 185, 106, 0.10), transparent 62%),
+    radial-gradient(55% 42% at -4% 100%, rgba(255, 210, 122, 0.06), transparent 58%),
+    radial-gradient(60% 55% at 104% 104%, rgba(42, 143, 74, 0.14), transparent 60%),
+    linear-gradient(180deg, #0b0a07, #100d08);
   background-attachment: fixed;
   color: var(--foreground);
   font-family: var(--font-sans);
@@ -230,54 +235,54 @@ body {
   .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
 }
 
-/* Layered glass surface — ink-dark glass with a neon-green top edge,
- * like light bleeding off the cabinet's lit trim. */
+/* Layered glass surface — warm dark glass with a thin brass top edge,
+ * like light from the lounge lamps catching the table rim. */
 .glass {
   position: relative;
-  background: linear-gradient(180deg, rgba(52, 255, 160, 0.035), rgba(238, 244, 246, 0.014)),
+  background: linear-gradient(180deg, rgba(226, 185, 106, 0.035), rgba(244, 239, 230, 0.014)),
     var(--card);
   backdrop-filter: blur(22px) saturate(150%);
   -webkit-backdrop-filter: blur(22px) saturate(150%);
-  border: 1px solid rgba(52, 255, 160, 0.10);
+  border: 1px solid rgba(226, 185, 106, 0.10);
   box-shadow:
-    inset 0 1px 0 rgba(52, 255, 160, 0.14),
-    inset 0 0 0 0.5px rgba(238, 244, 246, 0.03),
+    inset 0 1px 0 rgba(226, 185, 106, 0.14),
+    inset 0 0 0 0.5px rgba(244, 239, 230, 0.03),
     0 12px 34px rgba(0, 0, 0, 0.55);
   border-radius: 24px;
 }
 
 .glass-strong {
   position: relative;
-  background: linear-gradient(180deg, rgba(52, 255, 160, 0.05), rgba(238, 244, 246, 0.015)),
-    rgba(15, 20, 25, 0.92);
+  background: linear-gradient(180deg, rgba(226, 185, 106, 0.05), rgba(244, 239, 230, 0.015)),
+    rgba(23, 20, 9, 0.92);
   backdrop-filter: blur(30px) saturate(160%);
   -webkit-backdrop-filter: blur(30px) saturate(160%);
-  border: 1px solid rgba(52, 255, 160, 0.14);
+  border: 1px solid rgba(226, 185, 106, 0.14);
   box-shadow:
-    inset 0 1px 0 rgba(52, 255, 160, 0.16),
-    inset 0 0 0 0.5px rgba(238, 244, 246, 0.04),
+    inset 0 1px 0 rgba(226, 185, 106, 0.16),
+    inset 0 0 0 0.5px rgba(244, 239, 230, 0.04),
     0 20px 50px rgba(0, 0, 0, 0.6);
   border-radius: 26px;
 }
 
-/* Neon glows — class names kept (glow-emerald/glow-gold) so every
- * component stays valid, but re-pointed to the Arcade accents:
- * electric green for live surfaces, amber for money. */
+/* Warm glows — class names kept (glow-emerald/glow-gold) so every
+ * component stays valid, but re-pointed to the lounge accents:
+ * brass for live surfaces, champagne for money. */
 .glow-emerald {
   box-shadow:
-    0 0 0 1px rgba(52, 255, 160, 0.22),
-    0 0 26px rgba(52, 255, 160, 0.30),
+    0 0 0 1px rgba(226, 185, 106, 0.22),
+    0 0 26px rgba(226, 185, 106, 0.28),
     0 18px 44px rgba(0, 0, 0, 0.6);
 }
 .glow-gold {
   box-shadow:
-    0 0 0 1px rgba(255, 201, 77, 0.22),
-    0 0 22px rgba(255, 201, 77, 0.30),
+    0 0 0 1px rgba(255, 210, 122, 0.22),
+    0 0 22px rgba(255, 210, 122, 0.30),
     0 18px 44px rgba(0, 0, 0, 0.6);
 }
 
-/* Ball — glossy billiard ball with bevel + neon edge ring; bright enough
- * to read on the lit felt. The ball-rim variant adds a light ring. */
+/* Ball — glossy billiard ball with bevel + warm rim; bright enough
+ * to read on the green felt. The ball-rim variant adds a brass ring. */
 .snooker-ball {
   border-radius: 9999px;
   box-shadow:
@@ -291,20 +296,19 @@ body {
 .ball-rim {
   border-radius: 9999px;
   box-shadow:
-    inset 0 0 0 2px rgba(52, 255, 160, 0.5),
+    inset 0 0 0 2px rgba(226, 185, 106, 0.5),
     inset 0 -7px 0 rgba(0, 0, 0, 0.4),
     inset 3px 4px 7px rgba(255, 255, 255, 0.32),
     inset -4px -4px 8px rgba(0, 0, 0, 0.28),
-    0 0 10px rgba(52, 255, 160, 0.25),
+    0 0 10px rgba(226, 185, 106, 0.22),
     0 6px 14px rgba(0, 0, 0, 0.6),
     0 2px 4px rgba(0, 0, 0, 0.45);
 }
 
-/* ───────── Ball pad surface (playful touches) ─────────
- * .baize        — layered neon felt (lit from above, cold spotlight).
- * .baize-rail   — rubber cushion rail framing the felt (like a cushion
- *                 under the table rim).
- * .felt-spot    — cold spotlight pool hovering over the felt.
+/* ───────── Ball pad surface ─────────
+ * .baize        — layered bottle-green felt (lit from above, warm).
+ * .baize-rail   — rubber cushion rail framing the felt.
+ * .felt-spot    — tungsten spotlight pool hovering over the felt.
  * .felt-tick    — chalk scoreboard tick marks along the rail.
  * .cushion      — physical contact shadow under a pressed ball. */
 .baize {
@@ -314,8 +318,8 @@ body {
     radial-gradient(120% 120% at 50% 0%, var(--color-felt-hi) 0%, var(--color-felt-mid) 55%, var(--color-felt-deep) 100%);
   box-shadow:
     inset 0 0 34px rgba(0, 0, 0, 0.5),
-    inset 0 -10px 0 rgba(10, 61, 34, 0.6),
-    0 0 18px rgba(52, 255, 160, 0.16),
+    inset 0 -10px 0 rgba(11, 65, 34, 0.6),
+    0 0 18px rgba(226, 185, 106, 0.12),
     0 14px 34px rgba(0, 0, 0, 0.55);
 }
 .felt-spot {
@@ -324,16 +328,16 @@ body {
   border-radius: 24px;
   pointer-events: none;
   background:
-    radial-gradient(62% 55% at 50% 16%, rgba(200, 255, 226, 0.15), transparent 58%),
-    radial-gradient(95% 70% at 50% 100%, rgba(10, 61, 34, 0.55), transparent 62%);
+    radial-gradient(62% 55% at 50% 16%, rgba(255, 236, 205, 0.16), transparent 58%),
+    radial-gradient(95% 70% at 50% 100%, rgba(11, 65, 34, 0.55), transparent 62%);
 }
 .felt-tick {
   position: relative;
   width: 2px;
   height: 7px;
   border-radius: 2px;
-  background: rgba(238, 244, 246, 0.32);
-  box-shadow: 0 3px 0 rgba(10, 61, 34, 0.55);
+  background: rgba(244, 239, 230, 0.32);
+  box-shadow: 0 3px 0 rgba(11, 65, 34, 0.55);
 }
 .cushion {
   box-shadow:
@@ -342,21 +346,21 @@ body {
 }
 
 /* ───────── Match table stage ─────────
- * .table-stage   — the neon-railed frame holding the baize pad: the whole
- *                  screen reads as THE table, not a card in a feed.
+ * .table-stage   — the brass-railed frame holding the baize pad: the whole
+ *                  screen reads as THE lounge table, not a card in a feed.
  * .scoreboard-head — scoreboard-style header strip on the table rail
  *                    (left: instruction · right: phase badge). */
 .table-stage {
   position: relative;
   border-radius: 26px;
-  background: linear-gradient(180deg, rgba(52, 255, 160, 0.05), rgba(238, 244, 246, 0.015)),
-    rgba(15, 20, 25, 0.88);
+  background: linear-gradient(180deg, rgba(226, 185, 106, 0.05), rgba(244, 239, 230, 0.015)),
+    rgba(23, 20, 9, 0.88);
   backdrop-filter: blur(26px) saturate(160%);
   -webkit-backdrop-filter: blur(26px) saturate(160%);
-  border: 1px solid rgba(52, 255, 160, 0.22);   /* neon rail */
+  border: 1px solid rgba(226, 185, 106, 0.22);   /* brass rail */
   box-shadow:
-    inset 0 1px 0 rgba(52, 255, 160, 0.12),
-    0 0 14px rgba(52, 255, 160, 0.12),
+    inset 0 1px 0 rgba(226, 185, 106, 0.12),
+    0 0 14px rgba(226, 185, 106, 0.12),
     0 16px 40px rgba(0, 0, 0, 0.6);
   padding: 0.75rem 1rem;
 }
@@ -368,7 +372,7 @@ body {
   height: 34%;
   border-radius: 26px;
   pointer-events: none;
-  background: radial-gradient(70% 60% at 50% 0%, rgba(52, 255, 160, 0.06), transparent 62%);
+  background: radial-gradient(70% 60% at 50% 0%, rgba(226, 185, 106, 0.06), transparent 62%);
 }
 .scoreboard-head {
   display: flex;
@@ -393,14 +397,14 @@ body {
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
-  background: linear-gradient(180deg, rgba(12, 17, 22, 0.94), rgba(7, 10, 14, 0.98));
+  background: linear-gradient(180deg, rgba(21, 18, 8, 0.94), rgba(11, 10, 7, 0.98));
   backdrop-filter: blur(24px) saturate(150%);
   -webkit-backdrop-filter: blur(24px) saturate(150%);
-  border: 1px solid rgba(52, 255, 160, 0.18);
+  border: 1px solid rgba(226, 185, 106, 0.18);
   border-radius: 24px;
   box-shadow:
-    inset 0 1px 0 rgba(52, 255, 160, 0.12),
-    0 0 12px rgba(52, 255, 160, 0.08),
+    inset 0 1px 0 rgba(226, 185, 106, 0.12),
+    0 0 12px rgba(226, 185, 106, 0.08),
     0 18px 44px rgba(0, 0, 0, 0.6);
 }
 @media (min-width: 1024px) {
@@ -436,21 +440,21 @@ body {
 
 /* Subtle hairline utility for grouped rows */
 .hairline {
-  border-top: 1px solid rgba(238, 244, 246, 0.07);
+  border-top: 1px solid rgba(244, 239, 230, 0.07);
 }
 
-/* Physical "action key" button — raised neon keycap with press-down
+/* Physical "action key" button — raised brass keycap with press-down
  * depth. Shared by the Match action tiles so Foul / End turn / Miss /
- * Solve all read as one tactile family, like arcade buttons. */
+ * Solve all read as one tactile family, like lounge-piano keys. */
 .action-key {
   position: relative;
   border-radius: 18px;
-  border: 1px solid rgba(52, 255, 160, 0.4);
-  background-image: linear-gradient(180deg, rgba(52, 255, 160, 0.30), rgba(52, 255, 160, 0.07) 55%, rgba(238, 244, 246, 0.03));
+  border: 1px solid rgba(226, 185, 106, 0.4);
+  background-image: linear-gradient(180deg, rgba(226, 185, 106, 0.30), rgba(226, 185, 106, 0.07) 55%, rgba(244, 239, 230, 0.03));
   box-shadow:
-    inset 0 1px 0 rgba(220, 255, 236, 0.45),
+    inset 0 1px 0 rgba(255, 236, 205, 0.45),
     inset 0 -2px 0 rgba(0, 0, 0, 0.3),
-    0 0 8px rgba(52, 255, 160, 0.18),
+    0 0 8px rgba(226, 185, 106, 0.16),
     0 6px 0 -1px rgba(0, 0, 0, 0.5),
     0 10px 20px rgba(0, 0, 0, 0.5);
   transform: translateY(0);
@@ -466,10 +470,10 @@ body {
 .action-key:active {
   transform: translateY(4px);
   box-shadow:
-    inset 0 1px 0 rgba(220, 255, 236, 0.3),
+    inset 0 1px 0 rgba(255, 236, 205, 0.3),
     inset 0 -1px 0 rgba(0, 0, 0, 0.28),
     0 2px 0 -1px rgba(0, 0, 0, 0.45),
-    0 0 4px rgba(52, 255, 160, 0.1),
+    0 0 4px rgba(226, 185, 106, 0.1),
     0 3px 6px rgba(0, 0, 0, 0.4);
 }
 .action-key:focus-visible {
@@ -480,7 +484,7 @@ body {
   transform: none;
   filter: saturate(0.3) brightness(0.75);
   box-shadow:
-    inset 0 1px 0 rgba(238, 244, 246, 0.1),
+    inset 0 1px 0 rgba(244, 239, 230, 0.1),
     0 2px 0 -1px rgba(0, 0, 0, 0.35);
 }
 

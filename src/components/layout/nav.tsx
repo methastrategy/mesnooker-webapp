@@ -87,7 +87,7 @@ export function Sidebar() {
         );
       })}
       <div className="mt-auto px-2 text-[10px] text-muted-foreground">
-        Arcade Neon v2
+        Golden Lounge v2
       </div>
     </aside>
   );

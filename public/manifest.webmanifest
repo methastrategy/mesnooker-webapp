@@ -4,8 +4,8 @@
   "description": "Premium snooker scoring and money settlement for Thai players.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#050505",
-  "theme_color": "#050505",
+  "background_color": "#0b0a07",
+  "theme_color": "#0b0a07",
   "orientation": "portrait",
   "lang": "en",
   "icons": [

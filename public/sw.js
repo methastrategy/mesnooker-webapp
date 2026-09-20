@@ -6,7 +6,9 @@
 /* v4 (2026-09): Arcade Neon deploy shipped WITHOUT a cache bump; installed
    phones kept the pre-Arcade shell (old look + dead buttons). Bump forces
    the activate purge so everyone gets the current build.                      */
-const CACHE = "smoke-cache-v4";
+/* v5 (2026-09): Golden Lounge re-theme + Settings cleanup (Language removed).
+   Chunks changed again — bump or installed phones keep the old look.        */
+const CACHE = "smoke-cache-v5";
 const STATIC = ["/manifest.webmanifest", "/icon.svg"];
 
 self.addEventListener("install", (e) => {

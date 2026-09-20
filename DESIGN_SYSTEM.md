@@ -1,10 +1,11 @@
-# Design System — Snooker Money Tracker Pro ("Arcade Neon")
+# Design System — Snooker Money Tracker Pro ("Golden Lounge")
 
-The visual identity is *Arcade Neon*: a money snooker table read as a lit arcade
-cabinet. Deep black room, **electric-green neon** action color, **amber** money
-highlights, amber-orange rule violations, and a glowing green felt pad wherever
-balls sit. Lightweight, mobile-first, tuned for both the desktop dashboard and
-the "tap" tethered match screen.
+The visual identity is *Golden Lounge*: a money snooker table read as a warm
+private lounge. Espresso-dark room, **brass-gold** action color, **champagne**
+money highlights, amber-orange rule violations, and a bottle-green felt pad
+wherever balls sit. Calmer and warmer than the Arcade neon it replaced — no
+screen glare on a long night. Lightweight, mobile-first, tuned for both the
+desktop dashboard and the "tap" tethered match screen.
 
 All tokens live in `src/app/globals.css`. There are two parallel token banks:
 
@@ -42,45 +43,45 @@ The screen reads as **a table in a green room**, not a card feed:
   semantic vars, component classes (`.glass`, `.glass-strong`, `.baize`, `.felt-spot`,
   `.table-stage`, `.scoreboard-head`, `.control-dock`), Tailwind utilities.
 
-### Brand palette (Tailwind `@theme`, default theme `mono` = Arcade)
+### Brand palette (Tailwind `@theme`, default theme `mono` = Golden Lounge)
 
 | Token              | Value                                 | Usage                                        |
 | ------------------ | ------------------------------------- | -------------------------------------------- |
-| `--color-background` | `#070a0e`                           | Deep black arcade room (cool-lit, not `#000`)|
-| `--color-surface`    | `#0c1116`                           | Raised surfaces, popovers, inputs            |
-| `--color-card`       | `rgba(13,18,23,0.66)`               | Glass card fill (translucent, ink tint)      |
-| `--color-card-solid` | `#0f1419`                           | Solid card fill (opaque cards, sheets)       |
-| `--color-primary`    | `#34ffa0`                           | **Neon green** — main actions + winning money|
-| `--color-secondary`  | `#0f6b3d`                           | Deep green (secondary / accent tint)         |
-| `--color-gold`       | `#ffc94d`                           | **Amber** — money, settlement, awards        |
-| `--color-danger`     | `#ff4d5f`                           | Fouls, errors, destructive actions           |
-| `--color-info`       | `#4ad4ff`                           | Information, focus assists, blue ball        |
-| `--color-muted`      | `#8b98a2`                           | Muted/secondary text, disabled               |
-| `--color-foreground` | `#eef4f6`                           | **Cool display white** primary text          |
-| `--color-line`       | `rgba(238,244,246,0.10)`            | Hairlines, borders, dividers                 |
-| `--color-violation`  | `#ff8c1a`                           | **Amber-orange** — snooker miss / solve      |
-| `--color-felt-hi`    | `#1f9e4a`                           | BallPad felt base, lamp-lit top              |
-| `--color-felt-mid`   | `#116b38`                           | BallPad felt base (mid)                      |
-| `--color-felt-deep`  | `#0a3d22`                           | BallPad felt base (deep)                     |
-| `--color-pos-soft`   | `rgba(52,255,160,0.14)`             | Money-chip positive background (neon)        |
-| `--color-neg-soft`   | `rgba(255,77,95,0.14)`              | Money-chip negative background               |
-| `--color-rail`       | `rgba(12,17,22,0.7)`                | Desktop side-rail glass (≥lg)                |
+| `--color-background` | `#0b0a07`                           | Espresso room, warm near-black               |
+| `--color-surface`    | `#151208`                           | Raised surfaces, popovers, inputs            |
+| `--color-card`       | `rgba(21,18,8,0.70)`                | Glass card fill (translucent, warm)          |
+| `--color-card-solid` | `#171409`                           | Solid card fill (opaque cards, sheets)       |
+| `--color-primary`    | `#e2b96a`                           | **Brass gold** — main actions + winning money|
+| `--color-secondary`  | `#9c7a35`                           | Deep bronze (secondary / accent tint)        |
+| `--color-gold`       | `#ffd27a`                           | **Champagne** — money, settlement, awards    |
+| `--color-danger`     | `#e5484d`                           | Fouls, errors, destructive actions           |
+| `--color-info`       | `#7fb3ff`                           | Information, focus assists, blue ball        |
+| `--color-muted`      | `#9c9485`                           | Muted/secondary text, disabled               |
+| `--color-foreground` | `#f4efe6`                           | **Warm ivory** primary text                  |
+| `--color-line`       | `rgba(244,239,230,0.10)`            | Hairlines, borders, dividers                 |
+| `--color-violation`  | `#f08c1f`                           | **Amber-orange** — snooker miss / solve      |
+| `--color-felt-hi`    | `#2a8f4a`                           | BallPad felt base, lamp-lit top              |
+| `--color-felt-mid`   | `#176b36`                           | BallPad felt base (mid)                      |
+| `--color-felt-deep`  | `#0b4122`                           | BallPad felt base (deep)                     |
+| `--color-pos-soft`   | `rgba(226,185,106,0.16)`            | Money-chip positive background (brass)       |
+| `--color-neg-soft`   | `rgba(229,72,77,0.14)`              | Money-chip negative background               |
+| `--color-rail`       | `rgba(21,18,8,0.7)`                 | Desktop side-rail glass (≥lg)                |
 
 ### Semantic component layer (`:root`)
 
 | Variable                 | Value                            |
 | ------------------------ | -------------------------------- |
-| `--background`           | `#070a0e`                        |
-| `--foreground`           | `#eef4f6`                        |
-| `--card`                 | `#0f1419`                        |
-| `--primary`              | `#34ffa0` (neon green)           |
-| `--primary-foreground`   | `#04120a`                        |
-| `--secondary`            | `#0f6b3d`                        |
-| `--muted-foreground`     | `#8b98a2`                        |
-| `--destructive`          | `#ff4d5f`                        |
-| `--border`               | `rgba(238,244,246,0.10)`         |
-| `--ring`                 | `#34ffa0` (focus ring)           |
-| `--gold`                 | `#ffc94d`                        |
+| `--background`           | `#0b0a07`                        |
+| `--foreground`           | `#f4efe6`                        |
+| `--card`                 | `#171409`                        |
+| `--primary`              | `#e2b96a` (brass gold)           |
+| `--primary-foreground`   | `#241a07`                        |
+| `--secondary`            | `#9c7a35`                        |
+| `--muted-foreground`     | `#9c9485`                        |
+| `--destructive`          | `#e5484d`                        |
+| `--border`               | `rgba(244,239,230,0.10)`         |
+| `--ring`                 | `#e2b96a` (focus ring)           |
+| `--gold`                 | `#ffd27a`                        |
 | `--radius`               | `0.9rem`                         |
 
 ### Snooker ball colors (`src/lib/rules.ts` — `BALL_HEX`, DO NOT CHANGE)
@@ -103,8 +104,8 @@ Primary face is **Inter** (Variable) with a system stack fallback that prefers
 Apple's San Francisco on iOS/macOS.
 
 - Font family: `var(--font-sans)` applied on `body`.
-- **Money / score numerals** are the hero typography — large, tabular, neon or
-  amber. Live score uses the `.roll-num` roll animation container.
+- **Money / score numerals** are the hero typography — large, tabular, brass or
+  champagne. Live score uses the `.roll-num` roll animation container.
 - **Match-page scale**: labels 11px uppercase `tracking-wider`, values 16-20px
   tabular, hero money 28-34px tabular; action value-tags (`−4`, `−2`, `+1`) 10px.
 - Muted text uses `--color-muted` / `text-muted-foreground`.

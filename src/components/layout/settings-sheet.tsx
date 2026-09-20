@@ -1,12 +1,12 @@
 "use client";
 
-import { Volume2, Vibrate, Languages, Trash2 } from "lucide-react";
-import { Sheet, Badge, ActionButton } from "@/components/ui";
+import { Volume2, Vibrate, Trash2 } from "lucide-react";
+import { Sheet, ActionButton } from "@/components/ui";
 import { useGameStore } from "@/store/gameStore";
 import { cn } from "@/lib/utils";
 
 const THEMES: { id: string; name: string; swatch: string[] }[] = [
-  { id: "mono", name: "Arcade", swatch: ["#34ffa0", "#ffc94d", "#070a0e"] },
+  { id: "mono", name: "Golden Lounge", swatch: ["#e2b96a", "#ffd27a", "#0b0a07"] },
   { id: "emerald", name: "Emerald Noir", swatch: ["#16c784", "#f59e0b", "#050505"] },
   { id: "ember", name: "Ember", swatch: ["#f97316", "#f59e0b", "#100a06"] },
   { id: "forest", name: "Forest", swatch: ["#22c55e", "#eab308", "#05080a"] },
@@ -97,9 +97,6 @@ export function SettingsSheet() {
       </Row>
       <Row icon={Vibrate} title="Haptics" subtitle="Tactile feedback">
         <Toggle on={haptics} onChange={toggleHaptics} />
-      </Row>
-      <Row icon={Languages} title="Language" subtitle="App display language">
-        <Badge variant="neutral">English</Badge>
       </Row>
 
       {/* Theme picker — pick to switch instantly */}
