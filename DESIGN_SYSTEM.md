@@ -1,10 +1,10 @@
-# Design System — Snooker Money Tracker Pro ("Billiard Night")
+# Design System — Snooker Money Tracker Pro ("Arcade Neon")
 
-The visual identity is *Billiard Night*: a green-baize money table under a warm
-tungsten lamp. Deep green-black canvas, brass action color, champagne money
-highlights, amber-orange rule violations, and green felt wherever balls sit.
-Lightweight, mobile-first, tuned for both the desktop dashboard and the "tap"
-tethered match screen.
+The visual identity is *Arcade Neon*: a money snooker table read as a lit arcade
+cabinet. Deep black room, **electric-green neon** action color, **amber** money
+highlights, amber-orange rule violations, and a glowing green felt pad wherever
+balls sit. Lightweight, mobile-first, tuned for both the desktop dashboard and
+the "tap" tethered match screen.
 
 All tokens live in `src/app/globals.css`. There are two parallel token banks:
 
@@ -29,58 +29,58 @@ shadcn components.
 The screen reads as **a table in a green room**, not a card feed:
 
 - **Match (mobile)** — top-to-bottom: TurnHeader scoreboard rail → ClockStrip →
-  `.table-stage` (brass frame containing the `.baize` ball pad) → inline MoneyStrip →
+  `.table-stage` (neon frame containing the `.baize` ball pad) → inline MoneyStrip →
   `.control-dock` **fixed** gamepad deck (Foul/Miss/Solve + Turn + ⋯ + End frame)
   at `bottom: 5rem` (clears the 77 px BottomNav) → bottom spacer `h-24 lg:hidden`.
 - **Match (≥lg)** — 2-col grid `lg:grid-cols-[minmax(0,1fr)_360px]`: ZONE A table +
   in-flow dock under the baize, ZONE B analytics `aside`.
 - **Setup** — 2-step wizard inside `NewSession` (step 0 The table w/ mini `.baize`
-  preview → step 1 Players & rate), brass step indicator `#1 / 2`.
+  preview → step 1 Players & rate), neon step indicator `#1 / 2`.
 - **Dashboard** — idle = `.table-stage` hero (mini baize ball row + "Set the table"
   CTA); live = Session-live hero + Money tonight + Leaderboard.
 - Custom CSS lives in `src/app/globals.css` under layers: `@theme` tokens, `:root`
   semantic vars, component classes (`.glass`, `.glass-strong`, `.baize`, `.felt-spot`,
   `.table-stage`, `.scoreboard-head`, `.control-dock`), Tailwind utilities.
 
-### Brand palette (Tailwind `@theme`, default theme `mono` = Billiard)
+### Brand palette (Tailwind `@theme`, default theme `mono` = Arcade)
 
 | Token              | Value                                 | Usage                                        |
 | ------------------ | ------------------------------------- | -------------------------------------------- |
-| `--color-background` | `#0d1210`                           | Green-black felt room (not pure `#000`)      |
-| `--color-surface`    | `#141a16`                           | Raised surfaces, popovers, inputs            |
-| `--color-card`       | `rgba(18,25,21,0.62)`               | Glass card fill (translucent, green tint)    |
-| `--color-card-solid` | `#161d18`                           | Solid card fill (opaque cards, sheets)       |
-| `--color-primary`    | `#d9a441`                           | **Brass** — main actions + winning money     |
-| `--color-secondary`  | `#7d6b3a`                           | Muted brass (secondary / accent tint)        |
-| `--color-gold`       | `#f0c25c`                           | **Champagne** — money, settlement, awards    |
-| `--color-danger`     | `#e8534a`                           | Fouls, errors, destructive actions           |
-| `--color-info`       | `#5aa2f5`                           | Information, focus assists, blue ball        |
-| `--color-muted`      | `#9aa58f`                           | Muted/secondary text, disabled               |
-| `--color-foreground` | `#f3efe4`                           | **Chalk ivory** primary text                 |
-| `--color-line`       | `rgba(243,239,228,0.10)`            | Hairlines, borders, dividers                 |
-| `--color-violation`  | `#f2731e`                           | **Amber-orange** — snooker miss / solve      |
-| `--color-felt-hi`    | `#1c5a2f`                           | BallPad felt base, lamp-lit top              |
-| `--color-felt-mid`   | `#12381f`                           | BallPad felt base (mid)                      |
-| `--color-felt-deep`  | `#0a2413`                           | BallPad felt base (deep)                     |
-| `--color-pos-soft`   | `rgba(217,164,65,0.12)`             | Money-chip positive background (brass)       |
-| `--color-neg-soft`   | `rgba(232,83,74,0.12)`              | Money-chip negative background               |
-| `--color-rail`       | `rgba(20,26,22,0.66)`               | Desktop side-rail glass (≥lg)                |
+| `--color-background` | `#070a0e`                           | Deep black arcade room (cool-lit, not `#000`)|
+| `--color-surface`    | `#0c1116`                           | Raised surfaces, popovers, inputs            |
+| `--color-card`       | `rgba(13,18,23,0.66)`               | Glass card fill (translucent, ink tint)      |
+| `--color-card-solid` | `#0f1419`                           | Solid card fill (opaque cards, sheets)       |
+| `--color-primary`    | `#34ffa0`                           | **Neon green** — main actions + winning money|
+| `--color-secondary`  | `#0f6b3d`                           | Deep green (secondary / accent tint)         |
+| `--color-gold`       | `#ffc94d`                           | **Amber** — money, settlement, awards        |
+| `--color-danger`     | `#ff4d5f`                           | Fouls, errors, destructive actions           |
+| `--color-info`       | `#4ad4ff`                           | Information, focus assists, blue ball        |
+| `--color-muted`      | `#8b98a2`                           | Muted/secondary text, disabled               |
+| `--color-foreground` | `#eef4f6`                           | **Cool display white** primary text          |
+| `--color-line`       | `rgba(238,244,246,0.10)`            | Hairlines, borders, dividers                 |
+| `--color-violation`  | `#ff8c1a`                           | **Amber-orange** — snooker miss / solve      |
+| `--color-felt-hi`    | `#1f9e4a`                           | BallPad felt base, lamp-lit top              |
+| `--color-felt-mid`   | `#116b38`                           | BallPad felt base (mid)                      |
+| `--color-felt-deep`  | `#0a3d22`                           | BallPad felt base (deep)                     |
+| `--color-pos-soft`   | `rgba(52,255,160,0.14)`             | Money-chip positive background (neon)        |
+| `--color-neg-soft`   | `rgba(255,77,95,0.14)`              | Money-chip negative background               |
+| `--color-rail`       | `rgba(12,17,22,0.7)`                | Desktop side-rail glass (≥lg)                |
 
 ### Semantic component layer (`:root`)
 
 | Variable                 | Value                            |
 | ------------------------ | -------------------------------- |
-| `--background`           | `#0d1210`                        |
-| `--foreground`           | `#f3efe4`                        |
-| `--card`                 | `#161d18`                        |
-| `--primary`              | `#d9a441` (brass)                |
-| `--primary-foreground`   | `#14100a`                        |
-| `--secondary`            | `#7d6b3a`                        |
-| `--muted-foreground`     | `#9aa58f`                        |
-| `--destructive`          | `#e8534a`                        |
-| `--border`               | `rgba(243,239,228,0.10)`         |
-| `--ring`                 | `#d9a441` (focus ring)           |
-| `--gold`                 | `#f0c25c`                        |
+| `--background`           | `#070a0e`                        |
+| `--foreground`           | `#eef4f6`                        |
+| `--card`                 | `#0f1419`                        |
+| `--primary`              | `#34ffa0` (neon green)           |
+| `--primary-foreground`   | `#04120a`                        |
+| `--secondary`            | `#0f6b3d`                        |
+| `--muted-foreground`     | `#8b98a2`                        |
+| `--destructive`          | `#ff4d5f`                        |
+| `--border`               | `rgba(238,244,246,0.10)`         |
+| `--ring`                 | `#34ffa0` (focus ring)           |
+| `--gold`                 | `#ffc94d`                        |
 | `--radius`               | `0.9rem`                         |
 
 ### Snooker ball colors (`src/lib/rules.ts` — `BALL_HEX`, DO NOT CHANGE)
@@ -103,8 +103,8 @@ Primary face is **Inter** (Variable) with a system stack fallback that prefers
 Apple's San Francisco on iOS/macOS.
 
 - Font family: `var(--font-sans)` applied on `body`.
-- **Money / score numerals** are the hero typography — large, tabular, brass or
-  champagne. Live score uses the `.roll-num` roll animation container.
+- **Money / score numerals** are the hero typography — large, tabular, neon or
+  amber. Live score uses the `.roll-num` roll animation container.
 - **Match-page scale**: labels 11px uppercase `tracking-wider`, values 16-20px
   tabular, hero money 28-34px tabular; action value-tags (`−4`, `−2`, `+1`) 10px.
 - Muted text uses `--color-muted` / `text-muted-foreground`.

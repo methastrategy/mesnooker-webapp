@@ -87,7 +87,7 @@ export function Sidebar() {
         );
       })}
       <div className="mt-auto px-2 text-[10px] text-muted-foreground">
-        Billiard Night v2
+        Arcade Neon v2
       </div>
     </aside>
   );
@@ -116,7 +116,7 @@ export function BottomNav() {
               >
                 <item.icon size={20} />
               </motion.span>
-              <span className={cn("text-[9px]", active ? "text-primary font-semibold" : "text-muted-foreground")}>
+              <span className={cn("text-[10px]", active ? "text-primary font-semibold" : "text-muted-foreground")}>
                 {item.label}
               </span>
             </Link>
