@@ -1,9 +1,9 @@
 "use client";
 
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useGameStore } from "@/store/gameStore";
 import { NewSession } from "@/components/game/NewSession";
-import type { ArchivedGame } from "@/types";
 
 /** Dedicated setup screen: choose game mode, rate, red-count and players.
  *  Kept OFF the live-match surface so starting a game and playing it are two
@@ -14,9 +14,14 @@ export default function SetupPage() {
   const session = useGameStore((s) => s.session);
 
   // Already playing → no need to reconfigure, go to the table.
-  if (session && session.status === "live") {
-    router.replace("/match");
-  }
+  // Navigation happens in an effect AFTER hydration: calling router.replace
+  // during render (a render-phase side effect) wedges the App Router on a
+  // full-page load of /setup, leaving the Loading screen forever.
+  useEffect(() => {
+    if (session && session.status === "live") {
+      router.replace("/match");
+    }
+  }, [session, router]);
 
   return (
     <div className="flex flex-col gap-5">

@@ -58,12 +58,20 @@ export function AvatarPicker({
 
   function readFile(file?: File) {
     if (!file) return;
-    const reader = new window.FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => {
-      onChange(String(reader.result));
-      setOpen(false);
-    };
+    // FileReader.readAsDataURL is not a shipped browser API — read via
+    // arrayBuffer() + base64 so uploaded avatars become data: URLs that
+    // avatarSource() renders as images (and that survive reloads).
+    if (!file.arrayBuffer) return;
+    file
+      .arrayBuffer()
+      .then((buf) => {
+        const bytes = new Uint8Array(buf);
+        let bin = "";
+        for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+        onChange(`data:${file.type};base64,${btoa(bin)}`);
+        setOpen(false);
+      })
+      .catch(() => {});
   }
 
   return (
