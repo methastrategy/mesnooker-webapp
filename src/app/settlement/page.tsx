@@ -7,15 +7,26 @@ import { useGameStore, useRunningBalance } from "@/store/gameStore";
 import { SettlementPanel, type PaymentRecord } from "@/components/settlement/SettlementPanel";
 import { GlassCard, Button, Badge } from "@/components/ui";
 import { optimizeTransfers } from "@/lib/money";
+import { formatMoney } from "@/lib/utils";
 
 export default function SettlementPage() {
   const session = useGameStore((s) => s.session);
   const players = useGameStore((s) => s.players);
   const running = useRunningBalance();
-  const [payments] = useState<PaymentRecord[]>([]);
   const [paidSet, setPaidSet] = useState<Set<string>>(new Set());
+  const [copied, setCopied] = useState(false);
 
   const transfers = optimizeTransfers(running, players);
+  // Derive the panel's payment records from the actual paid set — previously
+  // `payments` was an unused empty useState, so the panel's Pay→Undo toggle
+  // and its "outstanding" badge could never update after tapping Pay.
+  const payments: PaymentRecord[] = transfers.map((t) => ({
+    id: `${t.fromPlayerId}->${t.toPlayerId}`,
+    fromPlayerId: t.fromPlayerId,
+    toPlayerId: t.toPlayerId,
+    amount: t.amount,
+    status: paidSet.has(`${t.fromPlayerId}->${t.toPlayerId}`) ? "paid" : "pending",
+  }));
   const outstanding = transfers.filter((t) => !paidSet.has(`${t.fromPlayerId}->${t.toPlayerId}`));
   const allPaid = transfers.length > 0 && outstanding.length === 0;
 
@@ -28,6 +39,22 @@ export default function SettlementPage() {
       next.delete(key);
       return next;
     });
+  }
+
+  async function exportSummary() {
+    const lines = transfers.map(
+      (t) => `${t.fromName} pays ${t.toName} ${formatMoney(t.amount)}`
+    );
+    const text = lines.length
+      ? lines.join("\n")
+      : "Table settled — nobody owes.";
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1600);
+    } catch {
+      /* clipboard unavailable */
+    }
   }
 
   return (
@@ -59,16 +86,13 @@ export default function SettlementPage() {
             <SettlementPanel
               runningBalance={running}
               players={players}
-              payments={payments.map((p) => ({
-                ...p,
-                status: paidSet.has(p.id) ? "paid" : "pending",
-              }))}
+              payments={payments}
               onMarkPaid={(key) => markPaid(key)}
               onUndoPayment={(key) => undoPayment(key)}
             />
             {allPaid && (
-              <Button variant="gold" className="mt-4 w-full">
-                <Download size={16} /> Export summary
+              <Button variant="gold" className="mt-4 w-full" onClick={exportSummary}>
+                <Download size={16} /> {copied ? "Copied to clipboard" : "Export summary"}
               </Button>
             )}
           </GlassCard>

@@ -167,7 +167,7 @@ export default function StatsPage() {
             <BarChart3 size={24} />
           </span>
           <p className="text-sm text-muted-foreground">
-            No finished games yet — start a match and End game to seed your stats here.
+            No finished games yet — start a match and End session to seed your stats here.
           </p>
         </motion.div>
       ) : (
@@ -241,8 +241,8 @@ export default function StatsPage() {
             </GlassCard>
           )}
 
-          {/* Money trend */}
-          {trendData.length > 0 && trendLines.length > 0 && (
+          {/* Money trend — needs ≥2 games: a single point has no line to draw */}
+          {trendData.length > 1 && trendLines.length > 0 && (
             <GlassCard className="p-5">
               <h3 className="mb-1 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
                 Net money over games

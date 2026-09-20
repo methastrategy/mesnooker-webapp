@@ -71,7 +71,7 @@ export function BallPad({
           const value = ballValues[c];
           const left = showCount ? showCount(c) : 0;
           return (
-            <div key={c} className="group-relative flex flex-col items-center gap-1">
+            <div key={c} className="relative flex flex-col items-center gap-1">
               <SnookerBall
                 color={c}
                 size={72}

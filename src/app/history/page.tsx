@@ -134,7 +134,7 @@ export default function HistoryPage() {
           </span>
           <p className="text-sm text-muted-foreground">
             {history.length === 0
-              ? "No finished games yet — start a match and End game to save it here."
+              ? "No finished games yet — start a match and End session to save it here."
               : "No finished games match these filters."}
           </p>
         </motion.div>

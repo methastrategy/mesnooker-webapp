@@ -85,7 +85,7 @@ export default function DashboardPage() {
                 label="Rate"
                 value={session.moneyRate}
                 variant="accent"
-                prefix=""
+                suffix={`/${session.moneyPer === "ball" ? "ball" : "pt"}`}
               />
             </div>
             <div className="flex flex-wrap items-center gap-2">
@@ -102,19 +102,8 @@ export default function DashboardPage() {
             </div>
           </GlassCard>
 
-          {/* Money tonight */}
-          <GlassCard className="p-5">
-            <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-              Money tonight
-            </h3>
-            <div className="flex flex-wrap gap-x-8 gap-y-4">
-              {leaderboard.map((p) => (
-                <Stat key={p.id} label={p.nickname} value={running[p.id] ?? 0} variant="money" />
-              ))}
-            </div>
-          </GlassCard>
-
-          {/* Leaderboard */}
+          {/* Leaderboard — money tonight, ranked (single source of truth for
+              the session net; avoids duplicating the same numbers twice) */}
           <GlassCard className="p-5">
             <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
               Leaderboard

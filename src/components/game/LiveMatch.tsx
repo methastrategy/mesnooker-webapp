@@ -62,11 +62,26 @@ export function LiveMatch({ onPause }: {
   } = store;
 
   useEffect(() => {
-    const mq = window.matchMedia("(min-width: 1024px)");
-    const update = () => setIsDesktop(mq.matches);
+    // MediaQueryList: modern browsers expose `window.matchMedia` (MediaQueryList
+    // with .matches/.addEventListener). Older engines fall back to a simple
+    // window-width check so the desktop analytics rail never misfires.
+    const w = window as unknown as {
+      matchMedia?: (q: string) => { matches: boolean; addEventListener?: (t: string, cb: () => void) => void };
+    };
+    let mq: { matches: boolean; addEventListener?: (t: string, cb: () => void) => void } | null = null;
+    try {
+      mq = typeof w.matchMedia === "function" ? w.matchMedia("(min-width: 1024px)") : null;
+    } catch {
+      mq = null;
+    }
+    const update = () => setIsDesktop(mq ? mq.matches : window.innerWidth >= 1024);
     update();
-    mq.addEventListener?.("change", update);
-    return () => mq.removeEventListener?.("change", update);
+    if (mq && typeof mq.addEventListener === "function") {
+      mq.addEventListener("change", update);
+      return () => mq?.addEventListener?.("change", update);
+    }
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
   }, []);
 
   if (!frame || !store.session) {

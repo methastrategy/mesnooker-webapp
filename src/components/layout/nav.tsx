@@ -61,7 +61,6 @@ export function Sidebar() {
             >
               <item.icon size={18} />
               <span className="flex-1">{item.label}</span>
-              <span className="text-[9px] text-muted-foreground/70">popup</span>
             </button>
           );
         }
