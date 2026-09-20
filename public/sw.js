@@ -3,7 +3,10 @@
    cache-first only for versioned static chunks, which are immutable by hash.  */
 /* v3 (2026-09): bump CACHE name so installed PWAs holding the pre-v2 shell are
    purged on activate — old shell + new chunk hashes = dead buttons.          */
-const CACHE = "smoke-cache-v3";
+/* v4 (2026-09): Arcade Neon deploy shipped WITHOUT a cache bump; installed
+   phones kept the pre-Arcade shell (old look + dead buttons). Bump forces
+   the activate purge so everyone gets the current build.                      */
+const CACHE = "smoke-cache-v4";
 const STATIC = ["/manifest.webmanifest", "/icon.svg"];
 
 self.addEventListener("install", (e) => {
