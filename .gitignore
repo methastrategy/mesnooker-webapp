@@ -33,3 +33,6 @@ next-env.d.ts
 # testing
 /coverage
 .scratch/
+
+# local prod secret references
+.env.prod-secrets

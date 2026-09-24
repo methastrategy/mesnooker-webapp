@@ -12,6 +12,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "pg": "^8.13.0",
     "@supabase/supabase-js": "^2.116.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -25,6 +26,7 @@
     "zustand": "^5.0.15"
   },
   "devDependencies": {
+    "@types/pg": "^8.11.0",
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^20.19.43",

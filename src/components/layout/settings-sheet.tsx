@@ -1,9 +1,11 @@
 "use client";
 
-import { Volume2, Vibrate, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Volume2, Vibrate, Trash2, LogOut, UserRound } from "lucide-react";
 import { Sheet, ActionButton } from "@/components/ui";
 import { useGameStore } from "@/store/gameStore";
 import { cn } from "@/lib/utils";
+import { apiSignOut, fetchMe } from "@/lib/auth-client";
 
 const THEMES: { id: string; name: string; swatch: string[] }[] = [
   { id: "mono", name: "Golden Lounge", swatch: ["#e2b96a", "#ffd27a", "#0b0a07"] },
@@ -74,6 +76,16 @@ export function SettingsSheet() {
   const setTheme = store.setTheme;
   const onClose = store.closeSettings;
 
+  const [accountEmail, setAccountEmail] = useState<string | null>(null);
+  useEffect(() => {
+    if (open) fetchMe().then((me) => setAccountEmail(me ? me.email : null));
+  }, [open]);
+
+  const signOut = async () => {
+    await apiSignOut();
+    window.location.href = "/login";
+  };
+
   const resetApp = () => {
     if (confirm("Reset all data? This clears every session, frame, player and stat.")) {
       try {
@@ -125,6 +137,25 @@ export function SettingsSheet() {
             <span className="text-[11px] font-medium">{t.name}</span>
           </button>
         ))}
+      </div>
+
+      {/* Account */}
+      <div className="mt-4">
+        <div className="mb-1 px-2 pt-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Account
+        </div>
+        <div className="flex items-center gap-3 px-2 py-1.5">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/5 text-primary">
+            <UserRound size={18} />
+          </span>
+          <div className="min-w-0 flex-1">
+            <div className="truncate text-sm font-medium">{accountEmail ?? "…"}</div>
+            <div className="text-xs text-muted-foreground">Signed in</div>
+          </div>
+          <ActionButton tone="outline" onClick={signOut} className="px-3 py-1.5 text-xs">
+            <LogOut size={14} /> Sign out
+          </ActionButton>
+        </div>
       </div>
 
       {/* Danger zone */}
