@@ -105,7 +105,3 @@ export function unfoldStraight(
 
   return { points: [from, ...bounces, to], bounces, virtual };
 }
-
-export function sideSequenceLabel(sides: Side[]): string {
-  return sides.map((s) => (s === "b" ? "B" : "T")).join("");
-}

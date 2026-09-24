@@ -72,13 +72,11 @@ export function objectRunLegal(
 function bounceLegal(p: Vec, targetPocketId: string): boolean {
   if (p.x < 0 || p.x > PLAY.x1) return false;
   for (const pk of POCKETS) {
-    if (pk.id === targetPocketId && dist(p, pk.pos) < pk.r * 0.6) {
-      // bouncing "through" the target pocket mouth is actually the shot
-      // escaping — but for an ESCAPE we reject: the cue would drop in.
-      return false;
-    }
+    // any bounce inside a pocket mouth (including the target's) is rejected:
+    // for an escape the cue must not drop in.
     if (dist(p, pk.pos) < pk.r * 0.65) return false;
   }
+  void targetPocketId; // kept in signature for future per-pocket tuning
   return true;
 }
 
@@ -180,9 +178,8 @@ export function solveEscape(input: SolverInput): SolvePath[] {
 
   const g = ghostBall(object, pocket.pos);
   if (!ghostLegal(g)) return [];
-  if (!objectRunLegal(object, pocket.pos, blockers)) {
-    // still return (marked) so UI can explain "object run blocked"
-  }
+  // NOTE: an illegal object run does not stop enumeration — each path is
+  // marked `blocked` so the UI can explain "object run blocked by a ball".
 
   const results: SolvePath[] = [];
 

@@ -94,6 +94,43 @@ routes `app/solve/page.tsx` + `app/practice/page.tsx`. State is in `src/store/co
 **Invariants:** pure math (no React in `lib/geometry`), theme tokens only (Emerald Noir
 re-skins the module automatically), and the match/money tracker is untouched.
 
+The Reflection Tree unfolds **all four cushions** (bottom / top / left / right); the
+2026-09 side-cushion fix added `l`/`r` to the BFS with per-side segment-legality and
+rebound-angle math. The highlighted cue line is drawn out to the object's **contact
+point** (midpoint ghost↔object), and the replay ends at that contact point.
+
+### Engine tests (`src/lib/**/__tests__/`, `npm test` — vitest)
+
+- `geometry/__tests__/solver.test.ts` — straight pot, cut angle, blocking, 4-cushion
+  tree generation, depth cap, ranking, off-cloth ghost.
+- `geometry/__tests__/physics.test.ts` — property test: 300 seeded random configs,
+  every non-blocked path re-checked against physical invariants (reflection law at
+  each bounce, on-cushion/in-segment bounce points, cloth containment, blocker
+  clearance beyond the 0.5u graze margin).
+- `coach/__tests__/drills.test.ts` — generator produces on-cloth solvable poses for
+  all 4 kinds, difficulty clamped to 1–10.
+
+### Authentication (`src/lib/auth/` + `src/app/api/auth/` + `src/middleware.ts`)
+
+Email + password accounts (sign up → immediately signed in; no email verification,
+no reset — deliberate scope decision). `auth_users` lives in the dedicated Neon
+database `mesnooker` (separate from MeBoard's `neondb`).
+
+| File | Responsibility |
+|------|----------------|
+| `auth/password.ts` | scrypt (N=16384, node defaults) hash/verify, 16-byte random salt, constant-time compare |
+| `auth/session.ts` | JWT HS256 via Web Crypto (same module runs in Edge middleware and Node routes), 30-day lifetime, `AUTH_SECRET` env var |
+| `auth/db.ts` | `pg` pool + `auth_users` CRUD |
+| `auth/validate.ts` | email format + 8–72 char password rules |
+| `auth/ratelimit.ts` | 5 failed sign-ins / 15 min per IP (in-memory, per Vercel instance) |
+| `app/api/auth/{signup,signin,signout,me}` | route handlers; session cookie `mesnooker_session` (httpOnly, Secure, SameSite=Lax) |
+| `src/middleware.ts` | gate: `/login` public; `/api/auth/{signup,signin}` public; all other pages → `/login`, all other `/api/*` → 401 |
+| `app/login/page.tsx` | Emerald Noir glass panel, Sign in / Sign up tabs, inline validation + server errors |
+| `lib/auth-client.ts` | browser-side fetch helpers (`apiSignIn`, `apiSignUp`, `apiSignOut`, `fetchMe`) |
+
+Sign out lives in the Settings sheet (Account section). Match/coach data stays in
+localStorage (per device); per-user cloud sync is future work.
+
 ---
 
 ## 3. Domain Types — `src/types/index.ts`

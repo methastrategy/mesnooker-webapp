@@ -4,6 +4,7 @@ import {
   BALL_R,
   POCKETS,
   BAULK_SPOT,
+  clamp,
   ghostBall,
   solveEscape,
   clampToTable,
@@ -149,20 +150,21 @@ function positionPose(d: number): Pose | null {
 }
 
 export function generateDrill(kind: DrillKind, difficulty: number): Drill | null {
+  const d = clamp(Math.round(difficulty), 1, 10);
   const maker =
     kind === "escape" ? escapePose
     : kind === "thin" ? thinPose
     : kind === "safety" ? safetyPose
     : positionPose;
   for (let i = 0; i < 40; i++) {
-    const pose = maker(difficulty);
+    const pose = maker(d);
     if (pose) {
       return {
         id: uid(),
-        name: `${kindLabel(kind)} D${difficulty}`,
+        name: `${kindLabel(kind)} D${d}`,
         createdAt: Date.now(),
         kind,
-        difficulty,
+        difficulty: d,
         cue: pose.cue,
         object: pose.object,
         pocketId: pose.pocketId,
