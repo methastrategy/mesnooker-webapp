@@ -69,6 +69,31 @@ The **target-player** settlement core:
 - `formatNumber`, `formatTime`, `formatDateTime` — display formatting.
 - `uid()` — collision-resistant id generator.
 
+### The Snooker Coach Engine (`src/lib/geometry/` + `src/lib/coach/`)
+
+A self-contained module for practice and escape-solver work — **fully isolated from the
+scoring/money system** (no imports from `rules.ts`/`money.ts`, own store, own routes).
+
+| File | Responsibility |
+|------|----------------|
+| `types.ts` | Shared data contracts: `Ball`, `Vec`, `SolvePath`, `Drill`, `ShotAnalysis`, `CounselNote`. All coordinates in table units (1200 × 600 playing area). |
+| `vector.ts` | Pure 2D vector math (dot/cross/normalize/lerp/angle). |
+| `tables.ts` | 12ft table constants: pockets, ball radius, baulk line/spots, dockets, `clampToTable()`. |
+| `collision.ts` | Line–circle collision: closest point on segment, segment-hit test, ray–circle intersection. |
+| `reflection.ts` | **Reflection / Mirror Method**: `unfoldStraight()` mirrors a target across cushion planes (BFS over `Side[]` sequences) and recovers legal bounce points. |
+| `solver.ts` | **Escape Solver**: ghost-ball computation, Cushion Reflection Tree (BFS over ≤6 bounces), legal bounces/pocket-mouth/blocker checks, `difficultyScore()` (1–10) and the Path Ranking Algorithm. |
+| `coach.ts` | **AI Coach**: deterministic coaching from a solved path — aim point/angle, hit thickness, power suggestion, per-cushion explanation. |
+| `src/lib/coach/analysis.ts` | **Shot Analyzer**: compares a user-drawn aim line with the best path (error angle, contact offset in ball radii, will-contact test). |
+| `src/lib/coach/drills.ts` | **Practice Generator**: 4 drill types (safety / escape / thin contact / position) at difficulty 1–10; every generated pose is verified solvable by the engine. localStorage persistence + JSON share/handoff. |
+
+UI lives in `src/components/coach/` (`CoachTable` — SVG table with drag & drop, path
+overlays, ghost ball, bounce markers, replay; `AiCoachPanel` — right sidebar) and the
+routes `app/solve/page.tsx` + `app/practice/page.tsx`. State is in `src/store/coachStore.ts`
+(a separate Zustand store — deliberately NOT persisted into the game store).
+
+**Invariants:** pure math (no React in `lib/geometry`), theme tokens only (Emerald Noir
+re-skins the module automatically), and the match/money tracker is untouched.
+
 ---
 
 ## 3. Domain Types — `src/types/index.ts`
@@ -206,6 +231,8 @@ snooker-money-tracker/
 │   │       ├── history/              # timelines
 │   │       ├── stats/                # dashboard
 │   │       ├── settle/               # settlement optimizer view
+│   │       ├── solve/                # Coach: escape solver + shot analyzer
+│   │       ├── practice/             # Coach: drill generator
 │   │       └── settings/
 │   ├── components/
 │   │   ├── ui/                       # shadcn primitives (atoms)
@@ -214,13 +241,26 @@ snooker-money-tracker/
 │   │   ├── atoms/                    # Ball, MoneyLabel, Badge, …
 │   │   ├── molecules/                # ScoreRow, BreakBadge, ShooterIndicator, …
 │   │   ├── organisms/                # ScoringPanel, PlayersPanel, SettlementList, …
-│   │   └── templates/                # GameScreen, DashboardScreen, …
+│   │   ├── templates/                # GameScreen, DashboardScreen, …
+│   │   └── coach/                    # Coach Engine UI (module)
+│   │       ├── CoachTable.tsx        # SVG table, drag & drop, replay
+│   │       └── AiCoachPanel.tsx      # right sidebar
 │   ├── lib/
 │   │   ├── rules.ts                  # scoring + target cycle
 │   │   ├── money.ts                  # money engine + settlement optimizer
-│   │   └── utils.ts
+│   │   ├── utils.ts
+│   │   ├── geometry/                 # Snooker Coach Engine (pure)
+│   │   │   ├── types.ts / vector.ts / tables.ts
+│   │   │   ├── collision.ts          # line–circle collision
+│   │   │   ├── reflection.ts         # mirror method + reflection tree
+│   │   │   ├── solver.ts            # escape solver + ranking
+│   │   │   └── coach.ts             # AI coach derivations
+│   │   └── coach/
+│   │       ├── analysis.ts           # shot analyzer
+│   │       └── drills.ts             # practice generator + storage
 │   ├── store/
-│   │   └── gameStore.ts
+│   │   ├── gameStore.ts
+│   │   └── coachStore.ts             # coach module state (isolated)
 │   ├── hooks/                        # useRealtimeSession, useExport, timers
 │   ├── supabase/
 │   │   ├── client.ts

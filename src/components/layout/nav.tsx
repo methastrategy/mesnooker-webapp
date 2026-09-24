@@ -10,6 +10,8 @@ import {
   BarChart3,
   Settings,
   Wallet,
+  Activity,
+  GitBranch,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useGameStore } from "@/store/gameStore";
@@ -17,16 +19,19 @@ import { useGameStore } from "@/store/gameStore";
 const NAV = [
   { href: "/", label: "Dashboard", icon: Home },
   { href: "/match", label: "Match", icon: Timer },
+  { href: "/solve", label: "Solve", icon: Activity },
+  { href: "/practice", label: "Practice", icon: GitBranch },
   { href: "/history", label: "History", icon: History },
   { href: "/stats", label: "Stats", icon: BarChart3 },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
-/** Bottom nav (mobile) shows only the main tabs; Settings stays in the desktop sidebar. */
+/** Bottom nav (mobile) shows the main tabs; Settings stays in the desktop sidebar. */
 const NAV_BOTTOM = [
   { href: "/", label: "Dashboard", icon: Home },
   { href: "/match", label: "Match", icon: Timer },
+  { href: "/solve", label: "Solve", icon: Activity },
+  { href: "/practice", label: "Practice", icon: GitBranch },
   { href: "/history", label: "History", icon: History },
-  { href: "/stats", label: "Stats", icon: BarChart3 },
 ];
 
 /** Desktop left sidebar */
