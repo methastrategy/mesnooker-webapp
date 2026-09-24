@@ -96,9 +96,15 @@ export default function SolvePage() {
 
     const pocketPos = POCKET_MAP[best.pocketId].pos;
 
+    // the cue rests at the contact point (midpoint ghost↔object) so the
+    // replay looks like a real hit, not a line floating short of the ball
+    const contact: Vec = {
+      x: (best.ghost.x + obj.pos.x) / 2,
+      y: (best.ghost.y + obj.pos.y) / 2,
+    };
     const cuePoints: Vec[] =
       kind === "best"
-        ? best.cuePolyline
+        ? [...best.cuePolyline, contact]
         : aimLine && verdict
           ? [cue.pos, {
               x: cue.pos.x + (aimLine.to.x - cue.pos.x),
@@ -122,7 +128,7 @@ export default function SolvePage() {
       if (el2 < objDur) {
         const f = el2 / objDur;
         setReplay({
-          cue: kind === "best" ? best.ghost : cuePoints[cuePoints.length - 1],
+          cue: kind === "best" ? contact : cuePoints[cuePoints.length - 1],
           object: {
             x: obj.pos.x + (pocketPos.x - obj.pos.x) * f,
             y: obj.pos.y + (pocketPos.y - obj.pos.y) * f,

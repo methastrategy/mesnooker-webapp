@@ -152,14 +152,15 @@ export function difficultyScore(input: {
   return clamp(Math.round(d * 10) / 10, 1, 10);
 }
 
-function reboundAngles(points: Vec[], bounces: Vec[]): number[] {
+function reboundAngles(points: Vec[], bounces: Vec[], sides: Side[]): number[] {
   const out: number[] = [];
   for (let i = 0; i < bounces.length; i++) {
     const prev = points[i];
     const bp = bounces[i];
     const inDir = normalize(sub(bp, prev));
-    // angle off the cushion face for the incoming ray
-    const face = { x: 1, y: 0 };
+    // angle off the cushion face for the incoming ray (face = cushion direction)
+    const side = sides[i];
+    const face = side === "l" || side === "r" ? { x: 0, y: 1 } : { x: 1, y: 0 };
     const a = Math.abs(angleBetween(inDir, face) - Math.PI / 2); // 0 = grazing
     out.push(toDeg(a));
   }
@@ -192,7 +193,7 @@ export function solveEscape(input: SolverInput): SolvePath[] {
     const cuePoly = path.points; // ends at ghost
     const objectPoly: Vec[] = [object, pocket.pos];
     const cutDeg = cutAngleDeg(cuePoly, object, pocket.pos);
-    const reb = reboundAngles(cuePoly, path.bounces);
+    const reb = reboundAngles(cuePoly, path.bounces, sides);
 
     const clearCue = cuePathClearsBalls(cuePoly, blockers);
     const clearObj = objectRunLegal(object, pocket.pos, blockers);
@@ -236,7 +237,7 @@ export function solveEscape(input: SolverInput): SolvePath[] {
     const notes: CounselNote[] = path.bounces.map((bp, i) => {
       const side: Side = sides[i];
       const prev = cuePoly[i];
-      const face = { x: 1, y: 0 };
+      const face = side === "l" || side === "r" ? { x: 0, y: 1 } : { x: 1, y: 0 };
       const inDir = normalize(sub(bp, prev));
       const a = Math.abs(angleBetween(inDir, face) - Math.PI / 2);
       return {
@@ -248,7 +249,7 @@ export function solveEscape(input: SolverInput): SolvePath[] {
     });
 
     results.push({
-      id: `${sides.length}-${sides.map((s) => s === "b" ? "B" : "T").join("")}`,
+      id: `${sides.length}-${sides.map((s) => (s === "b" ? "B" : s === "t" ? "T" : s === "l" ? "L" : "R")).join("")}`,
       pocketId,
       cushions: sides.length,
       sideSequence: sides,
@@ -283,7 +284,7 @@ export function solveEscape(input: SolverInput): SolvePath[] {
         if (legal) addPath(seq, res);
       }
       if (depth < limit) {
-        next.push([...seq, "b"], [...seq, "t"]);
+        next.push([...seq, "b"], [...seq, "t"], [...seq, "l"], [...seq, "r"]);
       }
     }
     frontier = next;

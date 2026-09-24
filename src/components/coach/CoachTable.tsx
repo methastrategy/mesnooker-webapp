@@ -217,6 +217,14 @@ export function CoachTable({
           const sp = p.cuePolyline.map(S);
           const op = p.objectPolyline.map(S);
           const ghost = S(p.ghost);
+          // extend the cue line to the object's contact point (midpoint of
+          // ghost centre and object centre) so it visibly reaches the ball
+          const last = sp[sp.length - 1];
+          const contact = {
+            x: (last.x + op[0].x) / 2,
+            y: (last.y + op[0].y) / 2,
+          };
+          const cuePts = [...sp, contact];
           return (
             <g>
               {/* object run */}
@@ -230,9 +238,9 @@ export function CoachTable({
                 strokeDasharray="10 8"
                 opacity={0.8}
               />
-              {/* cue path */}
+              {/* cue path (extended to the object contact point) */}
               <polyline
-                points={sp.map((v) => `${v.x},${v.y}`).join(" ")}
+                points={cuePts.map((v) => `${v.x},${v.y}`).join(" ")}
                 fill="none"
                 stroke="var(--color-primary, #16c784)"
                 strokeWidth={4}

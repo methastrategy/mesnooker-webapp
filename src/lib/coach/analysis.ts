@@ -1,4 +1,5 @@
 import type { SolvePath, Vec } from "@/lib/geometry";
+import { sideName } from "@/lib/geometry";
 import {
   BALL_R,
   POCKET_MAP,
@@ -71,10 +72,10 @@ export function analyzeShot(
   };
 }
 
-function cushionWords(notes: { side: "b" | "t"; angleDeg: number }[]): string {
+function cushionWords(notes: { side: "b" | "t" | "l" | "r"; angleDeg: number }[]): string {
   if (!notes.length) return "it's a straight drive through the ghost ball.";
   const first = notes[0];
-  return `send it to the ${first.side === "b" ? "bottom" : "top"} cushion ~${Math.round(first.angleDeg)}° off the face`;
+  return `send it to the ${sideName(first.side).toLowerCase()} cushion ~${Math.round(first.angleDeg)}° off the face`;
 }
 
 export { dist };

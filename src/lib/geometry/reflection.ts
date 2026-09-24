@@ -20,6 +20,8 @@ type Axis = { kind: "x" | "y"; value: number };
 
 const BOTTOM: Axis = { kind: "y", value: 0 };
 const TOP: Axis = { kind: "y", value: PLAY.y1 };
+const LEFT: Axis = { kind: "x", value: 0 };
+const RIGHT: Axis = { kind: "x", value: PLAY.x1 };
 
 export function mirrorAcross(p: Vec, axis: Axis): Vec {
   if (axis.kind === "y") return { x: p.x, y: 2 * axis.value - p.y };
@@ -27,7 +29,16 @@ export function mirrorAcross(p: Vec, axis: Axis): Vec {
 }
 
 function axisFor(side: Side): Axis {
-  return side === "b" ? BOTTOM : TOP;
+  switch (side) {
+    case "b":
+      return BOTTOM;
+    case "t":
+      return TOP;
+    case "l":
+      return LEFT;
+    case "r":
+      return RIGHT;
+  }
 }
 
 export interface UnfoldResult {
@@ -81,7 +92,13 @@ export function unfoldStraight(
         ? { x: current.x + t * (from.x - current.x), y: axis.value }
         : { x: axis.value, y: current.y + t * (from.y - current.y) };
 
-    if (bp.x < -1e-6 || bp.x > PLAY.x1 + 1e-6) return null; // off the cushion
+    // Bounce point must sit on the cushion segment (inside the table):
+    // bottom/top cushions span the full length (x), side cushions the width (y).
+    if (axis.kind === "y") {
+      if (bp.x < -1e-6 || bp.x > PLAY.x1 + 1e-6) return null;
+    } else {
+      if (bp.y < -1e-6 || bp.y > PLAY.y1 + 1e-6) return null;
+    }
     bounces[k] = bp;
     current = bp;
   }

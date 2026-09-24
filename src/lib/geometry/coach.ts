@@ -1,4 +1,5 @@
 import type { SolvePath, Vec } from "./types";
+import { sideName } from "./types";
 import { dist, normalize, sub, toDeg, angleBetween, clamp } from "./vector";
 
 /**
@@ -53,9 +54,10 @@ export function coachBrief(path: SolvePath, object: Vec, pocket: Vec): CoachBrie
     : "Firm — long path, keep it flat";
 
   const cushionExplanation: string[] = path.cushionNotes.map((n) => {
-    const side = n.side === "b" ? "Bottom" : "Top";
-    const posPct = Math.round((n.point.x / 1200) * 100);
-    return `${side} cushion @ ${posPct}% of table length — meet it at ${Math.round(
+    const side = sideName(n.side);
+    const along = n.side === "l" || n.side === "r" ? n.point.y / 600 : n.point.x / 1200;
+    const posPct = Math.round(along * 100);
+    return `${side} cushion @ ${posPct}% of the cushion — meet it at ${Math.round(
       n.angleDeg
     )}° off the face, rebound roughly at the same angle (mirror law).`;
   });

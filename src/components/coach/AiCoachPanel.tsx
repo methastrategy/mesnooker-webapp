@@ -6,7 +6,7 @@
  * hint ladder, aim point, hit thickness, power suggestion, cushion notes.
  */
 import { useCoachStore } from "@/store/coachStore";
-import { POCKET_MAP, POCKETS, coachBrief } from "@/lib/geometry";
+import { POCKET_MAP, POCKETS, coachBrief, sideName } from "@/lib/geometry";
 import { cn } from "@/lib/utils";
 
 const HINTS = [
@@ -131,9 +131,12 @@ export function AiCoachPanel() {
             </div>
             <div className="mt-1 text-xs text-muted-foreground">
               {best.cushionNotes.length
-                ? `First touch: ${best.cushionNotes[0].side === "b" ? "bottom" : "top"} cushion at ${Math.round(
-                    (best.cushionNotes[0].point.x / 1200) * 100
-                  )}% of table length.`
+                ? `First touch: ${sideName(best.cushionNotes[0].side).toLowerCase()} cushion at ${Math.round(
+                    ((best.cushionNotes[0].side === "l" || best.cushionNotes[0].side === "r")
+                      ? best.cushionNotes[0].point.y / 600
+                      : best.cushionNotes[0].point.x / 1200
+                    ) * 100
+                  )}% of the cushion.`
                 : "No cushion: aim straight at the ghost ball centre."}
             </div>
           </div>

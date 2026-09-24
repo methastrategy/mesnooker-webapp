@@ -33,8 +33,15 @@ export interface PocketDef {
   r: number;
 }
 
-/** Which cushion line a mirrored path flips across: "b" = bottom, "t" = top. */
-export type Side = "b" | "t";
+/**
+ * Which cushion line a mirrored path flips across:
+ * "b" = bottom, "t" = top, "l" = left (baulk), "r" = right (head).
+ */
+export type Side = "b" | "t" | "l" | "r";
+
+export function sideName(s: Side): string {
+  return s === "b" ? "Bottom" : s === "t" ? "Top" : s === "l" ? "Left" : "Right";
+}
 
 export interface CounselNote {
   /** 1-based cushion index in the sequence */
