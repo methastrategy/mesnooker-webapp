@@ -186,66 +186,93 @@ export default function SolvePage() {
           <CoachTable aimLine={aimLine} replay={replay} onAim={setAimLine} />
         </div>
 
-        {/* controls */}
-        <div className="glass flex flex-col gap-4 p-4">
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-2">
-              <Target size={16} className="text-gold" />
-              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Target
-              </span>
-              <span
-                className="inline-block h-5 w-5 rounded-full border border-black/40"
-                style={{
-                  background: obj ? BALL_COLORS[obj.color] : "#333",
-                }}
-              />
-              <span className="text-sm font-bold capitalize text-foreground">
-                {obj ? obj.color : "—"}
-              </span>
-              {obj && obj.color !== "cue" && (
+          {/* controls */}
+          <div className="glass flex flex-col gap-4 p-4">
+            <div className="flex flex-wrap items-center gap-3">
+              {/* Target Ball */}
+              <div className="flex items-center gap-2">
+                <Target size={16} className="text-gold" />
+                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Target
+                </span>
+                <span
+                  className="inline-block h-5 w-5 rounded-full border border-black/40"
+                  style={{
+                    background: obj ? BALL_COLORS[obj.color] : "#333",
+                  }}
+                />
+                <span className="text-sm font-bold capitalize text-foreground">
+                  {obj ? obj.color : "—"}
+                </span>
+                {obj && obj.color !== "cue" && (
+                  <button
+                    onClick={() => store.removeBall(obj.id)}
+                    aria-label="Remove target ball"
+                    className="rounded-lg bg-white/5 p-1.5 text-muted-foreground hover:bg-danger/20 hover:text-danger"
+                  >
+                    <Trash2 size={13} />
+                  </button>
+                )}
+              </div>
+
+              {/* Mode: Hit vs Pot */}
+              <div className="flex items-center gap-1 rounded-xl bg-white/5 p-1">
                 <button
-                  onClick={() => store.removeBall(obj.id)}
-                  aria-label="Remove target ball"
-                  className="rounded-lg bg-white/5 p-1.5 text-muted-foreground hover:bg-danger/20 hover:text-danger"
+                  onClick={() => store.setTargetMode("hit")}
+                  className={cn(
+                    "rounded-lg px-2.5 py-1 text-xs font-semibold transition-colors",
+                    store.targetMode === "hit"
+                      ? "bg-primary/20 text-primary"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
                 >
-                  <Trash2 size={13} />
+                  แก้ให้โดนลูก
                 </button>
-              )}
-            </div>
+                <button
+                  onClick={() => store.setTargetMode("pot")}
+                  className={cn(
+                    "rounded-lg px-2.5 py-1 text-xs font-semibold transition-colors",
+                    store.targetMode === "pot"
+                      ? "bg-primary/20 text-primary"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  แก้เพื่อลงหลุม
+                </button>
+              </div>
 
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Cushions
-              </span>
-              <input
-                type="range"
-                min={0}
-                max={6}
-                step={1}
-                value={store.maxCushions}
-                onChange={(e) => store.setMaxCushions(Number(e.target.value))}
-                className="w-36 accent-[var(--color-primary)]"
-              />
-              <span className="w-10 text-sm font-bold text-primary">
-                {store.maxCushions === 0 ? "0" : store.maxCushions}
-              </span>
-              <span className="text-[10px] text-muted-foreground">
-                {store.maxCushions === 0 ? "straight only" : "max bounces"}
-              </span>
-            </div>
+              {/* Grid Toggle */}
+              <button
+                onClick={() => store.toggleGrid()}
+                className={cn(
+                  "flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-semibold transition-colors",
+                  store.showGrid
+                    ? "border-primary/40 bg-primary/10 text-primary"
+                    : "border-white/10 bg-white/5 text-muted-foreground hover:text-foreground"
+                )}
+              >
+                📐 เส้นแบ่งสัดส่วนโต๊ะ {store.showGrid ? "(เปิด)" : "(ปิด)"}
+              </button>
 
-            <button
-              onClick={() => {
-                cancelAnimationFrame(raf.current);
-                setReplay(null);
-                store.solve();
-              }}
-              className="ml-auto rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-black shadow-lg shadow-primary/20 transition-transform hover:scale-[1.03] active:scale-95"
-            >
-              Solve
-            </button>
-          </div>
+              {/* Cushions slider */}
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Cushions
+                </span>
+                <input
+                  type="range"
+                  min={0}
+                  max={6}
+                  step={1}
+                  value={store.maxCushions}
+                  onChange={(e) => store.setMaxCushions(Number(e.target.value))}
+                  className="w-28 accent-[var(--color-primary)]"
+                />
+                <span className="w-6 text-sm font-bold text-primary">
+                  {store.maxCushions}
+                </span>
+              </div>
+            </div>
 
           {/* ball tray */}
           <div className="flex flex-wrap items-center gap-2 border-t border-line pt-3">

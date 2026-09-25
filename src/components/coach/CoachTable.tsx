@@ -52,6 +52,9 @@ export function CoachTable({
   const [dragId, setDragId] = useState<string | null>(null);
   const [hoverId, setHoverId] = useState<string | null>(null);
 
+  const showGrid = useCoachStore((s) => s.showGrid);
+  const targetMode = useCoachStore((s) => s.targetMode);
+
   const selectedPath: SolvePath | undefined = paths.find(
     (p) => p.id === selectedPathId
   );
@@ -62,7 +65,6 @@ export function CoachTable({
     const svg = svgRef.current;
     if (!svg) return { x: 0, y: 0 };
     const r = svg.getBoundingClientRect();
-    // account for preserveAspectRatio (meet) letterboxing
     const scale = Math.min(r.width / VIEW_W, r.height / VIEW_H);
     const offX = (r.width - VIEW_W * scale) / 2;
     const offY = (r.height - VIEW_H * scale) / 2;
@@ -76,7 +78,6 @@ export function CoachTable({
 
   const startDrag = (id: string) => (e: React.PointerEvent) => {
     if (id === COACH_CUE_ID && onAim) {
-      // cue ball drag = user aim line for the analyzer
       const start = toTable(e.clientX, e.clientY);
       (e.target as Element).setPointerCapture?.(e.pointerId);
       setDragId("aim");
@@ -161,21 +162,45 @@ export function CoachTable({
         fill="url(#felt)"
       />
 
-      {/* baulk line + spot */}
-      <line
-        x1={OX + BAULK_LINE.x}
-        y1={OY}
-        x2={OX + BAULK_LINE.x}
-        y2={OY + PLAY.y1}
-        stroke="rgba(244,239,230,0.10)"
-        strokeWidth={2}
-      />
-      <circle
-        cx={OX + BAULK_SPOT.x}
-        cy={OY + BAULK_SPOT.y}
-        r={4}
-        fill="rgba(244,239,230,0.16)"
-      />
+      {/* ── Table Grid & Subdivisions ────────────────────────────────────── */}
+      {showGrid && (
+        <g opacity={0.65}>
+          {/* 1/4, 1/2, 3/4 Section Grid Lines */}
+          <line x1={OX + 300} y1={OY} x2={OX + 300} y2={OY + PLAY.y1} stroke="rgba(244,239,230,0.12)" strokeWidth={1} strokeDasharray="4 4" />
+          <line x1={OX + 600} y1={OY} x2={OX + 600} y2={OY + PLAY.y1} stroke="rgba(244,239,230,0.22)" strokeWidth={1.5} strokeDasharray="6 4" />
+          <line x1={OX + 900} y1={OY} x2={OX + 900} y2={OY + PLAY.y1} stroke="rgba(244,239,230,0.12)" strokeWidth={1} strokeDasharray="4 4" />
+
+          <line x1={OX} y1={OY + 150} x2={OX + PLAY.x1} y2={OY + 150} stroke="rgba(244,239,230,0.12)" strokeWidth={1} strokeDasharray="4 4" />
+          <line x1={OX} y1={OY + 300} x2={OX + PLAY.x1} y2={OY + 300} stroke="rgba(244,239,230,0.22)" strokeWidth={1.5} strokeDasharray="6 4" />
+          <line x1={OX} y1={OY + 450} x2={OX + PLAY.x1} y2={OY + 450} stroke="rgba(244,239,230,0.12)" strokeWidth={1} strokeDasharray="4 4" />
+
+          {/* Pocket-to-Pocket Diagonal Guide Lines */}
+          <line x1={OX} y1={OY} x2={OX + PLAY.x1} y2={OY + PLAY.y1} stroke="rgba(226,185,106,0.25)" strokeWidth={1} strokeDasharray="5 5" />
+          <line x1={OX} y1={OY + PLAY.y1} x2={OX + PLAY.x1} y2={OY} stroke="rgba(226,185,106,0.25)" strokeWidth={1} strokeDasharray="5 5" />
+
+          {/* Pocket Alignment Lines */}
+          <line x1={OX + 600} y1={OY} x2={OX + 600} y2={OY + PLAY.y1} stroke="rgba(226,185,106,0.25)" strokeWidth={1} strokeDasharray="3 3" />
+
+          {/* Baulk Line & D-Zone Arc */}
+          <line x1={OX + 330} y1={OY} x2={OX + 330} y2={OY + PLAY.y1} stroke="rgba(244,239,230,0.35)" strokeWidth={1.5} />
+          <path d={`M ${OX + 330} ${OY + 300 - 110} A 110 110 0 0 0 ${OX + 330} ${OY + 300 + 110}`} fill="none" stroke="rgba(244,239,230,0.35)" strokeWidth={1.5} />
+
+          {/* Spots Markers */}
+          {[
+            { x: 330, y: 410, label: "Yellow" },
+            { x: 330, y: 190, label: "Green" },
+            { x: 330, y: 300, label: "Brown" },
+            { x: 600, y: 300, label: "Blue" },
+            { x: 900, y: 300, label: "Pink" },
+            { x: 1080, y: 300, label: "Black" },
+          ].map((sp, idx) => (
+            <g key={idx}>
+              <circle cx={OX + sp.x} cy={OY + sp.y} r={3} fill="rgba(244,239,230,0.5)" />
+              <circle cx={OX + sp.x} cy={OY + sp.y} r={7} fill="none" stroke="rgba(244,239,230,0.25)" strokeWidth={1} />
+            </g>
+          ))}
+        </g>
+      )}
 
       {/* pockets */}
       {POCKETS.map((p) => {
@@ -206,7 +231,7 @@ export function CoachTable({
             stroke="var(--color-muted, #8a8f8c)"
             strokeWidth={1.5}
             strokeDasharray="4 6"
-            opacity={0.28}
+            opacity={0.25}
           />
         ))}
 
@@ -217,38 +242,34 @@ export function CoachTable({
           const sp = p.cuePolyline.map(S);
           const op = p.objectPolyline.map(S);
           const ghost = S(p.ghost);
-          // extend the cue line to the object's contact point (midpoint of
-          // ghost centre and object centre) so it visibly reaches the ball
-          const last = sp[sp.length - 1];
-          const contact = {
-            x: (last.x + op[0].x) / 2,
-            y: (last.y + op[0].y) / 2,
-          };
-          const cuePts = [...sp, contact];
+
           return (
             <g>
-              {/* object run */}
-              <line
-                x1={op[0].x}
-                y1={op[0].y}
-                x2={op[op.length - 1].x}
-                y2={op[op.length - 1].y}
-                stroke="var(--color-gold, #f59e0b)"
-                strokeWidth={3}
-                strokeDasharray="10 8"
-                opacity={0.8}
-              />
-              {/* cue path (extended to the object contact point) */}
+              {/* object ball run / reaction line */}
+              {op.length > 1 && (
+                <line
+                  x1={op[0].x}
+                  y1={op[0].y}
+                  x2={op[op.length - 1].x}
+                  y2={op[op.length - 1].y}
+                  stroke="var(--color-gold, #f59e0b)"
+                  strokeWidth={3}
+                  strokeDasharray="6 4"
+                  opacity={0.8}
+                />
+              )}
+              {/* cue ball escape path (dashed line for snooker escape) */}
               <polyline
-                points={cuePts.map((v) => `${v.x},${v.y}`).join(" ")}
+                points={sp.map((v) => `${v.x},${v.y}`).join(" ")}
                 fill="none"
                 stroke="var(--color-primary, #16c784)"
-                strokeWidth={4}
+                strokeWidth={3.5}
+                strokeDasharray="8 6"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 opacity={0.95}
               />
-              {/* bounce markers */}
+              {/* bounce markers with angle labels */}
               {p.cushionNotes.map((n, i) => {
                 const s = S(n.point);
                 return (
@@ -256,17 +277,46 @@ export function CoachTable({
                     <circle
                       cx={s.x}
                       cy={s.y}
-                      r={9}
+                      r={10}
                       fill="var(--color-primary, #16c784)"
                       stroke="#000"
                       strokeWidth={1.5}
                     />
-                    <circle cx={s.x} cy={s.y} r={3.5} fill="#000" />
+                    <text
+                      x={s.x}
+                      y={s.y + 3.5}
+                      textAnchor="middle"
+                      fill="#000"
+                      fontSize="10"
+                      fontWeight="bold"
+                    >
+                      {i + 1}
+                    </text>
+                    <rect
+                      x={s.x - 16}
+                      y={n.side === "b" ? s.y + 12 : s.y - 24}
+                      width={32}
+                      height={14}
+                      rx={4}
+                      fill="rgba(0,0,0,0.75)"
+                      stroke="rgba(226,185,106,0.5)"
+                      strokeWidth={1}
+                    />
+                    <text
+                      x={s.x}
+                      y={n.side === "b" ? s.y + 22 : s.y - 14}
+                      textAnchor="middle"
+                      fill="#fff"
+                      fontSize="9"
+                      fontWeight="bold"
+                    >
+                      {Math.round(n.angleDeg)}°
+                    </text>
                   </g>
                 );
               })}
-              {/* ghost ball */}
-              {hintLevel >= 2 && (
+              {/* ghost ball (contact position) */}
+              {hintLevel >= 1 && (
                 <circle
                   cx={ghost.x}
                   cy={ghost.y}
@@ -274,22 +324,10 @@ export function CoachTable({
                   fill="none"
                   stroke="var(--color-primary, #16c784)"
                   strokeWidth={2.5}
-                  strokeDasharray="5 5"
+                  strokeDasharray="4 4"
                   opacity={0.95}
                 />
               )}
-              {/* aim crosshair (first target) */}
-              {hintLevel >= 1 &&
-                (() => {
-                  const a = S(p.cushionNotes.length ? p.cushionNotes[0].point : p.ghost);
-                  return (
-                    <g stroke="var(--color-gold, #f59e0b)" strokeWidth={2.5} opacity={0.95}>
-                      <line x1={a.x - 14} y1={a.y} x2={a.x + 14} y2={a.y} />
-                      <line x1={a.x} y1={a.y - 14} x2={a.x} y2={a.y + 14} />
-                      <circle cx={a.x} cy={a.y} r={9} fill="none" />
-                    </g>
-                  );
-                })()}
             </g>
           );
         })()}

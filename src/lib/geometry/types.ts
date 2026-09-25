@@ -81,6 +81,8 @@ export interface SolverInput {
   object: Vec;
   blockers: Vec[];
   pocketId: string;
+  /** "hit" = escape to hit target ball, "pot" = pot into pocket */
+  targetMode?: "hit" | "pot";
   /** min cushions to attempt (0..6) */
   minCushions?: number;
   /** max cushions to attempt (0..6) */

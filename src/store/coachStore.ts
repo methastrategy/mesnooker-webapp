@@ -48,6 +48,8 @@ export interface CoachState {
   selectedPathId: string | null;
   hintLevel: number; // 0 off, 1 aim, 2 ghost, 3 full
   solved: boolean;
+  showGrid: boolean;
+  targetMode: "hit" | "pot";
 
   // selectors
   cue: () => Ball | undefined;
@@ -59,6 +61,9 @@ export interface CoachState {
   setObjectBall: (id: string) => void;
   setPocket: (id: string) => void;
   setMaxCushions: (n: number) => void;
+  setTargetMode: (m: "hit" | "pot") => void;
+  setShowGrid: (v: boolean) => void;
+  toggleGrid: () => void;
   addBall: (color: BallColor) => void;
   removeBall: (id: string) => void;
   solve: () => void;
@@ -85,6 +90,8 @@ export const useCoachStore = create<CoachState>()((set, get) => ({
   selectedPathId: null,
   hintLevel: 1,
   solved: false,
+  showGrid: true,
+  targetMode: "hit",
 
   cue: () => get().balls.find((b) => b.id === CUE_ID),
   object: () => get().balls.find((b) => b.id === get().objectId),
@@ -97,19 +104,33 @@ export const useCoachStore = create<CoachState>()((set, get) => ({
     const clamped = clampToTable(pos, others, r);
     set((s) => ({
       balls: s.balls.map((b) => (b.id === id ? { ...b, pos: clamped } : b)),
-      solved: false,
-      paths: [],
-      selectedPathId: null,
     }));
+    get().solve();
   },
 
   setObjectBall: (id) => {
     if (id === CUE_ID) return;
-    set({ objectId: id, solved: false, paths: [], selectedPathId: null });
+    set({ objectId: id });
+    get().solve();
   },
 
-  setPocket: (id) => set({ pocketId: id, solved: false, paths: [], selectedPathId: null }),
-  setMaxCushions: (n) => set({ maxCushions: Math.max(0, Math.min(6, n)) }),
+  setPocket: (id) => {
+    set({ pocketId: id });
+    get().solve();
+  },
+
+  setMaxCushions: (n) => {
+    set({ maxCushions: Math.max(0, Math.min(6, n)) });
+    get().solve();
+  },
+
+  setTargetMode: (m) => {
+    set({ targetMode: m });
+    get().solve();
+  },
+
+  setShowGrid: (v) => set({ showGrid: v }),
+  toggleGrid: () => set((s) => ({ showGrid: !s.showGrid })),
 
   addBall: (color) => {
     const s = get();
@@ -117,18 +138,20 @@ export const useCoachStore = create<CoachState>()((set, get) => ({
     // spawn near centre with jitter, clamped off other balls
     const jitter = () => 200 + Math.random() * 800;
     const p = clampToTable({ x: jitter(), y: 80 + Math.random() * 440 }, s.balls);
-    set({ balls: [...s.balls, makeBall(color, p)], solved: false });
+    set({ balls: [...s.balls, makeBall(color, p)] });
+    get().solve();
   },
 
   removeBall: (id) => {
     if (id === CUE_ID) return;
-    set((s) => ({
-      balls: s.balls.filter((b) => b.id !== id),
-      objectId: s.objectId === id ? "" : s.objectId,
-      solved: false,
-      paths: [],
-      selectedPathId: null,
-    }));
+    const s = get();
+    const remaining = s.balls.filter((b) => b.id !== id);
+    const nextObjId = s.objectId === id ? (remaining.find((b) => b.id !== CUE_ID)?.id || "") : s.objectId;
+    set({
+      balls: remaining,
+      objectId: nextObjId,
+    });
+    get().solve();
   },
 
   solve: () => {
@@ -147,6 +170,7 @@ export const useCoachStore = create<CoachState>()((set, get) => ({
       object: obj.pos,
       blockers,
       pocketId: s.pocketId,
+      targetMode: s.targetMode,
       maxCushions: s.maxCushions,
     });
     // pick best non-blocked
@@ -173,6 +197,7 @@ export const useCoachStore = create<CoachState>()((set, get) => ({
       hintLevel: 1,
       solved: false,
     });
+    get().solve();
   },
 
   loadDrill: (d) => {
@@ -187,6 +212,7 @@ export const useCoachStore = create<CoachState>()((set, get) => ({
       selectedPathId: null,
       solved: false,
     });
+    get().solve();
   },
 }));
 

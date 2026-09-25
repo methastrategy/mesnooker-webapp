@@ -172,105 +172,31 @@ function reboundAngles(points: Vec[], bounces: Vec[], sides: Side[]): number[] {
  * Tree is a BFS over side sequences; legality prunes branches early.
  */
 export function solveEscape(input: SolverInput): SolvePath[] {
-  const { cue, object, blockers, pocketId, maxCushions } = input;
+  const { cue, object, blockers, pocketId, targetMode = "hit", maxCushions } = input;
   const pocket: PocketDef | undefined = POCKET_MAP[pocketId];
-  if (!pocket) return [];
-
-  const g = ghostBall(object, pocket.pos);
-  if (!ghostLegal(g)) return [];
-  // NOTE: an illegal object run does not stop enumeration — each path is
-  // marked `blocked` so the UI can explain "object run blocked by a ball".
 
   const results: SolvePath[] = [];
-
-  const addPath = (
-    sides: Side[],
-    path: { points: Vec[]; bounces: Vec[] }
-  ) => {
-    const cuePoly = path.points; // ends at ghost
-    const objectPoly: Vec[] = [object, pocket.pos];
-    const cutDeg = cutAngleDeg(cuePoly, object, pocket.pos);
-    const reb = reboundAngles(cuePoly, path.bounces, sides);
-
-    const clearCue = cuePathClearsBalls(cuePoly, blockers);
-    const clearObj = objectRunLegal(object, pocket.pos, blockers);
-    const clearPockets = cuePathClearsPockets(cuePoly);
-
-    // min clearance between either path and any blocker surface
-    let minClearance = Infinity;
-    for (const bl of blockers) {
-      for (let i = 0; i < cuePoly.length - 1; i++) {
-        minClearance = Math.min(
-          minClearance,
-          pointSegmentDist(cuePoly[i], cuePoly[i + 1], bl) - TWO_R
-        );
-      }
-      minClearance = Math.min(minClearance, pointSegmentDist(object, pocket.pos, bl) - TWO_R);
-    }
-    if (blockers.length === 0) minClearance = 999;
-
-    let totalLength = 0;
-    for (let i = 0; i < cuePoly.length - 1; i++)
-      totalLength += dist(cuePoly[i], cuePoly[i + 1]);
-    totalLength += dist(object, pocket.pos);
-
-    const difficulty = difficultyScore({
-      cushions: sides.length,
-      cutDeg,
-      reboundDegs: reb,
-      minClearance: Math.max(0, minClearance),
-      totalLength,
-    });
-
-    const blocked = !clearCue.ok || !clearObj || !clearPockets;
-    const blockReason = !clearPockets
-      ? "cue would pass a pocket mouth"
-      : !clearCue.ok
-        ? clearCue.reason
-        : !clearObj
-          ? "object run blocked by a ball"
-          : undefined;
-
-    const notes: CounselNote[] = path.bounces.map((bp, i) => {
-      const side: Side = sides[i];
-      const prev = cuePoly[i];
-      const face = side === "l" || side === "r" ? { x: 0, y: 1 } : { x: 1, y: 0 };
-      const inDir = normalize(sub(bp, prev));
-      const a = Math.abs(angleBetween(inDir, face) - Math.PI / 2);
-      return {
-        index: i + 1,
-        side,
-        point: bp,
-        angleDeg: Math.round(toDeg(a) * 10) / 10,
-      };
-    });
-
-    results.push({
-      id: `${sides.length}-${sides.map((s) => (s === "b" ? "B" : s === "t" ? "T" : s === "l" ? "L" : "R")).join("")}`,
-      pocketId,
-      cushions: sides.length,
-      sideSequence: sides,
-      cuePolyline: cuePoly,
-      ghost: g,
-      objectPolyline: objectPoly,
-      totalLength,
-      difficulty,
-      rawScore: difficulty + totalLength / 4000,
-      cushionNotes: notes,
-      blocked,
-      blockReason,
-    });
-  };
 
   // BFS the reflection tree over side sequences up to maxCushions.
   const limit = clamp(maxCushions, 0, 6);
   let frontier: Side[][] = [[]];
+
   for (let depth = 0; depth <= limit; depth++) {
     const next: Side[][] = [];
     for (const seq of frontier) {
-      const res = unfoldStraight(cue, g, seq);
+      let targetPoint = object;
+      if (targetMode === "pot" && pocket) {
+        targetPoint = ghostBall(object, pocket.pos);
+        if (!ghostLegal(targetPoint)) {
+          if (depth < limit) {
+            next.push([...seq, "b"], [...seq, "t"], [...seq, "l"], [...seq, "r"]);
+          }
+          continue;
+        }
+      }
+
+      const res = unfoldStraight(cue, targetPoint, seq);
       if (res) {
-        // every bounce must be on the cloth and out of the pocket mouths
         let legal = true;
         for (const bp of res.bounces) {
           if (!bounceLegal(bp, pocketId)) {
@@ -278,7 +204,96 @@ export function solveEscape(input: SolverInput): SolvePath[] {
             break;
           }
         }
-        if (legal) addPath(seq, res);
+        if (legal) {
+          // Calculate contact ghost ball position and polyline
+          let cuePoly = res.points;
+          let ghostPoint = targetPoint;
+          let objectPoly: Vec[] = [object];
+
+          if (targetMode === "hit") {
+            const lastFrom = cuePoly.length > 1 ? cuePoly[cuePoly.length - 2] : cue;
+            const approachDir = normalize(sub(object, lastFrom));
+            ghostPoint = {
+              x: object.x - TWO_R * approachDir.x,
+              y: object.y - TWO_R * approachDir.y,
+            };
+            // Cue path ends at contact ghost point
+            cuePoly = [...cuePoly.slice(0, -1), ghostPoint];
+            objectPoly = [object, { x: object.x + 60 * approachDir.x, y: object.y + 60 * approachDir.y }];
+          } else if (pocket) {
+            objectPoly = [object, pocket.pos];
+          }
+
+          const cutDeg = cutAngleDeg(cuePoly, object, objectPoly[1] || pocket?.pos || object);
+          const reb = reboundAngles(cuePoly, res.bounces, seq);
+
+          const clearCue = cuePathClearsBalls(cuePoly, blockers);
+          const clearObj = targetMode === "pot" && pocket ? objectRunLegal(object, pocket.pos, blockers) : true;
+          const clearPockets = cuePathClearsPockets(cuePoly);
+
+          let minClearance = Infinity;
+          for (const bl of blockers) {
+            for (let i = 0; i < cuePoly.length - 1; i++) {
+              minClearance = Math.min(
+                minClearance,
+                pointSegmentDist(cuePoly[i], cuePoly[i + 1], bl) - TWO_R
+              );
+            }
+          }
+          if (blockers.length === 0) minClearance = 999;
+
+          let totalLength = 0;
+          for (let i = 0; i < cuePoly.length - 1; i++)
+            totalLength += dist(cuePoly[i], cuePoly[i + 1]);
+          totalLength += dist(ghostPoint, object);
+
+          const difficulty = difficultyScore({
+            cushions: seq.length,
+            cutDeg,
+            reboundDegs: reb,
+            minClearance: Math.max(0, minClearance),
+            totalLength,
+          });
+
+          const blocked = !clearCue.ok || !clearObj || !clearPockets;
+          const blockReason = !clearPockets
+            ? "ลูกขาวผ่านปากหลุม"
+            : !clearCue.ok
+              ? clearCue.reason
+              : !clearObj
+                ? "ทางวิ่งลูกเป้าถูกบัง"
+                : undefined;
+
+          const notes: CounselNote[] = res.bounces.map((bp, i) => {
+            const side: Side = seq[i];
+            const prev = cuePoly[i];
+            const face = side === "l" || side === "r" ? { x: 0, y: 1 } : { x: 1, y: 0 };
+            const inDir = normalize(sub(bp, prev));
+            const a = Math.abs(angleBetween(inDir, face) - Math.PI / 2);
+            return {
+              index: i + 1,
+              side,
+              point: bp,
+              angleDeg: Math.round(toDeg(a) * 10) / 10,
+            };
+          });
+
+          results.push({
+            id: `${seq.length}-${seq.map((s) => (s === "b" ? "B" : s === "t" ? "T" : s === "l" ? "L" : "R")).join("")}`,
+            pocketId,
+            cushions: seq.length,
+            sideSequence: seq,
+            cuePolyline: cuePoly,
+            ghost: ghostPoint,
+            objectPolyline: objectPoly,
+            totalLength,
+            difficulty,
+            rawScore: difficulty + totalLength / 4000,
+            cushionNotes: notes,
+            blocked,
+            blockReason,
+          });
+        }
       }
       if (depth < limit) {
         next.push([...seq, "b"], [...seq, "t"], [...seq, "l"], [...seq, "r"]);
@@ -287,12 +302,15 @@ export function solveEscape(input: SolverInput): SolvePath[] {
     frontier = next;
   }
 
-  // Ranking Algorithm: legal first, lowest raw score (difficulty + travel)
-  // wins the highlight.
+  // Ranking Algorithm:
+  // 1. Unblocked (clean) paths first
+  // 2. Fewest cushion bounces first (0 cushions -> 1 cushion -> 2 cushions)
+  // 3. Shortest travel distance
   results.sort((a, b) => {
     if (a.blocked !== b.blocked) return a.blocked ? 1 : -1;
-    if (a.rawScore !== b.rawScore) return a.rawScore - b.rawScore;
-    return a.totalLength - b.totalLength;
+    if (a.cushions !== b.cushions) return a.cushions - b.cushions;
+    if (a.totalLength !== b.totalLength) return a.totalLength - b.totalLength;
+    return a.rawScore - b.rawScore;
   });
 
   return results;

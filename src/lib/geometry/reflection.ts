@@ -1,27 +1,12 @@
 import type { Side, Vec } from "./types";
-import { PLAY } from "./tables";
-
-/**
- * Reflection / Mirror Method — the geometric core of the Escape Solver.
- *
- * A cushion acts as a mirror. For a cue ball that must reach a target point
- * (the GHOST ball) after bouncing off cushions in side-sequence
- * S = [b, t, b, ...], we "unfold" the table: mirror the target across the
- * last cushion, then the previous one, and so on. The cue ball then sees a
- * single straight (virtual) target. Each time that straight line crosses a
- * mirror plane we recover the real bounce point on that cushion.
- *
- * Legality: every bounce point must fall within the cushion segment (0..PLAY_W
- * along x), and while walking the unfold each mirror crossing must happen on
- * the correct side (the ray actually goes INTO the cushion, then out).
- */
+import { PLAY, BALL_R } from "./tables";
 
 type Axis = { kind: "x" | "y"; value: number };
 
-const BOTTOM: Axis = { kind: "y", value: 0 };
-const TOP: Axis = { kind: "y", value: PLAY.y1 };
-const LEFT: Axis = { kind: "x", value: 0 };
-const RIGHT: Axis = { kind: "x", value: PLAY.x1 };
+const BOTTOM: Axis = { kind: "y", value: BALL_R };
+const TOP: Axis = { kind: "y", value: PLAY.y1 - BALL_R };
+const LEFT: Axis = { kind: "x", value: BALL_R };
+const RIGHT: Axis = { kind: "x", value: PLAY.x1 - BALL_R };
 
 export function mirrorAcross(p: Vec, axis: Axis): Vec {
   if (axis.kind === "y") return { x: p.x, y: 2 * axis.value - p.y };
@@ -61,47 +46,46 @@ export function unfoldStraight(
   to: Vec,
   sides: Side[]
 ): UnfoldResult | null {
-  if (sides.length === 0) {
+  const n = sides.length;
+  if (n === 0) {
     return { points: [from, to], bounces: [], virtual: to };
   }
 
-  // 1) Unfold: mirror the target through the LAST cushion first.
-  let virtual = to;
-  for (let i = sides.length - 1; i >= 0; i--) {
-    virtual = mirrorAcross(virtual, axisFor(sides[i]));
+  // 1) Unfold: mirror target to generate virtual target chain V_n, V_{n-1}, ..., V_0
+  const V: Vec[] = new Array(n + 1);
+  V[n] = to;
+  for (let i = n - 1; i >= 0; i--) {
+    V[i] = mirrorAcross(V[i + 1], axisFor(sides[i]));
   }
 
-  // 2) Straight line from -> virtual. Cross each mirror in REVERSE order to
-  //    recover bounce points, walking from the virtual target back to `from`.
-  const n = sides.length;
+  // 2) Walk forward from `from` to calculate exact bounce points P_0, P_1, ..., P_{n-1}
   const bounces: Vec[] = new Array(n);
-  let current = virtual;
+  let curr = from;
 
-  for (let k = n - 1; k >= 0; k--) {
-    const axis = axisFor(sides[k]);
-    const denom =
-      axis.kind === "y" ? from.y - current.y : from.x - current.x;
+  for (let i = 0; i < n; i++) {
+    const axis = axisFor(sides[i]);
+    const targetVirtual = V[i];
+    const denom = targetVirtual[axis.kind] - curr[axis.kind];
     if (Math.abs(denom) < 1e-9) return null; // parallel to the cushion
 
-    // p(t) = current + t*(from - current); find t where p hits the plane.
-    const t = (axis.value - current[axis.kind]) / denom;
+    const t = (axis.value - curr[axis.kind]) / denom;
     if (t <= 1e-6 || t >= 1 - 1e-6) return null; // crossed from wrong side
 
     const bp: Vec =
       axis.kind === "y"
-        ? { x: current.x + t * (from.x - current.x), y: axis.value }
-        : { x: axis.value, y: current.y + t * (from.y - current.y) };
+        ? { x: curr.x + t * (targetVirtual.x - curr.x), y: axis.value }
+        : { x: axis.value, y: curr.y + t * (targetVirtual.y - curr.y) };
 
-    // Bounce point must sit on the cushion segment (inside the table):
-    // bottom/top cushions span the full length (x), side cushions the width (y).
+    // Bounce point must sit on the cushion segment
     if (axis.kind === "y") {
-      if (bp.x < -1e-6 || bp.x > PLAY.x1 + 1e-6) return null;
+      if (bp.x < BALL_R - 1e-6 || bp.x > PLAY.x1 - BALL_R + 1e-6) return null;
     } else {
-      if (bp.y < -1e-6 || bp.y > PLAY.y1 + 1e-6) return null;
+      if (bp.y < BALL_R - 1e-6 || bp.y > PLAY.y1 - BALL_R + 1e-6) return null;
     }
-    bounces[k] = bp;
-    current = bp;
+
+    bounces[i] = bp;
+    curr = bp;
   }
 
-  return { points: [from, ...bounces, to], bounces, virtual };
+  return { points: [from, ...bounces, to], bounces, virtual: V[0] };
 }

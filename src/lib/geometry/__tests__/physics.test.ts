@@ -41,15 +41,15 @@ function normalize(v: Vec): Vec {
 }
 
 function onCushionLine(p: Vec, side: Side, tol = 1e-4): boolean {
-  if (side === "b") return Math.abs(p.y - 0) < tol;
-  if (side === "t") return Math.abs(p.y - PLAY.y1) < tol;
-  if (side === "l") return Math.abs(p.x - 0) < tol;
-  return Math.abs(p.x - PLAY.x1) < tol;
+  if (side === "b") return Math.abs(p.y - R) < tol;
+  if (side === "t") return Math.abs(p.y - (PLAY.y1 - R)) < tol;
+  if (side === "l") return Math.abs(p.x - R) < tol;
+  return Math.abs(p.x - (PLAY.x1 - R)) < tol;
 }
 
 function inSegment(p: Vec, side: Side): boolean {
-  if (side === "b" || side === "t") return p.x >= -1e-9 && p.x <= PLAY.x1 + 1e-9;
-  return p.y >= -1e-9 && p.y <= PLAY.y1 + 1e-9;
+  if (side === "b" || side === "t") return p.x >= R - 1e-9 && p.x <= PLAY.x1 - R + 1e-9;
+  return p.y >= R - 1e-9 && p.y <= PLAY.y1 - R + 1e-9;
 }
 
 function reflect(dir: Vec, side: Side): Vec {
@@ -61,7 +61,7 @@ function segStaysOnCloth(a: Vec, b: Vec): boolean {
   for (let i = 1; i < 40; i++) {
     const t = i / 40;
     const p = { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t };
-    if (p.x < -1e-4 || p.x > PLAY.x1 + 1e-4 || p.y < -1e-4 || p.y > PLAY.y1 + 1e-4) {
+    if (p.x < R - 1e-4 || p.x > PLAY.x1 - R + 1e-4 || p.y < R - 1e-4 || p.y > PLAY.y1 - R + 1e-4) {
       return false;
     }
   }
@@ -99,7 +99,7 @@ describe("physics invariants across random configs", () => {
       const pocket = POCKET_MAP[pocketId].pos;
       const maxC = 1 + (iter % 3);
 
-      const paths = solveEscape({ cue, object, blockers, pocketId, maxCushions: maxC });
+      const paths = solveEscape({ cue, object, blockers, pocketId, targetMode: "pot", maxCushions: maxC });
       if (!paths.length) continue;
 
       const pocketDir = normalize({ x: pocket.x - object.x, y: pocket.y - object.y });

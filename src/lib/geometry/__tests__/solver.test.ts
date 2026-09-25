@@ -87,14 +87,14 @@ describe("escape solver", () => {
     for (const s of ["b", "t", "l", "r"]) {
       expect(sides).toContain(s);
     }
-    // each bounce sits on its cushion line
+    // each bounce sits on its ball-center cushion line
     for (const p of oneCushion) {
       const bp = p.cushionNotes[0].point;
       const side = p.sideSequence[0];
-      if (side === "b") expect(bp.y).toBeCloseTo(0, 4);
-      if (side === "t") expect(bp.y).toBeCloseTo(PLAY.y1, 4);
-      if (side === "l") expect(bp.x).toBeCloseTo(0, 4);
-      if (side === "r") expect(bp.x).toBeCloseTo(PLAY.x1, 4);
+      if (side === "b") expect(bp.y).toBeCloseTo(BALL_R, 4);
+      if (side === "t") expect(bp.y).toBeCloseTo(PLAY.y1 - BALL_R, 4);
+      if (side === "l") expect(bp.x).toBeCloseTo(BALL_R, 4);
+      if (side === "r") expect(bp.x).toBeCloseTo(PLAY.x1 - BALL_R, 4);
     }
   });
 
@@ -127,7 +127,7 @@ describe("escape solver", () => {
     }
   });
 
-  it("returns [] when the ghost is off the cloth", () => {
+  it("returns [] when ghost is illegal in pot mode", () => {
     // object hugging the bottom cushion, potting top-middle: the ghost sits
     // 2R on the far side of the object -> y = 30 - 48 = -18, off the cloth
     const object: Vec = { x: 600, y: BALL_R + 6 };
@@ -137,9 +137,10 @@ describe("escape solver", () => {
       object,
       blockers: [],
       pocketId: "tm",
+      targetMode: "pot",
       maxCushions: 2,
     });
-    // ghost off the cloth -> no legal approach exists
+    // ghost off the cloth -> no legal approach exists in pot mode
     expect(paths.length).toBe(0);
   });
 });
