@@ -36,3 +36,4 @@ next-env.d.ts
 
 # local prod secret references
 .env.prod-secrets
+.vscode/
