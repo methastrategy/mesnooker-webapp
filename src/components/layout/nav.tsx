@@ -19,7 +19,7 @@ import { useGameStore } from "@/store/gameStore";
 const NAV = [
   { href: "/", label: "Dashboard", icon: Home },
   { href: "/match", label: "Match", icon: Timer },
-  { href: "/solve", label: "Solve", icon: Activity },
+  { href: "/solve", label: "จำลองแก้สนุ๊ก (SSS)", icon: Activity },
   { href: "/history", label: "History", icon: History },
   { href: "/stats", label: "Stats", icon: BarChart3 },
   { href: "/settings", label: "Settings", icon: Settings },
@@ -28,7 +28,7 @@ const NAV = [
 const NAV_BOTTOM = [
   { href: "/", label: "Dashboard", icon: Home },
   { href: "/match", label: "Match", icon: Timer },
-  { href: "/solve", label: "Solve", icon: Activity },
+  { href: "/solve", label: "จำลองแก้สนุ๊ก (SSS)", icon: Activity },
   { href: "/history", label: "History", icon: History },
 ];
 

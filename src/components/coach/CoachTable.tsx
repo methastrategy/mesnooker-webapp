@@ -104,6 +104,10 @@ export function CoachTable({
   const replayCue = replay ? S(replay.cue) : null;
   const replayObj = replay?.object ? S(replay.object) : null;
 
+  const BAULK_X = OX + 330;
+  const D_R = 145;
+  const D_CY = OY + PLAY.y1 / 2;
+
   return (
     <svg
       ref={svgRef}
@@ -113,109 +117,204 @@ export function CoachTable({
       onPointerUp={onPointerUp}
       onPointerLeave={onPointerUp}
       role="img"
-      aria-label="Snooker coach table"
+      aria-label="Snooker Escape Simulator table"
     >
       <defs>
-        <radialGradient id="felt" cx="50%" cy="35%" r="90%">
-          <stop offset="0%" stopColor="#123c2b" />
-          <stop offset="60%" stopColor="#0d2f22" />
-          <stop offset="100%" stopColor="#082018" />
+        <radialGradient id="sss-felt" cx="50%" cy="45%" r="80%">
+          <stop offset="0%" stopColor="#249458" />
+          <stop offset="45%" stopColor="#1a6e40" />
+          <stop offset="85%" stopColor="#12502e" />
+          <stop offset="100%" stopColor="#0b3820" />
         </radialGradient>
-        <radialGradient id="rail" cx="50%" cy="0%" r="120%">
-          <stop offset="0%" stopColor="#123527" />
-          <stop offset="100%" stopColor="#0a241b" />
+        <linearGradient id="sss-wood-h" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#a25424" />
+          <stop offset="35%" stopColor="#8d4219" />
+          <stop offset="70%" stopColor="#733210" />
+          <stop offset="100%" stopColor="#59240a" />
+        </linearGradient>
+        <linearGradient id="sss-wood-v" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#a25424" />
+          <stop offset="35%" stopColor="#8d4219" />
+          <stop offset="70%" stopColor="#733210" />
+          <stop offset="100%" stopColor="#59240a" />
+        </linearGradient>
+        <linearGradient id="sss-metal" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#3d4044" />
+          <stop offset="50%" stopColor="#25272a" />
+          <stop offset="100%" stopColor="#18191b" />
+        </linearGradient>
+        <linearGradient id="sss-cush-tb" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#2ea36b" />
+          <stop offset="30%" stopColor="#238254" />
+          <stop offset="100%" stopColor="#145233" />
+        </linearGradient>
+        <linearGradient id="sss-cush-lr" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#2ea36b" />
+          <stop offset="30%" stopColor="#238254" />
+          <stop offset="100%" stopColor="#145233" />
+        </linearGradient>
+        <radialGradient id="sss-gloss" cx="32%" cy="28%" r="80%">
+          <stop offset="0%" stopColor="rgba(255,255,255,0.80)" />
+          <stop offset="45%" stopColor="rgba(255,255,255,0.12)" />
+          <stop offset="100%" stopColor="rgba(0,0,0,0.40)" />
         </radialGradient>
-        <radialGradient id="ballGloss" cx="32%" cy="28%" r="80%">
-          <stop offset="0%" stopColor="rgba(255,255,255,0.75)" />
-          <stop offset="45%" stopColor="rgba(255,255,255,0.10)" />
-          <stop offset="100%" stopColor="rgba(0,0,0,0.35)" />
+        <radialGradient id="sss-pocket" cx="40%" cy="35%" r="80%">
+          <stop offset="0%" stopColor="#1a1a1a" />
+          <stop offset="100%" stopColor="#000" />
         </radialGradient>
+        <filter id="midglow" x="-120%" y="-120%" width="340%" height="340%">
+          <feGaussianBlur stdDeviation="3.5" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+        <filter id="pathglow" x="-30%" y="-30%" width="160%" height="160%">
+          <feGaussianBlur stdDeviation="3" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
       </defs>
 
-      {/* wooden frame */}
-      <rect x={0} y={0} width={VIEW_W} height={VIEW_H} rx={30} fill="#0a0806" />
-      <rect
-        x={4}
-        y={4}
-        width={VIEW_W - 8}
-        height={VIEW_H - 8}
-        rx={26}
-        fill="none"
-        stroke="rgba(226,185,106,0.18)"
-        strokeWidth={1}
-      />
-      {/* cushion rail */}
-      <rect
-        x={CUSHION * 0.5}
-        y={CUSHION * 0.5}
-        width={PLAY.x1 + CUSHION}
-        height={PLAY.y1 + CUSHION}
-        rx={14}
-        fill="url(#rail)"
-      />
-      {/* felt */}
-      <rect
-        x={OX}
-        y={OY}
-        width={PLAY.x1}
-        height={PLAY.y1}
-        fill="url(#felt)"
-      />
+      {/* ── Table Outer Body (Wood & Corner Castings) ────────────────────────── */}
+      {/* Base Wood Frame */}
+      <rect x={0} y={0} width={VIEW_W} height={VIEW_H} rx={16} fill="url(#sss-wood-h)" />
+      
+      {/* Top Wood Rails */}
+      <rect x={OX + 24} y={0} width={550} height={CUSHION} fill="url(#sss-wood-h)" />
+      <rect x={OX + 626} y={0} width={550} height={CUSHION} fill="url(#sss-wood-h)" />
+      {/* Bottom Wood Rails */}
+      <rect x={OX + 24} y={OY + PLAY.y1} width={550} height={CUSHION} fill="url(#sss-wood-h)" />
+      <rect x={OX + 626} y={OY + PLAY.y1} width={550} height={CUSHION} fill="url(#sss-wood-h)" />
+      {/* Left & Right Wood Rails */}
+      <rect x={0} y={OY + 24} width={CUSHION} height={PLAY.y1 - 48} fill="url(#sss-wood-v)" />
+      <rect x={OX + PLAY.x1} y={OY + 24} width={CUSHION} height={PLAY.y1 - 48} fill="url(#sss-wood-v)" />
 
-      {/* ── Standard Snooker Table Markings ────────────────────────────── */}
-      <g opacity={0.75}>
-        {/* Baulk Line & D-Zone Arc */}
-        <line x1={OX + 330} y1={OY} x2={OX + 330} y2={OY + PLAY.y1} stroke="rgba(244,239,230,0.3)" strokeWidth={1.5} />
-        <path d={`M ${OX + 330} ${OY + 300 - 110} A 110 110 0 0 0 ${OX + 330} ${OY + 300 + 110}`} fill="none" stroke="rgba(244,239,230,0.3)" strokeWidth={1.5} />
+      {/* Metallic Corner & Middle Pocket Castings */}
+      {/* Top-Left Corner */}
+      <path d={`M 0 0 L ${OX + 24} 0 L ${OX + 24} ${OY + 24} L 0 ${OY + 24} Z`} fill="url(#sss-metal)" />
+      {/* Top-Right Corner */}
+      <path d={`M ${VIEW_W - (OX + 24)} 0 L ${VIEW_W} 0 L ${VIEW_W} ${OY + 24} L ${VIEW_W - (OX + 24)} ${OY + 24} Z`} fill="url(#sss-metal)" />
+      {/* Bottom-Left Corner */}
+      <path d={`M 0 ${VIEW_H - (OY + 24)} L ${OX + 24} ${VIEW_H - (OY + 24)} L ${OX + 24} ${VIEW_H} L 0 ${VIEW_H} Z`} fill="url(#sss-metal)" />
+      {/* Bottom-Right Corner */}
+      <path d={`M ${VIEW_W - (OX + 24)} ${VIEW_H - (OY + 24)} L ${VIEW_W} ${VIEW_H - (OY + 24)} L ${VIEW_W} ${VIEW_H} L ${VIEW_W - (OX + 24)} ${VIEW_H} Z`} fill="url(#sss-metal)" />
+      {/* Top-Middle Pocket Cap */}
+      <rect x={OX + 574} y={0} width={52} height={OY + 14} rx={6} fill="url(#sss-metal)" />
+      {/* Bottom-Middle Pocket Cap */}
+      <rect x={OX + 574} y={OY + PLAY.y1 - 14} width={52} height={OY + 14} rx={6} fill="url(#sss-metal)" />
 
-        {/* Spots Markers */}
+      {/* Inlaid Pearl Sight Dots on Wood Rails (Diamonds / Dots) */}
+      {[
+        // Top Rail Sights
+        { x: 150, y: OY / 2 }, { x: 300, y: OY / 2 }, { x: 450, y: OY / 2 },
+        { x: 750, y: OY / 2 }, { x: 900, y: OY / 2 }, { x: 1050, y: OY / 2 },
+        // Bottom Rail Sights
+        { x: 150, y: OY + PLAY.y1 + OY / 2 }, { x: 300, y: OY + PLAY.y1 + OY / 2 }, { x: 450, y: OY + PLAY.y1 + OY / 2 },
+        { x: 750, y: OY + PLAY.y1 + OY / 2 }, { x: 900, y: OY + PLAY.y1 + OY / 2 }, { x: 1050, y: OY + PLAY.y1 + OY / 2 },
+        // Left Rail Sights
+        { x: OX / 2, y: OY + 150 }, { x: OX / 2, y: OY + 300 }, { x: OX / 2, y: OY + 450 },
+        // Right Rail Sights
+        { x: OX + PLAY.x1 + OX / 2, y: OY + 150 }, { x: OX + PLAY.x1 + OX / 2, y: OY + 300 }, { x: OX + PLAY.x1 + OX / 2, y: OY + 450 },
+      ].map((dot, idx) => (
+        <circle key={`sight-${idx}`} cx={dot.x > OX ? dot.x : dot.x} cy={dot.y} r={3.2} fill="#ffffff" stroke="rgba(0,0,0,0.4)" strokeWidth={0.8} />
+      ))}
+
+      {/* ── Cushion Rubber Rails ────────────────────────────────────────── */}
+      <rect x={OX - 2} y={OY - CUSHION} width={PLAY.x1 + 4} height={CUSHION + 1} fill="url(#sss-cush-tb)" />
+      <rect x={OX - 2} y={OY + PLAY.y1 - 1} width={PLAY.x1 + 4} height={CUSHION + 2} fill="url(#sss-cush-tb)" />
+      <rect x={OX - CUSHION} y={OY - 2} width={CUSHION + 1} height={PLAY.y1 + 4} fill="url(#sss-cush-lr)" />
+      <rect x={OX + PLAY.x1 - 1} y={OY - 2} width={CUSHION + 2} height={PLAY.y1 + 4} fill="url(#sss-cush-lr)" />
+      <line x1={OX} y1={OY - CUSHION} x2={OX + PLAY.x1} y2={OY - CUSHION} stroke="rgba(255,255,255,0.22)" strokeWidth={1} />
+      <line x1={OX} y1={OY + PLAY.y1 + CUSHION} x2={OX + PLAY.x1} y2={OY + PLAY.y1 + CUSHION} stroke="rgba(255,255,255,0.12)" strokeWidth={1} />
+      <line x1={OX - CUSHION} y1={OY} x2={OX - CUSHION} y2={OY + PLAY.y1} stroke="rgba(255,255,255,0.22)" strokeWidth={1} />
+      <line x1={OX + PLAY.x1 + CUSHION} y1={OY} x2={OX + PLAY.x1 + CUSHION} y2={OY + PLAY.y1} stroke="rgba(255,255,255,0.12)" strokeWidth={1} />
+
+      {/* ── Green Felt Playing Surface ──────────────────────────────────── */}
+      <rect x={OX} y={OY} width={PLAY.x1} height={PLAY.y1} fill="url(#sss-felt)" />
+
+      {/* ── Table Grid & Subdivisions ────────────────────────────────────── */}
+      {showGrid && (
+        <g opacity={0.65}>
+          {/* 1/4, 1/2, 3/4 Section Grid Lines */}
+          <line x1={OX + 300} y1={OY} x2={OX + 300} y2={OY + PLAY.y1} stroke="rgba(244,239,230,0.12)" strokeWidth={1} strokeDasharray="4 4" />
+          <line x1={OX + 600} y1={OY} x2={OX + 600} y2={OY + PLAY.y1} stroke="rgba(244,239,230,0.22)" strokeWidth={1.5} strokeDasharray="6 4" />
+          <line x1={OX + 900} y1={OY} x2={OX + 900} y2={OY + PLAY.y1} stroke="rgba(244,239,230,0.12)" strokeWidth={1} strokeDasharray="4 4" />
+
+          <line x1={OX} y1={OY + 150} x2={OX + PLAY.x1} y2={OY + 150} stroke="rgba(244,239,230,0.12)" strokeWidth={1} strokeDasharray="4 4" />
+          <line x1={OX} y1={OY + 300} x2={OX + PLAY.x1} y2={OY + 300} stroke="rgba(244,239,230,0.22)" strokeWidth={1.5} strokeDasharray="6 4" />
+          <line x1={OX} y1={OY + 450} x2={OX + PLAY.x1} y2={OY + 450} stroke="rgba(244,239,230,0.12)" strokeWidth={1} strokeDasharray="4 4" />
+
+          {/* Pocket-to-Pocket Diagonal Guide Lines */}
+          <line x1={OX} y1={OY} x2={OX + PLAY.x1} y2={OY + PLAY.y1} stroke="rgba(226,185,106,0.25)" strokeWidth={1} strokeDasharray="5 5" />
+          <line x1={OX} y1={OY + PLAY.y1} x2={OX + PLAY.x1} y2={OY} stroke="rgba(226,185,106,0.25)" strokeWidth={1} strokeDasharray="5 5" />
+
+          {/* Pocket Alignment Lines */}
+          <line x1={OX + 600} y1={OY} x2={OX + 600} y2={OY + PLAY.y1} stroke="rgba(226,185,106,0.25)" strokeWidth={1} strokeDasharray="3 3" />
+        </g>
+      )}
+
+      {/* Standard markings */}
+      <g opacity={0.72}>
+        <line x1={BAULK_X} y1={OY} x2={BAULK_X} y2={OY + PLAY.y1} stroke="rgba(240,232,210,0.35)" strokeWidth={1.8} />
+        <path d={`M ${BAULK_X} ${D_CY - D_R} A ${D_R} ${D_R} 0 0 0 ${BAULK_X} ${D_CY + D_R}`} fill="none" stroke="rgba(240,232,210,0.35)" strokeWidth={1.8} />
         {[
-          { x: 330, y: 410, label: "Yellow" },
-          { x: 330, y: 190, label: "Green" },
-          { x: 330, y: 300, label: "Brown" },
-          { x: 600, y: 300, label: "Blue" },
-          { x: 900, y: 300, label: "Pink" },
-          { x: 1080, y: 300, label: "Black" },
-        ].map((sp, idx) => (
-          <g key={idx}>
-            <circle cx={OX + sp.x} cy={OY + sp.y} r={3} fill="rgba(244,239,230,0.5)" />
-            <circle cx={OX + sp.x} cy={OY + sp.y} r={7} fill="none" stroke="rgba(244,239,230,0.2)" strokeWidth={1} />
+          { x: 330, y: 190 },
+          { x: 330, y: 410 },
+          { x: 330, y: 300 },
+          { x: 600, y: 300 },
+          { x: 900, y: 300 },
+          { x: 1080, y: 300 },
+        ].map((sp, i) => (
+          <g key={i}>
+            <circle cx={OX + sp.x} cy={OY + sp.y} r={3.5} fill="rgba(240,232,210,0.55)" />
+            <circle cx={OX + sp.x} cy={OY + sp.y} r={8} fill="none" stroke="rgba(240,232,210,0.18)" strokeWidth={1} />
           </g>
         ))}
       </g>
 
-      {/* pockets */}
-      {POCKETS.map((p) => {
-        const s = S(p.pos);
+      {/* ── 6 Pockets ─────────────────────────────────────────────────── */}
+      {POCKETS.map((pk) => {
+        const sp = S(pk.pos);
         return (
-          <g key={p.id}>
-            <circle cx={s.x} cy={s.y} r={p.r + 4} fill="#000" opacity={0.9} />
-            <circle
-              cx={s.x}
-              cy={s.y}
-              r={p.r}
-              fill="#050505"
-              stroke="rgba(226,185,106,0.35)"
-              strokeWidth={1.5}
-            />
+          <g key={pk.id}>
+            <circle cx={sp.x} cy={sp.y} r={pk.r + 6} fill="#000" opacity={0.8} />
+            <circle cx={sp.x} cy={sp.y} r={pk.r} fill="url(#sss-pocket)" stroke="rgba(207,163,76,0.55)" strokeWidth={2.2} />
+            <circle cx={sp.x} cy={sp.y} r={pk.r - 10} fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth={1} />
           </g>
         );
       })}
 
-      {/* all candidate paths (faint) */}
-      {paths
-        .filter((p) => p.id !== selectedPathId)
-        .map((p) => (
-          <polyline
-            key={`alt-${p.id}`}
-            points={p.cuePolyline.map((v) => `${S(v).x},${S(v).y}`).join(" ")}
-            fill="none"
-            stroke="var(--color-muted, #8a8f8c)"
-            strokeWidth={1.5}
-            strokeDasharray="4 6"
-            opacity={0.25}
-          />
-        ))}
+      {/* ── 6 Cushion Midpoint Markers (จุดกึ่งกลางระหว่างหลุมบนชิ่ง) ────────── */}
+      {[
+        { x: 300, y: 0, side: "bot", label: "จุดกึ่งกลางชิ่งล่างซ้าย" },
+        { x: 900, y: 0, side: "bot", label: "จุดกึ่งกลางชิ่งล่างขวา" },
+        { x: 300, y: 600, side: "top", label: "จุดกึ่งกลางชิ่งบนซ้าย" },
+        { x: 900, y: 600, side: "top", label: "จุดกึ่งกลางชิ่งบนขวา" },
+        { x: 0, y: 300, side: "left", label: "จุดกึ่งกลางชิ่งซ้าย" },
+        { x: 1200, y: 300, side: "right", label: "จุดกึ่งกลางชิ่งขวา" },
+      ].map((mp, i) => {
+        const isH = mp.side === "top" || mp.side === "bot";
+        const TL = 10;
+        const dx = isH ? 0 : (mp.side === "left" ? TL : -TL);
+        const dy = isH ? (mp.side === "bot" ? TL : -TL) : 0;
+        const sm = S(mp);
+        return (
+          <g key={`cush-midpoint-${i}`} filter="url(#midglow)">
+            {/* Outer halo */}
+            <circle cx={sm.x} cy={sm.y} r={7} fill="rgba(255,215,50,0.25)" />
+            {/* Diamond marker */}
+            <circle cx={sm.x} cy={sm.y} r={5} fill="rgba(255,215,50,0.98)" stroke="rgba(0,0,0,0.80)" strokeWidth={1.2} />
+            {/* Pointer tick extending into felt */}
+            <line x1={sm.x} y1={sm.y} x2={sm.x + dx} y2={sm.y + dy} stroke="rgba(255,215,50,0.95)" strokeWidth={2} strokeLinecap="round" />
+          </g>
+        );
+      })}
+
+      {/* Cushion face boundary line */}
+      <rect x={OX} y={OY} width={PLAY.x1} height={PLAY.y1} fill="none" stroke="rgba(255,255,255,0.22)" strokeWidth={1.2} />
 
       {/* selected / best path (highlighted) */}
       {(selectedPath ?? (paths.length ? bestPath : undefined)) &&

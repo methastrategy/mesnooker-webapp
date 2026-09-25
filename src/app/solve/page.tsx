@@ -114,7 +114,7 @@ export default function SolvePage() {
           <div>
             <h1 className="flex items-center gap-2 text-xl font-bold">
               <Activity size={22} className="text-primary" />
-              จำลองการแทงแก้ชิ่ง (Snooker Escape Solver)
+              จำลองแก้สนุ๊ก ( snook slove simulator ,SSS )
             </h1>
             <p className="text-xs text-muted-foreground">
               ลากขยับลูกขาว ลูกเป้า หรือลูกบังบนโต๊ะเพื่อจำลองสถานการณ์ — ระบบจะคำนวณเส้นทางแทงแก้ชิ่งให้อัตโนมัติ
@@ -324,39 +324,6 @@ export default function SolvePage() {
                   {brief.powerLabel}
                 </div>
               </div>
-
-              {/* Available Routes Selector */}
-              {store.paths.length > 1 && (
-                <div className="mt-1 flex flex-col gap-1.5">
-                  <div className="text-[11px] font-semibold text-muted-foreground">
-                    เส้นทางชิ่งทางเลือกอื่นๆ ({store.paths.length}):
-                  </div>
-                  <div className="flex flex-col gap-1 max-h-48 overflow-y-auto pr-1">
-                    {store.paths.map((p, idx) => {
-                      const active = p.id === (best?.id ?? "");
-                      return (
-                        <button
-                          key={p.id}
-                          onClick={() => store.selectPath(p.id)}
-                          className={cn(
-                            "flex items-center justify-between rounded-lg border px-2.5 py-1.5 text-left text-xs transition-colors",
-                            active
-                              ? "border-primary/50 bg-primary/20 font-bold text-primary"
-                              : "border-white/5 bg-white/5 text-muted-foreground hover:bg-white/10 hover:text-foreground"
-                          )}
-                        >
-                          <span>
-                            #{idx + 1} {p.cushions === 0 ? "แทงตรง" : `${p.cushions} ชิ่ง (${p.sideSequence.map(s => sideName(s)).join("·")})`}
-                          </span>
-                          <span className="text-[10px]">
-                            {p.blocked ? "มีลูกบัง" : `ความยาก ${p.difficulty}/10`}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
             </div>
           )}
         </aside>
