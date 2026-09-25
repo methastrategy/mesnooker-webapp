@@ -32,6 +32,25 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  const isAuthPage = pathname === "/login";
+
+  if (isAuthPage) {
+    return (
+      <div className="relative flex min-h-screen bg-background text-foreground">
+        <div
+          className="pointer-events-none fixed inset-0 z-0"
+          style={{
+            background:
+              "radial-gradient(60% 40% at 85% 0%, color-mix(in srgb, var(--primary) 13%, #000 87%), transparent 60%), radial-gradient(50% 35% at 0% 100%, color-mix(in srgb, var(--gold) 9%, #000 91%), transparent 60%)",
+          }}
+        />
+        <main className="relative z-10 w-full min-w-0 flex-1 px-4 py-8">
+          <div className="mx-auto w-full max-w-6xl">{children}</div>
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="relative flex min-h-screen bg-background text-foreground">
       {/* ambient glow — theme-aware via tokens */}

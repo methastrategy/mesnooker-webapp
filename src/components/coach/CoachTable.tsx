@@ -162,45 +162,27 @@ export function CoachTable({
         fill="url(#felt)"
       />
 
-      {/* ── Table Grid & Subdivisions ────────────────────────────────────── */}
-      {showGrid && (
-        <g opacity={0.65}>
-          {/* 1/4, 1/2, 3/4 Section Grid Lines */}
-          <line x1={OX + 300} y1={OY} x2={OX + 300} y2={OY + PLAY.y1} stroke="rgba(244,239,230,0.12)" strokeWidth={1} strokeDasharray="4 4" />
-          <line x1={OX + 600} y1={OY} x2={OX + 600} y2={OY + PLAY.y1} stroke="rgba(244,239,230,0.22)" strokeWidth={1.5} strokeDasharray="6 4" />
-          <line x1={OX + 900} y1={OY} x2={OX + 900} y2={OY + PLAY.y1} stroke="rgba(244,239,230,0.12)" strokeWidth={1} strokeDasharray="4 4" />
+      {/* ── Standard Snooker Table Markings ────────────────────────────── */}
+      <g opacity={0.75}>
+        {/* Baulk Line & D-Zone Arc */}
+        <line x1={OX + 330} y1={OY} x2={OX + 330} y2={OY + PLAY.y1} stroke="rgba(244,239,230,0.3)" strokeWidth={1.5} />
+        <path d={`M ${OX + 330} ${OY + 300 - 110} A 110 110 0 0 0 ${OX + 330} ${OY + 300 + 110}`} fill="none" stroke="rgba(244,239,230,0.3)" strokeWidth={1.5} />
 
-          <line x1={OX} y1={OY + 150} x2={OX + PLAY.x1} y2={OY + 150} stroke="rgba(244,239,230,0.12)" strokeWidth={1} strokeDasharray="4 4" />
-          <line x1={OX} y1={OY + 300} x2={OX + PLAY.x1} y2={OY + 300} stroke="rgba(244,239,230,0.22)" strokeWidth={1.5} strokeDasharray="6 4" />
-          <line x1={OX} y1={OY + 450} x2={OX + PLAY.x1} y2={OY + 450} stroke="rgba(244,239,230,0.12)" strokeWidth={1} strokeDasharray="4 4" />
-
-          {/* Pocket-to-Pocket Diagonal Guide Lines */}
-          <line x1={OX} y1={OY} x2={OX + PLAY.x1} y2={OY + PLAY.y1} stroke="rgba(226,185,106,0.25)" strokeWidth={1} strokeDasharray="5 5" />
-          <line x1={OX} y1={OY + PLAY.y1} x2={OX + PLAY.x1} y2={OY} stroke="rgba(226,185,106,0.25)" strokeWidth={1} strokeDasharray="5 5" />
-
-          {/* Pocket Alignment Lines */}
-          <line x1={OX + 600} y1={OY} x2={OX + 600} y2={OY + PLAY.y1} stroke="rgba(226,185,106,0.25)" strokeWidth={1} strokeDasharray="3 3" />
-
-          {/* Baulk Line & D-Zone Arc */}
-          <line x1={OX + 330} y1={OY} x2={OX + 330} y2={OY + PLAY.y1} stroke="rgba(244,239,230,0.35)" strokeWidth={1.5} />
-          <path d={`M ${OX + 330} ${OY + 300 - 110} A 110 110 0 0 0 ${OX + 330} ${OY + 300 + 110}`} fill="none" stroke="rgba(244,239,230,0.35)" strokeWidth={1.5} />
-
-          {/* Spots Markers */}
-          {[
-            { x: 330, y: 410, label: "Yellow" },
-            { x: 330, y: 190, label: "Green" },
-            { x: 330, y: 300, label: "Brown" },
-            { x: 600, y: 300, label: "Blue" },
-            { x: 900, y: 300, label: "Pink" },
-            { x: 1080, y: 300, label: "Black" },
-          ].map((sp, idx) => (
-            <g key={idx}>
-              <circle cx={OX + sp.x} cy={OY + sp.y} r={3} fill="rgba(244,239,230,0.5)" />
-              <circle cx={OX + sp.x} cy={OY + sp.y} r={7} fill="none" stroke="rgba(244,239,230,0.25)" strokeWidth={1} />
-            </g>
-          ))}
-        </g>
-      )}
+        {/* Spots Markers */}
+        {[
+          { x: 330, y: 410, label: "Yellow" },
+          { x: 330, y: 190, label: "Green" },
+          { x: 330, y: 300, label: "Brown" },
+          { x: 600, y: 300, label: "Blue" },
+          { x: 900, y: 300, label: "Pink" },
+          { x: 1080, y: 300, label: "Black" },
+        ].map((sp, idx) => (
+          <g key={idx}>
+            <circle cx={OX + sp.x} cy={OY + sp.y} r={3} fill="rgba(244,239,230,0.5)" />
+            <circle cx={OX + sp.x} cy={OY + sp.y} r={7} fill="none" stroke="rgba(244,239,230,0.2)" strokeWidth={1} />
+          </g>
+        ))}
+      </g>
 
       {/* pockets */}
       {POCKETS.map((p) => {

@@ -90,7 +90,7 @@ export const useCoachStore = create<CoachState>()((set, get) => ({
   selectedPathId: null,
   hintLevel: 1,
   solved: false,
-  showGrid: true,
+  showGrid: false,
   targetMode: "hit",
 
   cue: () => get().balls.find((b) => b.id === CUE_ID),
