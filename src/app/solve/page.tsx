@@ -66,39 +66,54 @@ export default function SolvePage() {
     if (!best || !cue || !obj) return;
     cancelAnimationFrame(raf.current);
 
-    const contact: Vec = {
-      x: (best.ghost.x + obj.pos.x) / 2,
-      y: (best.ghost.y + obj.pos.y) / 2,
-    };
-    const cuePoints: Vec[] = [...best.cuePolyline, contact];
+    const cuePoints: Vec[] = best.cuePolyline;
+    let totalCueLen = 0;
+    for (let i = 0; i < cuePoints.length - 1; i++) {
+      totalCueLen += Math.hypot(
+        cuePoints[i + 1].x - cuePoints[i].x,
+        cuePoints[i + 1].y - cuePoints[i].y
+      );
+    }
 
-    const cueDur = 1100;
-    const objDur = 850;
+    // 8-Ball Pool style velocity pacing: ~650px per second with natural deceleration
+    const cueDur = Math.max(700, Math.min(2200, (totalCueLen / 650) * 1000));
+    const objDur = 750;
     const t0 = performance.now();
+
+    const targetEnd = best.objectPolyline[1] ?? {
+      x: obj.pos.x + 80 * ((obj.pos.x - best.ghost.x) / (Math.hypot(obj.pos.x - best.ghost.x, obj.pos.y - best.ghost.y) || 1)),
+      y: obj.pos.y + 80 * ((obj.pos.y - best.ghost.y) / (Math.hypot(obj.pos.x - best.ghost.x, obj.pos.y - best.ghost.y) || 1)),
+    };
 
     const step = (now: number) => {
       const el = now - t0;
       if (el < cueDur) {
-        const p = pointAlong(cuePoints, el / cueDur);
+        // Cue ball roll with natural rolling progress
+        const linearT = el / cueDur;
+        // Natural rolling ease: slightly faster at start, smooth roll
+        const easeT = Math.sin((linearT * Math.PI) / 2);
+        const p = pointAlong(cuePoints, easeT);
         setReplay({ cue: p, object: null, phase: "cue" });
         raf.current = requestAnimationFrame(step);
         return;
       }
       const el2 = el - cueDur;
       if (el2 < objDur) {
-        const f = el2 / objDur;
+        // Target ball reaction with ease-out quadratic deceleration
+        const objT = el2 / objDur;
+        const easeOut = 1 - Math.pow(1 - objT, 2.2);
         setReplay({
-          cue: contact,
+          cue: best.ghost,
           object: {
-            x: obj.pos.x + (best.ghost.x - obj.pos.x) * f,
-            y: obj.pos.y + (best.ghost.y - obj.pos.y) * f,
+            x: obj.pos.x + (targetEnd.x - obj.pos.x) * easeOut,
+            y: obj.pos.y + (targetEnd.y - obj.pos.y) * easeOut,
           },
           phase: "object",
         });
         raf.current = requestAnimationFrame(step);
         return;
       }
-      setReplay({ cue: cuePoints[cuePoints.length - 1], object: null, phase: "done" });
+      setReplay({ cue: best.ghost, object: targetEnd, phase: "done" });
     };
     raf.current = requestAnimationFrame(step);
   }
@@ -124,7 +139,7 @@ export default function SolvePage() {
             {best && !best.blocked && (
               <button
                 onClick={runReplay}
-                className="flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-xs font-bold text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:bg-primary/90"
+                className="flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-xs font-bold text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:bg-primary/90 active:scale-95"
               >
                 <Play size={14} fill="currentColor" /> จำลองการแทง (Replay)
               </button>
@@ -135,7 +150,7 @@ export default function SolvePage() {
                 setReplay(null);
                 store.reset();
               }}
-              className="flex items-center gap-1.5 rounded-xl bg-white/5 px-3 py-2 text-xs font-semibold text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground"
+              className="flex items-center gap-1.5 rounded-xl bg-white/5 px-3 py-2 text-xs font-semibold text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground active:scale-95"
             >
               <RotateCcw size={14} /> รีเซ็ตตำแหน่ง
             </button>
@@ -177,27 +192,10 @@ export default function SolvePage() {
               )}
             </div>
 
-            {/* Set max cushions slider */}
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-muted-foreground">
-                จำนวนชิ่งสูงสุด:
+              <span className="text-[11px] text-muted-foreground">
+                ลูกบนโต๊ะ {store.balls.length} ลูก
               </span>
-              <div className="flex items-center gap-1">
-                {[1, 2, 3, 4].map((n) => (
-                  <button
-                    key={n}
-                    onClick={() => store.setMaxCushions(n)}
-                    className={cn(
-                      "h-7 w-8 rounded-lg text-xs font-bold transition-all",
-                      store.maxCushions === n
-                        ? "bg-primary text-primary-foreground shadow"
-                        : "bg-white/5 text-muted-foreground hover:bg-white/10 hover:text-foreground"
-                    )}
-                  >
-                    {n}
-                  </button>
-                ))}
-              </div>
             </div>
           </div>
 

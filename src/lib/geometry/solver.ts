@@ -66,17 +66,32 @@ export function objectRunLegal(
 }
 
 /**
- * A bounce point is illegal if it sits inside a pocket mouth (the ball would
- * drop in) or outside the cushion segment.
+ * A bounce point is illegal if it sits inside a pocket mouth or cutout area
+ * (middle pocket openings on top/bottom rails, corner pocket cutouts, or
+ * within pocket drop radius).
  */
-function bounceLegal(p: Vec, targetPocketId: string): boolean {
-  if (p.x < 0 || p.x > PLAY.x1) return false;
-  for (const pk of POCKETS) {
-    // any bounce inside a pocket mouth (including the target's) is rejected:
-    // for an escape the cue must not drop in.
-    if (dist(p, pk.pos) < pk.r * 0.65) return false;
+function bounceLegal(p: Vec): boolean {
+  if (p.x < 0 || p.x > PLAY.x1 || p.y < 0 || p.y > PLAY.y1) return false;
+
+  // Middle pocket cushion gaps (top & bottom cushions around x = PLAY_W / 2 = 600)
+  // Real middle pocket jaw cutouts span ~45 units from centre
+  if (p.x >= PLAY.x1 / 2 - 46 && p.x <= PLAY.x1 / 2 + 46) {
+    if (p.y <= BALL_R + 8 || p.y >= PLAY.y1 - BALL_R - 8) {
+      return false;
+    }
   }
-  void targetPocketId; // kept in signature for future per-pocket tuning
+
+  // Corner pocket cutouts (all 4 corners)
+  if (p.x <= 48 || p.x >= PLAY.x1 - 48) {
+    if (p.y <= 48 || p.y >= PLAY.y1 - 48) {
+      return false;
+    }
+  }
+
+  // Pocket drop exclusion zone for every pocket
+  for (const pk of POCKETS) {
+    if (dist(p, pk.pos) < 52) return false;
+  }
   return true;
 }
 
@@ -87,7 +102,7 @@ function cuePathClearsPockets(poly: Vec[]): boolean {
     const b = poly[i + 1];
     for (const pk of POCKETS) {
       const d = pointSegmentDist(a, b, pk.pos);
-      if (d < pk.r * 0.55) return false;
+      if (d < pk.r * 1.05) return false;
     }
   }
   return true;
@@ -199,7 +214,7 @@ export function solveEscape(input: SolverInput): SolvePath[] {
       if (res) {
         let legal = true;
         for (const bp of res.bounces) {
-          if (!bounceLegal(bp, pocketId)) {
+          if (!bounceLegal(bp)) {
             legal = false;
             break;
           }
