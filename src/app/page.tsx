@@ -7,6 +7,7 @@ import { useGameStore, useRunningBalance } from "@/store/gameStore";
 import { GlassCard, Stat, Button } from "@/components/ui";
 import { BALL_HEX, BALL_ORDER } from "@/lib/rules";
 import { formatMoney } from "@/lib/utils";
+import { t } from "@/lib/i18n";
 
 /** Dashboard — the green room: a big baize table when idle (set the table),
  *  a live scoreboard when a session is running. Same data as before, arranged
@@ -15,6 +16,7 @@ export default function DashboardPage() {
   const session = useGameStore((s) => s.session);
   const players = useGameStore((s) => s.players);
   const frames = useGameStore((s) => s.frames);
+  const locale = useGameStore((s) => s.locale);
   const running = useRunningBalance();
 
   const leaderboard = [...players].sort((a, b) => (running[b.id] ?? 0) - (running[a.id] ?? 0));
@@ -22,9 +24,9 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col gap-5">
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-3xl font-bold">The green room</h1>
+        <h1 className="text-3xl font-bold">{t("dash.title", locale)}</h1>
         <p className="text-sm text-muted-foreground">
-          {session ? "Tonight's session is on the table" : "Set the table and get the balls rolling"}
+          {session ? t("dash.subtitle.live", locale) : t("dash.subtitle.idle", locale)}
         </p>
       </motion.div>
 
@@ -61,7 +63,7 @@ export default function DashboardPage() {
           </div>
           <Link href="/setup">
             <Button size="lg">
-              <Play size={18} /> Set the table
+              <Play size={18} /> {t("dash.setTable", locale)}
             </Button>
           </Link>
         </motion.div>
@@ -72,17 +74,17 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Timer size={18} className="text-primary" />
-                <span className="font-semibold">Session live</span>
+                <span className="font-semibold">{t("dash.sessionLive", locale)}</span>
               </div>
               <span className="rounded-full bg-primary/15 px-2.5 py-0.5 text-[11px] text-primary">
-                frame {frames.length}
+                {t("dash.frame", locale)} {frames.length}
               </span>
             </div>
             <div className="grid grid-cols-3 gap-4">
-              <Stat label="Frame" value={frames.length} />
-              <Stat label="Players" value={players.length} />
+              <Stat label={t("dash.frame", locale)} value={frames.length} />
+              <Stat label={t("dash.players", locale)} value={players.length} />
               <Stat
-                label="Rate"
+                label={t("dash.rate", locale)}
                 value={session.moneyRate}
                 variant="accent"
                 suffix={`/${session.moneyPer === "ball" ? "ball" : "pt"}`}
@@ -91,12 +93,12 @@ export default function DashboardPage() {
             <div className="flex flex-wrap items-center gap-2">
               <Link href="/match" className="flex-1 sm:flex-none">
                 <Button className="w-full">
-                  <Play size={16} /> Back to the table
+                  <Play size={16} /> {t("dash.backTable", locale)}
                 </Button>
               </Link>
               <Link href="/settlement" className="flex-1 sm:flex-none">
                 <Button variant="glass" className="w-full">
-                  <Trophy size={16} /> Settlement
+                  <Trophy size={16} /> {t("dash.settlement", locale)}
                 </Button>
               </Link>
             </div>

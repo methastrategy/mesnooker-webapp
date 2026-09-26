@@ -25,6 +25,7 @@ import {
 import type { ArchivedGame, BallColor, Player } from "@/types";
 
 import { useElapsed, useElapsedSum } from "@/hooks/useElapsed";
+import { playPotSound, playPenaltySound } from "@/lib/sound";
 
 type ToastTone = "info" | "success" | "danger";
 
@@ -129,26 +130,17 @@ export function LiveMatch({ onPause }: {
       } catch {}
     }
   }
-  function playSound() {
-    if (!sound || typeof window === "undefined") return;
-    try {
-      const Ctx = window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-      const ctx = new Ctx();
-      const o = ctx.createOscillator();
-      const g = ctx.createGain();
-      o.connect(g);
-      g.connect(ctx.destination);
-      o.frequency.value = 660;
-      g.gain.setValueAtTime(0.08, ctx.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.09);
-      o.start();
-      o.stop(ctx.currentTime + 0.1);
-      if (ctx.state === "suspended") void ctx.resume();
-    } catch {}
+  function playSound(type: "pot" | "penalty" = "pot") {
+    if (!sound) return;
+    if (type === "pot") {
+      playPotSound();
+    } else {
+      playPenaltySound();
+    }
   }
-  const tap = () => {
+  const tap = (type: "pot" | "penalty" = "pot") => {
     handleHaptics();
-    playSound();
+    playSound(type);
   };
 
   function onPot(ball: BallColor) {
@@ -170,7 +162,7 @@ export function LiveMatch({ onPause }: {
    *  transaction (applyScoring), so a single Undo reverts the whole wrong press
    *  including the turn that passed. */
   function scoringAction(kind: "foul" | "miss" | "solve", verb: string, value: string, tone: ToastTone) {
-    tap();
+    tap("penalty");
     applyScoring(kind);
     const next = nextShooter();
     setToast({ id: Date.now(), msg: `${verb} ${value} · → ${next?.nickname ?? "next"}`, tone });

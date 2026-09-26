@@ -61,15 +61,27 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             "radial-gradient(60% 40% at 85% 0%, color-mix(in srgb, var(--primary) 13%, #000 87%), transparent 60%), radial-gradient(50% 35% at 0% 100%, color-mix(in srgb, var(--gold) 9%, #000 91%), transparent 60%)",
         }}
       />
-      <button
-        type="button"
-        onClick={() => store.openSettings()}
-        aria-label="Settings"
-        aria-haspopup="dialog"
-        className="fixed right-4 top-4 z-30 rounded-full bg-black/50 p-2.5 text-muted-foreground backdrop-blur-md hover:bg-white/10 hover:text-foreground"
-      >
-        <SettingsIcon size={18} />
-      </button>
+      <div className="fixed right-4 top-4 z-30 flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => store.setLocale(store.locale === "th" ? "en" : "th")}
+          aria-label="Switch Language TH/EN"
+          className="flex items-center gap-1 rounded-full border border-white/10 bg-black/60 px-2.5 py-1.5 text-[11px] font-bold tracking-wider backdrop-blur-md transition-all hover:bg-white/10 hover:border-gold/40 active:scale-95 shadow-lg"
+        >
+          <span className={store.locale === "th" ? "text-primary font-black" : "text-muted-foreground opacity-60"}>TH</span>
+          <span className="text-white/20 text-[10px]">/</span>
+          <span className={store.locale === "en" ? "text-primary font-black" : "text-muted-foreground opacity-60"}>EN</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => store.openSettings()}
+          aria-label="Settings"
+          aria-haspopup="dialog"
+          className="rounded-full border border-white/10 bg-black/60 p-2 text-muted-foreground backdrop-blur-md transition-all hover:bg-white/10 hover:text-foreground active:scale-95 shadow-lg"
+        >
+          <SettingsIcon size={17} />
+        </button>
+      </div>
       <SettingsSheet />
       <Sidebar />
       <main className="relative z-10 w-full min-w-0 flex-1 px-4 pb-36 pt-16 md:px-8 md:pb-12 md:pt-8">

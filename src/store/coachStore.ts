@@ -64,7 +64,7 @@ export interface CoachState {
   blockers: () => Ball[];
 
   // actions
-  moveBall: (id: string, pos: Vec) => void;
+  moveBall: (id: string, pos: Vec, skipSolve?: boolean) => void;
   setObjectBall: (id: string) => void;
   setPocket: (id: string) => void;
   setMaxCushions: (n: number) => void;
@@ -107,14 +107,16 @@ export const useCoachStore = create<CoachState>()((set, get) => ({
   blockers: () =>
     get().balls.filter((b) => b.id !== CUE_ID && b.id !== BLACK_TARGET_ID && b.color !== "black"),
 
-  moveBall: (id, pos) => {
+  moveBall: (id, pos, skipSolve = false) => {
     const r = BALL_R;
     const others = get().balls.filter((b) => b.id !== id);
     const clamped = clampToTable(pos, others, r);
     set((s) => ({
       balls: s.balls.map((b) => (b.id === id ? { ...b, pos: clamped } : b)),
     }));
-    get().solve();
+    if (!skipSolve) {
+      get().solve();
+    }
   },
 
   setObjectBall: (_id) => {

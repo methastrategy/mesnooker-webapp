@@ -26,8 +26,8 @@ export function SnookerBall({
     <motion.button
       onClick={onClick}
       disabled={disabled}
-      whileTap={disabled ? undefined : { scaleX: 1.18, scaleY: 0.74 }}
-      whileHover={disabled ? undefined : { scale: 1.06 }}
+      whileTap={disabled ? undefined : { scale: 0.94, y: 1 }}
+      whileHover={disabled ? undefined : { scale: 1.05 }}
       transition={{ type: "spring", stiffness: 420, damping: 16 }}
       className={cn(
         "snooker-ball ball-rim relative flex items-center justify-center font-bold text-black/80 select-none",

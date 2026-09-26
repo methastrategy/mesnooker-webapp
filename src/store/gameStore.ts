@@ -78,6 +78,7 @@ interface PersistShape {
   sound: boolean;
   haptics: boolean;
   theme: string;
+  locale: "th" | "en";
   frames: FrameSnapshot[];
   events: GameEvent[];
   startCounts: BallCounts;
@@ -114,6 +115,7 @@ interface GameStore extends PersistShape {
   toggleSound: () => void;
   toggleHaptics: () => void;
   setTheme: (theme: string) => void;
+  setLocale: (locale: "th" | "en") => void;
   setActiveFrameId: () => void;
   /** settings popup (global) */
   settingsOpen: boolean;
@@ -171,6 +173,7 @@ export const useGameStore = create<GameStore>()(
       sound: true,
       haptics: true,
       theme: "mono",
+      locale: "th",
       frames: [],
       events: [],
       startCounts: initialCounts(),
@@ -641,6 +644,7 @@ export const useGameStore = create<GameStore>()(
       toggleSound: () => set((s) => ({ sound: !s.sound })),
       toggleHaptics: () => set((s) => ({ haptics: !s.haptics })),
       setTheme: (theme) => set({ theme }),
+      setLocale: (locale) => set({ locale }),
       setActiveFrameId: () => {
         const st = get();
         if (st.session && st.frames.length) {
@@ -678,6 +682,7 @@ export const useGameStore = create<GameStore>()(
         sound: s.sound,
         haptics: s.haptics,
         theme: s.theme,
+        locale: s.locale,
         frames: s.frames,
         events: s.events,
         startCounts: s.startCounts,

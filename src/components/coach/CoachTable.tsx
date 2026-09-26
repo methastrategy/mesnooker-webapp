@@ -6,7 +6,7 @@
  * bounce markers, aim crosshair, user aim line (analyzer) and replay.
  * All theme colours come from CSS variables so it re-skins with Emerald Noir.
  */
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useCoachStore, COACH_CUE_ID } from "@/store/coachStore";
 import type { SolvePath, Vec } from "@/lib/geometry";
 import {
@@ -47,10 +47,22 @@ export function CoachTable({
   const paths = useCoachStore((s) => s.paths);
   const selectedPathId = useCoachStore((s) => s.selectedPathId);
   const hintLevel = useCoachStore((s) => s.hintLevel);
+  const solve = useCoachStore((s) => s.solve);
 
   const svgRef = useRef<SVGSVGElement | null>(null);
   const [dragId, setDragId] = useState<string | null>(null);
   const [hoverId, setHoverId] = useState<string | null>(null);
+
+  const lastSolveTime = useRef<number>(0);
+  const solveThrottleTimer = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (solveThrottleTimer.current) {
+        clearTimeout(solveThrottleTimer.current);
+      }
+    };
+  }, []);
 
   const showGrid = useCoachStore((s) => s.showGrid);
   const targetMode = useCoachStore((s) => s.targetMode);
@@ -95,11 +107,34 @@ export function CoachTable({
       if (cue) onAim({ from: cue.pos, to: p });
     } else if (dragId) {
       const p = toTable(e.clientX, e.clientY);
-      moveBall(dragId, p);
+      // High-frequency 120fps visual coordinate update
+      moveBall(dragId, p, true);
+
+      // Throttled solver execution (~40ms) keeps UI silky smooth
+      const now = performance.now();
+      if (now - lastSolveTime.current > 40) {
+        lastSolveTime.current = now;
+        solve();
+      } else if (!solveThrottleTimer.current) {
+        solveThrottleTimer.current = window.setTimeout(() => {
+          solveThrottleTimer.current = null;
+          lastSolveTime.current = performance.now();
+          solve();
+        }, 40);
+      }
     }
   };
 
-  const onPointerUp = () => setDragId(null);
+  const onPointerUp = () => {
+    if (dragId && dragId !== "aim") {
+      if (solveThrottleTimer.current) {
+        clearTimeout(solveThrottleTimer.current);
+        solveThrottleTimer.current = null;
+      }
+      solve();
+    }
+    setDragId(null);
+  };
 
   const replayCue = replay ? S(replay.cue) : null;
   const replayObj = replay?.object ? S(replay.object) : null;
@@ -127,21 +162,30 @@ export function CoachTable({
           <stop offset="100%" stopColor="#0b3820" />
         </radialGradient>
         <linearGradient id="sss-wood-h" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#a25424" />
-          <stop offset="35%" stopColor="#8d4219" />
-          <stop offset="70%" stopColor="#733210" />
-          <stop offset="100%" stopColor="#59240a" />
+          <stop offset="0%" stopColor="#8d4219" />
+          <stop offset="35%" stopColor="#733210" />
+          <stop offset="70%" stopColor="#59240a" />
+          <stop offset="100%" stopColor="#3d1806" />
         </linearGradient>
         <linearGradient id="sss-wood-v" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#a25424" />
-          <stop offset="35%" stopColor="#8d4219" />
-          <stop offset="70%" stopColor="#733210" />
-          <stop offset="100%" stopColor="#59240a" />
+          <stop offset="0%" stopColor="#8d4219" />
+          <stop offset="35%" stopColor="#733210" />
+          <stop offset="70%" stopColor="#59240a" />
+          <stop offset="100%" stopColor="#3d1806" />
+        </linearGradient>
+        <linearGradient id="sss-brass" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#f5d78e" />
+          <stop offset="30%" stopColor="#d8a74c" />
+          <stop offset="60%" stopColor="#f7e1a6" />
+          <stop offset="85%" stopColor="#9e7228" />
+          <stop offset="100%" stopColor="#5c3f10" />
         </linearGradient>
         <linearGradient id="sss-metal" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#3d4044" />
-          <stop offset="50%" stopColor="#25272a" />
-          <stop offset="100%" stopColor="#18191b" />
+          <stop offset="0%" stopColor="#f5d78e" />
+          <stop offset="25%" stopColor="#d8a74c" />
+          <stop offset="50%" stopColor="#b48332" />
+          <stop offset="75%" stopColor="#e8c372" />
+          <stop offset="100%" stopColor="#755018" />
         </linearGradient>
         <linearGradient id="sss-cush-tb" x1="0%" y1="0%" x2="0%" y2="100%">
           <stop offset="0%" stopColor="#2ea36b" />
@@ -153,15 +197,43 @@ export function CoachTable({
           <stop offset="30%" stopColor="#238254" />
           <stop offset="100%" stopColor="#145233" />
         </linearGradient>
-        <radialGradient id="sss-gloss" cx="32%" cy="28%" r="80%">
-          <stop offset="0%" stopColor="rgba(255,255,255,0.80)" />
-          <stop offset="45%" stopColor="rgba(255,255,255,0.12)" />
-          <stop offset="100%" stopColor="rgba(0,0,0,0.40)" />
+        <radialGradient id="sss-gloss" cx="30%" cy="26%" r="75%">
+          <stop offset="0%" stopColor="rgba(255,255,255,0.85)" />
+          <stop offset="25%" stopColor="rgba(255,255,255,0.35)" />
+          <stop offset="60%" stopColor="rgba(255,255,255,0.02)" />
+          <stop offset="100%" stopColor="rgba(0,0,0,0.50)" />
         </radialGradient>
-        <radialGradient id="sss-pocket" cx="40%" cy="35%" r="80%">
-          <stop offset="0%" stopColor="#1a1a1a" />
-          <stop offset="100%" stopColor="#000" />
+        <radialGradient id="ballGloss" cx="30%" cy="26%" r="75%">
+          <stop offset="0%" stopColor="rgba(255,255,255,0.85)" />
+          <stop offset="25%" stopColor="rgba(255,255,255,0.35)" />
+          <stop offset="60%" stopColor="rgba(255,255,255,0.02)" />
+          <stop offset="100%" stopColor="rgba(0,0,0,0.50)" />
         </radialGradient>
+        <radialGradient id="sss-pocket" cx="42%" cy="38%" r="75%">
+          <stop offset="0%" stopColor="#252525" />
+          <stop offset="40%" stopColor="#121212" />
+          <stop offset="85%" stopColor="#050505" />
+          <stop offset="100%" stopColor="#000000" />
+        </radialGradient>
+        <linearGradient id="cushion-drop-top" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="rgba(0,0,0,0.42)" />
+          <stop offset="100%" stopColor="rgba(0,0,0,0)" />
+        </linearGradient>
+        <linearGradient id="cushion-drop-bottom" x1="0%" y1="100%" x2="0%" y2="0%">
+          <stop offset="0%" stopColor="rgba(0,0,0,0.42)" />
+          <stop offset="100%" stopColor="rgba(0,0,0,0)" />
+        </linearGradient>
+        <linearGradient id="cushion-drop-left" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="rgba(0,0,0,0.42)" />
+          <stop offset="100%" stopColor="rgba(0,0,0,0)" />
+        </linearGradient>
+        <linearGradient id="cushion-drop-right" x1="100%" y1="0%" x2="0%" y2="0%">
+          <stop offset="0%" stopColor="rgba(0,0,0,0.42)" />
+          <stop offset="100%" stopColor="rgba(0,0,0,0)" />
+        </linearGradient>
+        <filter id="ball-shadow-blur" x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur stdDeviation="2.5" />
+        </filter>
         <filter id="midglow" x="-120%" y="-120%" width="340%" height="340%">
           <feGaussianBlur stdDeviation="3.5" result="blur" />
           <feMerge>
@@ -235,6 +307,12 @@ export function CoachTable({
       {/* ── Green Felt Playing Surface ──────────────────────────────────── */}
       <rect x={OX} y={OY} width={PLAY.x1} height={PLAY.y1} fill="url(#sss-felt)" />
 
+      {/* Cushion shadow cast on felt edges (gives 3D depth to table rails) */}
+      <rect x={OX} y={OY} width={PLAY.x1} height={14} fill="url(#cushion-drop-top)" pointerEvents="none" />
+      <rect x={OX} y={OY + PLAY.y1 - 14} width={PLAY.x1} height={14} fill="url(#cushion-drop-bottom)" pointerEvents="none" />
+      <rect x={OX} y={OY} width={14} height={PLAY.y1} fill="url(#cushion-drop-left)" pointerEvents="none" />
+      <rect x={OX + PLAY.x1 - 14} y={OY} width={14} height={PLAY.y1} fill="url(#cushion-drop-right)" pointerEvents="none" />
+
       {/* ── Table Grid & Subdivisions ────────────────────────────────────── */}
       {showGrid && (
         <g opacity={0.65}>
@@ -275,14 +353,20 @@ export function CoachTable({
         ))}
       </g>
 
-      {/* ── 6 Pockets ─────────────────────────────────────────────────── */}
+      {/* ── 6 Pockets (Brass Corner Plates & Leather Drop Rim) ───────────── */}
       {POCKETS.map((pk) => {
         const sp = S(pk.pos);
         return (
           <g key={pk.id}>
-            <circle cx={sp.x} cy={sp.y} r={pk.r + 6} fill="#000" opacity={0.8} />
-            <circle cx={sp.x} cy={sp.y} r={pk.r} fill="url(#sss-pocket)" stroke="rgba(207,163,76,0.55)" strokeWidth={2.2} />
-            <circle cx={sp.x} cy={sp.y} r={pk.r - 10} fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth={1} />
+            {/* Outer shadow */}
+            <circle cx={sp.x} cy={sp.y} r={pk.r + 6} fill="rgba(0,0,0,0.7)" />
+            {/* Brass pocket casting plate */}
+            <circle cx={sp.x} cy={sp.y} r={pk.r + 2.5} fill="url(#sss-brass)" stroke="#4a320b" strokeWidth={0.8} />
+            {/* Leather mouth buffer */}
+            <circle cx={sp.x} cy={sp.y} r={pk.r - 0.5} fill="#1d140b" stroke="#0e0a05" strokeWidth={1.5} />
+            {/* Dark velvet pocket drop */}
+            <circle cx={sp.x} cy={sp.y} r={pk.r - 3.5} fill="url(#sss-pocket)" />
+            <circle cx={sp.x} cy={sp.y} r={pk.r - 9} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={1} />
           </g>
         );
       })}
@@ -452,13 +536,22 @@ export function CoachTable({
             }}
             style={{ cursor: "grab" }}
           >
+            {/* Ambient ball drop shadow on baize felt (anchors ball to the table) */}
+            <ellipse
+              cx={pos.x + 1.8}
+              cy={pos.y + 2.8}
+              rx={BALL_R * 0.94}
+              ry={BALL_R * 0.72}
+              fill="rgba(4, 18, 10, 0.42)"
+              filter="url(#ball-shadow-blur)"
+            />
             {(isObj || hoverId === b.id) && (
               <circle
                 cx={pos.x}
                 cy={pos.y}
                 r={BALL_R + 5}
                 fill="none"
-                stroke={isObj ? "var(--color-gold, #f59e0b)" : "rgba(244,239,230,0.5)"}
+                stroke={isObj ? "var(--color-gold, #ffd27a)" : "rgba(244,239,230,0.5)"}
                 strokeWidth={2}
                 strokeDasharray={isObj ? undefined : "4 4"}
                 opacity={0.9}
@@ -474,7 +567,8 @@ export function CoachTable({
               onPointerEnter={() => setHoverId(b.id)}
               onPointerLeave={() => setHoverId(null)}
             />
-            <circle cx={pos.x} cy={pos.y} r={BALL_R} fill="url(#ballGloss)" />
+            {/* 3D Specular reflection gloss */}
+            <circle cx={pos.x} cy={pos.y} r={BALL_R} fill="url(#ballGloss)" pointerEvents="none" />
             {isObj && (
               <circle
                 cx={pos.x}
@@ -483,11 +577,91 @@ export function CoachTable({
                 fill="none"
                 stroke="rgba(0,0,0,0.35)"
                 strokeWidth={2}
+                pointerEvents="none"
               />
             )}
           </g>
         );
       })}
+
+      {/* Visual Cue Stick aiming at white cue ball */}
+      {(() => {
+        const p = selectedPath ?? (paths.length ? bestPath : undefined);
+        const cueBall = balls.find((b) => b.id === COACH_CUE_ID);
+        if (!p || !cueBall || replay?.phase === "object") return null;
+
+        const firstTarget = p.cuePolyline[1];
+        if (!firstTarget) return null;
+
+        const dx = firstTarget.x - cueBall.pos.x;
+        const dy = firstTarget.y - cueBall.pos.y;
+        const angle = Math.atan2(dy, dx);
+        const cuePos = S(cueBall.pos);
+
+        // Position cue stick behind the cue ball along -angle
+        const stickDist = BALL_R + 14;
+        const stickLength = 170;
+        const tipX = cuePos.x - stickDist * Math.cos(angle);
+        const tipY = cuePos.y - stickDist * Math.sin(angle);
+        const buttX = cuePos.x - (stickDist + stickLength) * Math.cos(angle);
+        const buttY = cuePos.y - (stickDist + stickLength) * Math.sin(angle);
+
+        return (
+          <g opacity={replay ? 0.35 : 0.88} pointerEvents="none">
+            {/* Cue stick shadow */}
+            <line
+              x1={buttX + 3}
+              y1={buttY + 4}
+              x2={tipX + 3}
+              y2={tipY + 4}
+              stroke="rgba(0,0,0,0.32)"
+              strokeWidth={5}
+              strokeLinecap="round"
+            />
+            {/* Maple / Ash wood shaft */}
+            <line
+              x1={buttX}
+              y1={buttY}
+              x2={tipX}
+              y2={tipY}
+              stroke="#d4aa70"
+              strokeWidth={4.5}
+              strokeLinecap="round"
+            />
+            {/* Brass Ferrule */}
+            <circle cx={tipX} cy={tipY} r={2.4} fill="#ffd27a" />
+            {/* Blue chalk tip */}
+            <circle
+              cx={tipX + 1.8 * Math.cos(angle)}
+              cy={tipY + 1.8 * Math.sin(angle)}
+              r={1.8}
+              fill="#3b82f6"
+            />
+          </g>
+        );
+      })()}
+
+      {/* Contact impact spark & ripple */}
+      {replay?.phase === "object" && replayCue && (
+        <g pointerEvents="none">
+          <circle
+            cx={replayCue.x}
+            cy={replayCue.y}
+            r={BALL_R + 14}
+            fill="none"
+            stroke="var(--color-gold, #ffd27a)"
+            strokeWidth={2.5}
+            opacity={0.8}
+          />
+          <circle
+            cx={replayCue.x}
+            cy={replayCue.y}
+            r={BALL_R + 5}
+            fill="rgba(255, 210, 122, 0.35)"
+            opacity={0.65}
+          />
+        </g>
+      )}
 
       {/* replay overlays */}
       {replayCue && (
@@ -506,7 +680,7 @@ export function CoachTable({
           cy={replayObj.y}
           r={BALL_R}
           fill={BALL_COLORS[balls.find((b) => b.id === objectId)?.color ?? "black"]}
-          stroke="var(--color-gold, #f59e0b)"
+          stroke="var(--color-gold, #ffd27a)"
           strokeWidth={3}
         />
       )}

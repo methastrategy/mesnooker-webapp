@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Volume2, Vibrate, Trash2, LogOut, UserRound } from "lucide-react";
+import { Volume2, Vibrate, Trash2, LogOut, UserRound, Globe } from "lucide-react";
 import { Sheet, ActionButton } from "@/components/ui";
 import { useGameStore } from "@/store/gameStore";
 import { cn } from "@/lib/utils";
@@ -101,13 +101,64 @@ export function SettingsSheet() {
   return (
     <Sheet open={open} onClose={onClose} title="Settings">
       <div className="mb-1 px-2 pt-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-        Preferences
+        {store.locale === "th" ? "การตั้งค่าทั่วไป" : "Preferences"}
       </div>
 
-      <Row icon={Volume2} title="Sound" subtitle="Timers and alerts">
+      {/* Language Selector */}
+      <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 p-3 mb-2">
+        <div className="flex items-center gap-2.5">
+          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10 text-primary">
+            <Globe size={16} />
+          </span>
+          <div>
+            <div className="text-sm font-semibold text-foreground">
+              {store.locale === "th" ? "ภาษาแสดงผล" : "Language"}
+            </div>
+            <div className="text-[11px] text-muted-foreground">
+              {store.locale === "th" ? "ภาษาไทย / English" : "Thai / English"}
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center rounded-xl bg-black/40 p-1 border border-white/5">
+          <button
+            type="button"
+            onClick={() => store.setLocale("th")}
+            className={cn(
+              "rounded-lg px-2.5 py-1 text-xs font-bold transition-all",
+              store.locale === "th"
+                ? "bg-primary text-primary-foreground shadow"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            ไทย
+          </button>
+          <button
+            type="button"
+            onClick={() => store.setLocale("en")}
+            className={cn(
+              "rounded-lg px-2.5 py-1 text-xs font-bold transition-all",
+              store.locale === "en"
+                ? "bg-primary text-primary-foreground shadow"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            EN
+          </button>
+        </div>
+      </div>
+
+      <Row
+        icon={Volume2}
+        title={store.locale === "th" ? "เสียงเอฟเฟกต์" : "Sound"}
+        subtitle={store.locale === "th" ? "เสียงลูกกระทบและลงหลุม" : "Timers and ball impacts"}
+      >
         <Toggle on={sound} onChange={toggleSound} />
       </Row>
-      <Row icon={Vibrate} title="Haptics" subtitle="Tactile feedback">
+      <Row
+        icon={Vibrate}
+        title={store.locale === "th" ? "การสั่นตอบสนอง" : "Haptics"}
+        subtitle={store.locale === "th" ? "สั่นเตือนเมื่อกดแต้ม" : "Tactile touch feedback"}
+      >
         <Toggle on={haptics} onChange={toggleHaptics} />
       </Row>
 
