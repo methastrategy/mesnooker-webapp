@@ -21,23 +21,29 @@ import { uid } from "@/lib/utils";
 export type DrillKind = "safety" | "escape" | "thin" | "position";
 
 const CUE_ID = "cue";
+export const BLACK_TARGET_ID = "target-black";
 
 function makeBall(color: BallColor, pos: Vec, id?: string): Ball {
   return { id: id ?? uid(), color, pos: { ...pos } };
 }
 
-/** A clean default table: cue on baulk, target on the black spot, a few
- *  blockers to make it a real puzzle. */
+/** A clean default table: cue on baulk, target locked on the black ball,
+ *  with blockers to simulate snooker situations. */
 function initialTable(): Ball[] {
   const balls: Ball[] = [];
   balls.push(makeBall("cue", { x: 330, y: PLAY_H_CENTRE }, CUE_ID));
-  balls.push(makeBall("black", { ...SPOTS.black }));
+  balls.push(makeBall("black", { ...SPOTS.black }, BLACK_TARGET_ID));
   balls.push(makeBall("red", { x: 720, y: 240 }));
   balls.push(makeBall("red", { x: 780, y: 360 }));
   balls.push(makeBall("blue", { ...SPOTS.blue }));
   return balls;
 }
 const PLAY_H_CENTRE = PLAY.y1 / 2;
+
+export interface CueSpin {
+  side: number; // -1 (Left) to +1 (Right)
+  vertical: number; // -1 (Low/Screw) to +1 (High/Follow)
+}
 
 export interface CoachState {
   balls: Ball[];
@@ -50,6 +56,7 @@ export interface CoachState {
   solved: boolean;
   showGrid: boolean;
   targetMode: "hit" | "pot";
+  spin: CueSpin;
 
   // selectors
   cue: () => Ball | undefined;
@@ -62,6 +69,7 @@ export interface CoachState {
   setPocket: (id: string) => void;
   setMaxCushions: (n: number) => void;
   setTargetMode: (m: "hit" | "pot") => void;
+  setSpin: (spin: CueSpin) => void;
   setShowGrid: (v: boolean) => void;
   toggleGrid: () => void;
   addBall: (color: BallColor) => void;
@@ -83,8 +91,8 @@ const INITIAL_BALLS = initialTable();
 
 export const useCoachStore = create<CoachState>()((set, get) => ({
   balls: INITIAL_BALLS,
-  objectId: INITIAL_BALLS[1].id, // black ball is the default target
-  pocketId: "br", // black sits near the bottom-right pocket
+  objectId: BLACK_TARGET_ID, // Black ball is PERMANENTLY the target ball
+  pocketId: "br",
   maxCushions: 3,
   paths: [],
   selectedPathId: null,
@@ -92,11 +100,12 @@ export const useCoachStore = create<CoachState>()((set, get) => ({
   solved: false,
   showGrid: false,
   targetMode: "hit",
+  spin: { side: 0, vertical: 0 },
 
   cue: () => get().balls.find((b) => b.id === CUE_ID),
-  object: () => get().balls.find((b) => b.id === get().objectId),
+  object: () => get().balls.find((b) => b.id === BLACK_TARGET_ID) ?? get().balls.find((b) => b.color === "black"),
   blockers: () =>
-    get().balls.filter((b) => b.id !== CUE_ID && b.id !== get().objectId),
+    get().balls.filter((b) => b.id !== CUE_ID && b.id !== BLACK_TARGET_ID && b.color !== "black"),
 
   moveBall: (id, pos) => {
     const r = BALL_R;
@@ -108,9 +117,9 @@ export const useCoachStore = create<CoachState>()((set, get) => ({
     get().solve();
   },
 
-  setObjectBall: (id) => {
-    if (id === CUE_ID) return;
-    set({ objectId: id });
+  setObjectBall: (_id) => {
+    // Target is locked to the Black ball
+    set({ objectId: BLACK_TARGET_ID });
     get().solve();
   },
 
@@ -129,27 +138,36 @@ export const useCoachStore = create<CoachState>()((set, get) => ({
     get().solve();
   },
 
+  setSpin: (spin) => {
+    set({ spin });
+    get().solve();
+  },
+
   setShowGrid: (v) => set({ showGrid: v }),
   toggleGrid: () => set((s) => ({ showGrid: !s.showGrid })),
 
   addBall: (color) => {
     const s = get();
-    if (s.balls.length >= 12) return;
-    // spawn near centre with jitter, clamped off other balls
+    if (s.balls.length >= 14) return;
+    // Disallow adding a second black ball; other colors are blocker balls
+    const safeColor = color === "black" ? "red" : color;
     const jitter = () => 200 + Math.random() * 800;
     const p = clampToTable({ x: jitter(), y: 80 + Math.random() * 440 }, s.balls);
-    set({ balls: [...s.balls, makeBall(color, p)] });
+    set({ balls: [...s.balls, makeBall(safeColor, p)] });
     get().solve();
   },
 
   removeBall: (id) => {
-    if (id === CUE_ID) return;
+    // Cue ball and Black target ball cannot be removed
+    if (id === CUE_ID || id === BLACK_TARGET_ID) return;
     const s = get();
+    const ballToRemove = s.balls.find((b) => b.id === id);
+    if (ballToRemove?.color === "black") return;
+
     const remaining = s.balls.filter((b) => b.id !== id);
-    const nextObjId = s.objectId === id ? (remaining.find((b) => b.id !== CUE_ID)?.id || "") : s.objectId;
     set({
       balls: remaining,
-      objectId: nextObjId,
+      objectId: BLACK_TARGET_ID,
     });
     get().solve();
   },
@@ -157,13 +175,13 @@ export const useCoachStore = create<CoachState>()((set, get) => ({
   solve: () => {
     const s = get();
     const cue = s.balls.find((b) => b.id === CUE_ID);
-    const obj = s.balls.find((b) => b.id === s.objectId);
+    const obj = s.balls.find((b) => b.id === BLACK_TARGET_ID) ?? s.balls.find((b) => b.color === "black");
     if (!cue || !obj) {
       set({ paths: [], selectedPathId: null, solved: false });
       return;
     }
     const blockers = s.balls
-      .filter((b) => b.id !== CUE_ID && b.id !== s.objectId)
+      .filter((b) => b.id !== CUE_ID && b.id !== obj.id)
       .map((b) => b.pos);
     const paths = solveEscape({
       cue: cue.pos,
@@ -172,6 +190,7 @@ export const useCoachStore = create<CoachState>()((set, get) => ({
       pocketId: s.pocketId,
       targetMode: s.targetMode,
       maxCushions: s.maxCushions,
+      spin: s.spin,
     });
     // pick best non-blocked
     const best = paths.find((p) => !p.blocked) ?? paths[0];

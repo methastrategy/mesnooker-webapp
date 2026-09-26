@@ -18,6 +18,8 @@ export interface CoachBrief {
   powerLabel: string;
   cushionExplanation: string[];
   firstWords: string;
+  recommendedTip: string;
+  recommendedTipNote: string;
 }
 
 export function coachBrief(path: SolvePath, object: Vec, pocket: Vec): CoachBrief {
@@ -64,12 +66,54 @@ export function coachBrief(path: SolvePath, object: Vec, pocket: Vec): CoachBrie
 
   const firstWords =
     path.cushions === 0
-      ? "Straight shot: aim at the ghost ball centre, drive through contact."
-      : `Cushion escape: first aim at the bounce marker ${
-          path.cushionNotes[0]
-            ? `(${path.cushionNotes[0].side === "b" ? "bottom" : "top"} cushion)`
-            : ""
-        } — the mirror does the rest.`;
+      ? "แทงตรง: เล็งจุดกึ่งกลางลูกเป้าหมาย (Ghost Ball) สโตรกปล่อยคิวให้ตรง"
+      : `แทงแก้ชิ่ง: เล็งไปยังจุดกระทบชิ่งแรก (${sideName(path.sideSequence[0])} Cushion) ตามเส้นนำทาง`;
+
+  // Determine recommended cue tip strike point
+  let recommendedTip = "Center";
+  let recommendedTipNote = "แทงกลางลูก (Center) — อาศัยมุมตกกระทบธรรมชาติ";
+
+  if (path.cushions > 0 && path.cushionNotes.length > 0) {
+    const firstCush = path.cushionNotes[0];
+    const side = firstCush.side;
+    const fromCue = path.cuePolyline[0];
+    const toBounce = firstCush.point;
+
+    // Running english vs check english determination
+    if (side === "b") {
+      const goingRight = toBounce.x > fromCue.x;
+      if (goingRight) {
+        recommendedTip = firstCush.angleDeg < 35 ? "LR" : "Right";
+        recommendedTipNote = "แทงไซด์ขวา / สกรูขวา (LR) เพื่อขยายมุมชิ่งล่างเข้าหาลูกดำ";
+      } else {
+        recommendedTip = firstCush.angleDeg < 35 ? "LL" : "Left";
+        recommendedTipNote = "แทงไซด์ซ้าย / สกรูซ้าย (LL) เพื่อขยายมุมชิ่งล่างเข้าหาลูกดำ";
+      }
+    } else if (side === "t") {
+      const goingRight = toBounce.x > fromCue.x;
+      if (goingRight) {
+        recommendedTip = firstCush.angleDeg < 35 ? "HL" : "Left";
+        recommendedTipNote = "แทงไซด์ซ้าย (HL / Left) เพื่อขยายมุมชิ่งบนเข้าหาลูกดำ";
+      } else {
+        recommendedTip = firstCush.angleDeg < 35 ? "HR" : "Right";
+        recommendedTipNote = "แทงไซด์ขวา (HR / Right) เพื่อขยายมุมชิ่งบนเข้าหาลูกดำ";
+      }
+    } else if (side === "l") {
+      recommendedTip = toBounce.y > fromCue.y ? "HR" : "LR";
+      recommendedTipNote = "แทงไซด์ตามชิ่งซ้ายเพื่อเปิดมุมสะท้อน";
+    } else if (side === "r") {
+      recommendedTip = toBounce.y > fromCue.y ? "HL" : "LL";
+      recommendedTipNote = "แทงไซด์ตามชิ่งขวาเพื่อเปิดมุมสะท้อน";
+    }
+  } else if (path.cushions === 0) {
+    if (aimDistance > 450) {
+      recommendedTip = "Low";
+      recommendedTipNote = "แทงสกรูถอยหลัง (Low) เพื่อควบคุมระยะการวิ่งของลูกขาว";
+    } else {
+      recommendedTip = "Center";
+      recommendedTipNote = "แทงกลางลูก (Center) เล็งตรงเข้าจุด Ghost Ball";
+    }
+  }
 
   return {
     aimPoint,
@@ -81,6 +125,8 @@ export function coachBrief(path: SolvePath, object: Vec, pocket: Vec): CoachBrie
     powerLabel,
     cushionExplanation,
     firstWords,
+    recommendedTip,
+    recommendedTipNote,
   };
 }
 

@@ -1,4 +1,4 @@
-import type { Side, Vec } from "./types";
+import type { CueSpin, Side, Vec } from "./types";
 import { PLAY, BALL_R } from "./tables";
 
 type Axis = { kind: "x" | "y"; value: number };
@@ -37,14 +37,14 @@ export interface UnfoldResult {
 
 /**
  * Unfold a straight shot from `from` to `to` across the given cushion side
- * sequence. Returns bounce points in real space, or null if the sequence is
- * geometrically impossible (parallel to a cushion, bounce off the segment, or
- * a mirror crossed from the wrong side).
+ * sequence, with optional side-spin / english deflection. Returns bounce points
+ * in real space, or null if the sequence is geometrically impossible.
  */
 export function unfoldStraight(
   from: Vec,
   to: Vec,
-  sides: Side[]
+  sides: Side[],
+  spin?: CueSpin
 ): UnfoldResult | null {
   const n = sides.length;
   if (n === 0) {
@@ -54,8 +54,25 @@ export function unfoldStraight(
   // 1) Unfold: mirror target to generate virtual target chain V_n, V_{n-1}, ..., V_0
   const V: Vec[] = new Array(n + 1);
   V[n] = to;
+  const sideSpin = spin?.side ?? 0;
+
   for (let i = n - 1; i >= 0; i--) {
-    V[i] = mirrorAcross(V[i + 1], axisFor(sides[i]));
+    let mirrored = mirrorAcross(V[i + 1], axisFor(sides[i]));
+    if (sideSpin !== 0) {
+      // Side spin shifts the virtual mirror position tangentially
+      const side = sides[i];
+      const shiftMag = sideSpin * 45;
+      if (side === "b") {
+        mirrored = { x: mirrored.x + shiftMag, y: mirrored.y };
+      } else if (side === "t") {
+        mirrored = { x: mirrored.x - shiftMag, y: mirrored.y };
+      } else if (side === "l") {
+        mirrored = { x: mirrored.x, y: mirrored.y - shiftMag };
+      } else if (side === "r") {
+        mirrored = { x: mirrored.x, y: mirrored.y + shiftMag };
+      }
+    }
+    V[i] = mirrored;
   }
 
   // 2) Walk forward from `from` to calculate exact bounce points P_0, P_1, ..., P_{n-1}

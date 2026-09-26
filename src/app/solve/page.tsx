@@ -7,15 +7,16 @@ import {
   RotateCcw,
   Target,
   Plus,
-  Trash2,
+  Compass,
 } from "lucide-react";
 import { useCoachStore } from "@/store/coachStore";
 import { BALL_COLORS, coachBrief, sideName } from "@/lib/geometry";
 import { CoachTable, type ReplayState } from "@/components/coach/CoachTable";
+import { CueTipPicker } from "@/components/coach/CueTipPicker";
 import { cn } from "@/lib/utils";
 import type { SolvePath, Vec, BallColor } from "@/lib/geometry";
 
-const TRAY: BallColor[] = ["red", "yellow", "green", "brown", "blue", "pink", "black"];
+const TRAY: BallColor[] = ["red", "yellow", "green", "brown", "blue", "pink"];
 
 export default function SolvePage() {
   const store = useCoachStore();
@@ -23,7 +24,7 @@ export default function SolvePage() {
   const raf = useRef(0);
 
   const cue = store.balls.find((b) => b.color === "cue");
-  const obj = store.balls.find((b) => b.id === store.objectId);
+  const obj = store.balls.find((b) => b.color === "black");
   const best: SolvePath | undefined =
     store.paths.find((p) => p.id === store.selectedPathId) ??
     store.paths.find((p) => !p.blocked) ??
@@ -132,7 +133,7 @@ export default function SolvePage() {
               จำลองแก้สนุ๊ก ( snook slove simulator ,SSS )
             </h1>
             <p className="text-xs text-muted-foreground">
-              ลากขยับลูกขาว ลูกเป้า หรือลูกบังบนโต๊ะเพื่อจำลองสถานการณ์ — ระบบจะคำนวณเส้นทางแทงแก้ชิ่งให้อัตโนมัติ
+              ลูกเป้าหมายคือลูกดำ — ลากขยับลูกขาว ลูกดำ หรือลูกบังบนโต๊ะเพื่อจำลองสถานการณ์ ระบบจะคำนวณเส้นทางและจุดแทงสกรูให้อัตโนมัติ
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -165,7 +166,7 @@ export default function SolvePage() {
         {/* Clean Controls Toolbar */}
         <div className="glass flex flex-col gap-3 rounded-2xl p-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            {/* Target ball indicator & selection */}
+            {/* Target ball indicator (Permanently Black) */}
             <div className="flex items-center gap-2">
               <Target size={16} className="text-gold" />
               <span className="text-xs font-semibold text-muted-foreground">
@@ -174,32 +175,22 @@ export default function SolvePage() {
               <span
                 className="inline-block h-5 w-5 rounded-full border border-black/40 shadow-sm"
                 style={{
-                  background: obj ? BALL_COLORS[obj.color] : "#333",
+                  background: BALL_COLORS.black,
                 }}
               />
-              <span className="text-sm font-bold capitalize text-foreground">
-                {obj ? obj.color : "—"}
+              <span className="text-sm font-bold text-foreground">
+                ลูกดำ (Black) — เป้าหมายหลัก
               </span>
-              {obj && obj.color !== "cue" && store.balls.length > 2 && (
-                <button
-                  onClick={() => store.removeBall(obj.id)}
-                  aria-label="Remove target ball"
-                  title="ลบลูกเป้าหมาย"
-                  className="ml-1 rounded-lg bg-white/5 p-1 text-muted-foreground hover:bg-danger/20 hover:text-danger"
-                >
-                  <Trash2 size={13} />
-                </button>
-              )}
             </div>
 
             <div className="flex items-center gap-2">
               <span className="text-[11px] text-muted-foreground">
-                ลูกบนโต๊ะ {store.balls.length} ลูก
+                ลูกบนโต๊ะ {store.balls.length} ลูก (สามารถลากย้ายลูกเพื่อจำลองมุมได้อิสระ)
               </span>
             </div>
           </div>
 
-          {/* Add Ball Tray */}
+          {/* Add Ball Tray (Blockers Only) */}
           <div className="flex flex-wrap items-center gap-2 border-t border-white/5 pt-3">
             <span className="flex items-center gap-1 text-xs font-semibold text-muted-foreground">
               <Plus size={13} /> เพิ่มลูกขวางทางสนู๊ก:
@@ -209,7 +200,7 @@ export default function SolvePage() {
                 key={c}
                 onClick={() => store.addBall(c)}
                 aria-label={`Add ${c}`}
-                title={`เพิ่มลูกสี ${c}`}
+                title={`เพิ่มลูกสี ${c} เป็นสิ่งกีดขวาง`}
                 className="h-7 w-7 rounded-full border border-black/40 shadow transition-transform hover:scale-110 active:scale-95"
                 style={{
                   background: `radial-gradient(circle at 32% 28%, rgba(255,255,255,0.65), ${
@@ -219,19 +210,19 @@ export default function SolvePage() {
               />
             ))}
             <span className="ml-auto text-[11px] text-muted-foreground">
-              ลูกบนโต๊ะ {store.balls.length} ลูก
+              แตะลูกอื่นเพื่อขยับ หรือกดที่ลูกเพื่อปรับแนวขวาง
             </span>
           </div>
         </div>
       </div>
 
-      {/* Right Sidebar: Clean AI Escape Guide */}
-      <div className="w-full lg:w-80 lg:shrink-0">
+      {/* Right Sidebar: AI Escape & English Spin Guide */}
+      <div className="w-full lg:w-84 lg:shrink-0">
         <aside className="glass flex flex-col gap-4 rounded-2xl p-4 lg:sticky lg:top-6">
           <div className="flex items-center justify-between border-b border-white/5 pb-3">
             <div>
               <h2 className="text-sm font-bold text-foreground">คำแนะนำการแทงแก้ชิ่ง</h2>
-              <p className="text-[11px] text-muted-foreground">วิเคราะห์เส้นทางที่ดีที่สุด</p>
+              <p className="text-[11px] text-muted-foreground">วิเคราะห์เส้นทาง & จุดแทงลูกขาว</p>
             </div>
             <span
               className={cn(
@@ -245,13 +236,36 @@ export default function SolvePage() {
             </span>
           </div>
 
+          {/* Interactive Cue Tip Spin & English Control */}
+          <div className="rounded-xl border border-white/10 bg-white/5 p-3.5 flex flex-col items-center">
+            <div className="mb-2 flex w-full items-center justify-between">
+              <span className="flex items-center gap-1.5 text-xs font-bold text-foreground">
+                <Compass size={14} className="text-primary" />
+                จุดแทงลูกขาว (English / Spin)
+              </span>
+              {brief?.recommendedTip && (
+                <span className="rounded bg-gold/20 px-2 py-0.5 text-[10px] font-bold text-gold">
+                  แนะนำ: {brief.recommendedTip}
+                </span>
+              )}
+            </div>
+
+            <CueTipPicker recommendedId={brief?.recommendedTip} />
+
+            {brief?.recommendedTipNote && (
+              <div className="mt-3 w-full rounded-lg bg-primary/10 p-2.5 text-center text-xs font-medium text-primary border border-primary/20">
+                💡 {brief.recommendedTipNote}
+              </div>
+            )}
+          </div>
+
           {!best || best.blocked || !brief ? (
             <div className="rounded-xl bg-white/5 p-4 text-xs leading-relaxed text-muted-foreground">
               <p className="font-semibold text-danger">
-                ⚠ โดนบังมิดทุกมุม หรือไม่มีเส้นทางชิ่งแก้ในจำนวนชิ่งที่กำหนด
+                ⚠ โดนบังมิดทุกมุม หรือไม่มีเส้นทางชิ่งแก้ไปหาลูกดำ
               </p>
               <p className="mt-2">
-                ลองขยับลูกขวาง หรือเพิ่มจำนวนชิ่งสูงสุดเป็น 3-4 ชิ่ง
+                ลองปรับจุดแทงสกรู/ไซด์ขาว หรือขยับตำแหน่งลูกขวาง
               </p>
             </div>
           ) : (
@@ -299,7 +313,7 @@ export default function SolvePage() {
                           : best.cushionNotes[0].point.x / 1200
                         ) * 100
                       )}% ของความยาวชิ่ง`
-                    : "เล็งตรงไปยังจุดกลางลูกเป้าหมาย"}
+                    : "เล็งตรงไปยังจุดกลางลูกดำ"}
                 </div>
               </div>
 

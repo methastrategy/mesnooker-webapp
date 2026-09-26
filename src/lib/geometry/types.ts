@@ -76,6 +76,13 @@ export interface SolvePath {
   blockReason?: string;
 }
 
+export interface CueSpin {
+  /** -1 (full left) to +1 (full right) */
+  side: number;
+  /** -1 (full low/screw) to +1 (full high/topspin) */
+  vertical: number;
+}
+
 export interface SolverInput {
   cue: Vec;
   object: Vec;
@@ -87,6 +94,8 @@ export interface SolverInput {
   minCushions?: number;
   /** max cushions to attempt (0..6) */
   maxCushions: number;
+  /** Cue ball spin / english / screw */
+  spin?: CueSpin;
 }
 
 export interface Drill {

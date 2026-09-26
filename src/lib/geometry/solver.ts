@@ -187,7 +187,7 @@ function reboundAngles(points: Vec[], bounces: Vec[], sides: Side[]): number[] {
  * Tree is a BFS over side sequences; legality prunes branches early.
  */
 export function solveEscape(input: SolverInput): SolvePath[] {
-  const { cue, object, blockers, pocketId, targetMode = "hit", maxCushions } = input;
+  const { cue, object, blockers, pocketId, targetMode = "hit", maxCushions, spin } = input;
   const pocket: PocketDef | undefined = POCKET_MAP[pocketId];
 
   const results: SolvePath[] = [];
@@ -210,7 +210,7 @@ export function solveEscape(input: SolverInput): SolvePath[] {
         }
       }
 
-      const res = unfoldStraight(cue, targetPoint, seq);
+      const res = unfoldStraight(cue, targetPoint, seq, spin);
       if (res) {
         let legal = true;
         for (const bp of res.bounces) {
