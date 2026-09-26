@@ -1,48 +1,48 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useGameStore } from "@/store/gameStore";
 import { LiveMatch } from "@/components/game/LiveMatch";
 import { FrameCompleteSummary } from "@/components/game/FrameSummary";
 import { FramePauseSummary } from "@/components/game/FramePauseSummary";
+import { MatchLanding } from "@/components/game/MatchLanding";
 import type { ArchivedGame } from "@/types";
 
 export default function MatchPage() {
   const session = useGameStore((s) => s.session);
   const frames = useGameStore((s) => s.frames);
+  const startSession = useGameStore((s) => s.startSession);
+
   // When a frame is ended (End frame) but the session continues, show the
   // pause summary. Set by LiveMatch via onPause.
   const [paused, setPaused] = useState(false);
   const [justFinished, setJustFinished] = useState<ArchivedGame | null>(null);
 
+  // ─── No active session ───────────────────────────────────────────────────
   if (!session || frames.length === 0) {
     return (
       <div className="flex flex-col gap-5">
+        {/* If a game just finished, show its summary above the landing */}
         {justFinished ? (
           <FrameCompleteSummary
             game={justFinished}
             onNewGame={() => setJustFinished(null)}
           />
         ) : null}
-        <h1 className="text-3xl font-bold">Live match</h1>
-        <div className="glass rounded-2xl p-6 text-center">
-          <p className="text-sm text-muted-foreground">No game running yet.</p>
-          <Link
-            href="/setup"
-            className="mt-4 inline-flex h-14 items-center justify-center gap-2 rounded-[18px] bg-primary px-8 text-center text-sm font-semibold text-primary-foreground"
-          >
-            Start a new game
-          </Link>
-          <p className="mt-3 text-[11px] text-muted-foreground">
-            Configure mode, rate, reds and players on the setup page first.
-          </p>
-        </div>
+        {/* Landing: New Game wizard + Recent sessions */}
+        {!justFinished && (
+          <MatchLanding
+            onStart={(o) => {
+              startSession(o);
+              // Store will add a frame; the reactive read above will flip to LiveMatch
+            }}
+          />
+        )}
       </div>
     );
   }
 
-  // Between frames: last frame is done, session continues.
+  // ─── Between frames: last frame done, session continues ──────────────────
   const lastFrame = frames[frames.length - 1];
   if (paused && lastFrame?.endedAt) {
     return (
@@ -55,6 +55,7 @@ export default function MatchPage() {
     );
   }
 
+  // ─── Live frame ─────────────────────────────────────────────────────────
   return (
     <LiveMatch
       onPause={() => setPaused(true)}

@@ -146,8 +146,17 @@ export function LiveMatch({ onPause }: {
   function onPot(ball: BallColor) {
     tap();
     pot(ball);
-    // Potting continues the shooter's own break (red → colour → red); it does
-    // NOT end the turn. Only the scoring-penalty inputs auto-advance.
+    // AUTO-END detection: if potting the black ended the frame, go to pause screen.
+    const freshFrame = store.frames[store.frames.length - 1];
+    if (freshFrame?.endedAt && onPause) {
+      if (haptics && typeof navigator !== "undefined" && "vibrate" in navigator) {
+        try { navigator.vibrate?.([20, 60, 20]); } catch {}
+      }
+      setToast({ id: Date.now(), msg: `⬛ Black potted — frame over!`, tone: "success" });
+      // Short delay so the toast is seen before transitioning
+      setTimeout(() => onPause(), 600);
+      return;
+    }
     setToast({ id: Date.now(), msg: `${BALL_NAME[ball]} potted`, tone: "info" });
   }
 
@@ -164,6 +173,16 @@ export function LiveMatch({ onPause }: {
   function scoringAction(kind: "foul" | "miss" | "solve", verb: string, value: string, tone: ToastTone) {
     tap("penalty");
     applyScoring(kind);
+    // FOUL-ON-BLACK auto-end: the store will have set frame.endedAt
+    const freshFrame = store.frames[store.frames.length - 1];
+    if (freshFrame?.endedAt && onPause) {
+      if (haptics && typeof navigator !== "undefined" && "vibrate" in navigator) {
+        try { navigator.vibrate?.([20, 60, 20]); } catch {}
+      }
+      setToast({ id: Date.now(), msg: `⬛ Foul on black — frame over!`, tone: "danger" });
+      setTimeout(() => onPause(), 600);
+      return;
+    }
     const next = nextShooter();
     setToast({ id: Date.now(), msg: `${verb} ${value} · → ${next?.nickname ?? "next"}`, tone });
   }
@@ -212,6 +231,9 @@ export function LiveMatch({ onPause }: {
         runningMoney={running[shooter?.id] ?? 0}
         isClearing={clearOrderLocked}
         clearingLabel={nextColour ? BALL_NAME[nextColour] : undefined}
+        players={players}
+        shooterIndex={shooterIndex}
+        reverse={reverse}
       />
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">

@@ -33,6 +33,30 @@ import type {
 
 let uid = 0;
 const nid = () => `${Date.now().toString(36)}_${(uid++).toString(36)}`;
+
+/** True when ONLY the black ball remains on the table (no reds, no other colours) */
+function isOnlyBlackLeft(counts: BallCounts): boolean {
+  return (
+    counts.black > 0 &&
+    counts.red === 0 &&
+    counts.yellow === 0 &&
+    counts.green === 0 &&
+    counts.brown === 0 &&
+    counts.blue === 0 &&
+    counts.pink === 0
+  );
+}
+
+/** Build the new player order for the next frame.
+ *  Rule: opener (who potted/fouled black) = index 0;
+ *  remaining players are taken in REVERSE of current order.
+ *  e.g. [A,B,C] C opens → [C, B, A];
+ *       [C,B,A] B opens → [B, A, C] (remaining [C,A] reversed = [A,C]). */
+function buildNextFrameOrder(players: Player[], openerIndex: number): Player[] {
+  const opener = players[openerIndex];
+  const rest = players.filter((_, i) => i !== openerIndex).reverse();
+  return [opener, ...rest];
+}
 export interface PottedEvent extends GameEvent {
   ball: BallColor;
 }
@@ -110,6 +134,8 @@ interface GameStore extends PersistShape {
   toggleReverse: () => void;
   skipPlayer: () => void;
   endFrame: () => void;
+  /** End the frame AND record who should open next frame (auto-end on black ball). */
+  endFrameWithOpener: (openerIndex: number) => void;
   newFrame: () => void;
   renamePlayer: (id: string, nickname: string) => void;
   toggleSound: () => void;
@@ -378,6 +404,42 @@ export const useGameStore = create<GameStore>()(
         f.breaks[scorer.id] = Math.max(f.breaks[scorer.id] ?? 0, evt.breakValue ?? 0);
         f.eventIds.push(evt.id);
 
+        // AUTO-END: potting the black ball while it was the only ball left
+        // ends the frame immediately — the shooter who pots it opens next frame.
+        const wasOnlyBlack = isOnlyBlackLeft(st.ballCounts); // check BEFORE decrement
+        const newCounts = counts;
+        if (ball === "black" && wasOnlyBlack) {
+          // Compute frame money inline (same as endFrame)
+          const allFrameEvents = [...st.events, evt].filter((e) => e.frameId === f.id && !e.undone);
+          const money = computeFrameMoney({
+            mode: f.mode,
+            players: st.players,
+            scores: f.scores,
+            ballCounts: Object.fromEntries(
+              st.players.map((p) => [p.id, pottedBallsPerPlayer(allFrameEvents, p.id)])
+            ),
+            targetCycle: f.targetCycle,
+            moneyPer: st.moneyPer,
+            moneyRate: st.moneyRate,
+          });
+          f.money = money.net;
+          f.endedAt = Date.now();
+          const best = Math.max(...st.players.map((p) => f.scores[p.id] ?? 0));
+          const winners = st.players.filter((p) => (f.scores[p.id] ?? 0) === best && best >= 0);
+          f.winnerId = winners.length ? winners[0].id : undefined;
+          f.highestBreak = Math.max(0, ...st.players.map((p) => f.breaks[p.id] ?? 0));
+          const running = mergeRunning(st.session.runningBalance, money.net);
+          set({
+            ballCounts: newCounts,
+            frames: [...st.frames],
+            events: [...st.events, evt],
+            undoStack: st.undoStack,
+            redoStack: st.redoStack,
+            session: { ...st.session, runningBalance: running, nextFrameFirstShooter: st.shooterIndex },
+          });
+          return;
+        }
+
         set({
           ballCounts: counts,
           frames: [...st.frames],
@@ -485,6 +547,38 @@ export const useGameStore = create<GameStore>()(
           type, points, frameId: f.id, turnIndex: st.shooterIndex,
         };
         f.eventIds.push(evt.id);
+
+        // FOUL-ON-BLACK auto-end: if only black was left, foul ends the frame immediately.
+        // The fouling player opens next frame (they were "on" the black).
+        if (kind === "foul" && isOnlyBlackLeft(st.ballCounts)) {
+          const allFrameEvents = [...st.events, evt].filter((e) => e.frameId === f.id && !e.undone);
+          const money = computeFrameMoney({
+            mode: f.mode,
+            players: st.players,
+            scores: f.scores,
+            ballCounts: Object.fromEntries(
+              st.players.map((p) => [p.id, pottedBallsPerPlayer(allFrameEvents, p.id)])
+            ),
+            targetCycle: f.targetCycle,
+            moneyPer: st.moneyPer,
+            moneyRate: st.moneyRate,
+          });
+          f.money = money.net;
+          f.endedAt = Date.now();
+          const best = Math.max(...st.players.map((p) => f.scores[p.id] ?? 0));
+          const winners = st.players.filter((p) => (f.scores[p.id] ?? 0) === best && best >= 0);
+          f.winnerId = winners.length ? winners[0].id : undefined;
+          f.highestBreak = Math.max(0, ...st.players.map((p) => f.breaks[p.id] ?? 0));
+          const running = mergeRunning(st.session.runningBalance, money.net);
+          set({
+            frames: [...st.frames],
+            events: [...st.events, evt],
+            undoStack: st.undoStack,
+            redoStack: st.redoStack,
+            session: { ...st.session, runningBalance: running, nextFrameFirstShooter: st.shooterIndex },
+          });
+          return;
+        }
 
         const passEvt: GameEvent = {
           id: nid(), ts: Date.now(), playerId: scorer.id, playerName: scorer.nickname,
@@ -619,17 +713,52 @@ export const useGameStore = create<GameStore>()(
         });
       },
 
+      endFrameWithOpener: (openerIdx) => {
+        const st = get();
+        const f = st.frames[st.frames.length - 1];
+        if (!f || !st.session || f.endedAt) return; // guard double-end
+        const frameEvents = st.events.filter((e) => e.frameId === f.id && !e.undone);
+        const money = computeFrameMoney({
+          mode: f.mode,
+          players: st.players,
+          scores: f.scores,
+          ballCounts: Object.fromEntries(
+            st.players.map((p) => [p.id, pottedBallsPerPlayer(frameEvents, p.id)])
+          ),
+          targetCycle: f.targetCycle,
+          moneyPer: st.moneyPer,
+          moneyRate: st.moneyRate,
+        });
+        f.money = money.net;
+        f.endedAt = Date.now();
+        const best = Math.max(0, ...st.players.map((p) => f.scores[p.id] ?? 0));
+        const winners = st.players.filter((p) => (f.scores[p.id] ?? 0) === best && best >= 0);
+        f.winnerId = winners.length ? winners[0].id : undefined;
+        f.highestBreak = Math.max(0, ...st.players.map((p) => f.breaks[p.id] ?? 0));
+        const running = mergeRunning(st.session.runningBalance, money.net);
+        set({
+          session: { ...st.session, runningBalance: running, nextFrameFirstShooter: openerIdx },
+          frames: [...st.frames],
+        });
+      },
+
       newFrame: () => {
         const st = get();
         if (!st.session) return;
-        const frame = makeFrame(st.players, st.mode);
+        // Rotate player order: opener (nextFrameFirstShooter) becomes index 0,
+        // remaining players are reversed (per confirmed game rule).
+        const openerIdx = st.session.nextFrameFirstShooter ?? 0;
+        const rotated = buildNextFrameOrder(st.players, openerIdx);
+        const frame = makeFrame(rotated, st.mode);
         const session = {
           ...st.session,
           frameIds: [...st.session.frameIds, frame.id],
           activeFrameId: frame.id,
+          nextFrameFirstShooter: undefined, // consumed
         };
         set({
           session,
+          players: rotated,
           frames: [...st.frames, frame],
           ballCounts: initialCounts(st.session.redCount),
           startCounts: initialCounts(st.session.redCount),

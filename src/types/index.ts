@@ -102,6 +102,8 @@ export interface SessionSummary {
   activeFrameId: string;
   status: "live" | "ended";
   moneyRateMismatch?: boolean;
+  /** index (in players[]) of who should break next frame — set by auto-end-frame on black */
+  nextFrameFirstShooter?: number;
 }
 
 export type MoneyRateUnit = "point" | "ball";
