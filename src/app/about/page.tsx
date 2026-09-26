@@ -39,13 +39,13 @@ export default function AboutPage() {
           </span>
           About
         </h1>
-        <p className="text-sm text-muted-foreground">Snooker Money Tracker Pro</p>
+        <p className="text-sm text-muted-foreground">MESNOOKER</p>
       </motion.div>
 
       <GlassCard glow="emerald" className="p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold">Snooker Money Tracker Pro</h2>
+            <h2 className="text-2xl font-bold">MESNOOKER</h2>
             <p className="mt-1 text-sm text-muted-foreground">
               Premium snooker scoring and money settlement for Thai players.
             </p>
@@ -53,7 +53,7 @@ export default function AboutPage() {
           <Badge variant="gold">v1.0</Badge>
         </div>
         <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-          Built for friendly money games, Snooker Money Tracker Pro keeps score, tracks your money
+          Built for friendly money games, MESNOOKER keeps score, tracks your money
           in real time, and settles the table with minimal transfers so nobody has to do the math.
         </p>
       </GlassCard>
@@ -127,7 +127,7 @@ export default function AboutPage() {
           ))}
         </div>
         <p className="mt-4 text-xs text-muted-foreground">
-          © 2026 Snooker Money Tracker Pro. Made with care for friendly tables everywhere.
+          © 2026 MESNOOKER. Made with care for friendly tables everywhere.
         </p>
       </GlassCard>
     </div>

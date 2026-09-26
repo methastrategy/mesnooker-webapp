@@ -10,16 +10,16 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Mesnooker",
+  title: "MESNOOKER",
   description:
     "Premium snooker scoring and money settlement for Thai players. Point or ball count, live targets, minimal-transfer settlement, offline-ready PWA.",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Mesnooker",
+    title: "MESNOOKER",
   },
-  applicationName: "Mesnooker",
+  applicationName: "MESNOOKER",
   formatDetection: { telephone: false },
 };
 

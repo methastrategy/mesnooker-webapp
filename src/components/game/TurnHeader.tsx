@@ -7,6 +7,9 @@ import { AnimatedNumber, Badge } from "@/components/ui";
 import { AvatarBubble } from "@/components/game/AvatarPicker";
 import { cn } from "@/lib/utils";
 
+import { useGameStore } from "@/store/gameStore";
+import { t } from "@/lib/i18n";
+
 /** Compact shooter identity + live break count + running money + clocks.
  *  Now includes a "Up Next" player queue strip showing who shoots after. */
 export function TurnHeader({
@@ -31,6 +34,8 @@ export function TurnHeader({
   shooterIndex?: number;
   reverse?: boolean;
 }) {
+  const locale = useGameStore((s) => s.locale);
+
   const moneyColor =
     runningMoney === 0
       ? "text-muted-foreground"
@@ -85,7 +90,7 @@ export function TurnHeader({
                 <span className="font-semibold text-foreground/70">{targetName}</span>
               </span>
             ) : (
-              "next to shoot"
+              t("match.currentShooter", locale)
             )}
           </div>
         </div>
@@ -116,7 +121,7 @@ export function TurnHeader({
       {queue.length > 0 && (
         <div className="flex items-center gap-2 border-t border-white/[0.07] bg-white/[0.02] px-4 py-1.5">
           <span className="text-[10px] uppercase tracking-wider text-muted-foreground shrink-0">
-            Up next
+            {t("match.upNext", locale)}
           </span>
           <div className="flex items-center gap-1.5">
             {queue.map((p, i) => (
@@ -132,7 +137,7 @@ export function TurnHeader({
             ))}
           </div>
           {reverse && (
-            <span className="ml-auto text-[10px] text-muted-foreground/60 shrink-0">↩ reversed</span>
+            <span className="ml-auto text-[10px] text-muted-foreground/60 shrink-0">↩ {locale === "th" ? "ย้อนคิว" : "reversed"}</span>
           )}
         </div>
       )}
@@ -150,10 +155,12 @@ export function ClockStrip({
   frameClock: string;
   sessionClock: string;
 }) {
+  const locale = useGameStore((s) => s.locale);
+
   return (
     <div className="flex items-center justify-between gap-2 px-1 text-[11px] md:text-[12px] tabular-nums">
       <span className="flex items-center gap-1.5 text-foreground/80">
-        <Timer className="text-primary" size={13} /> Frame {frameNumber}: {frameClock}
+        <Timer className="text-primary" size={13} /> {t("dash.frame", locale)} {frameNumber}: {frameClock}
       </span>
       <span className="flex items-center gap-1.5 text-foreground/60">
         <Hourglass className="text-gold" size={13} /> Session: {sessionClock}

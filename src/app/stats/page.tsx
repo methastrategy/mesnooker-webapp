@@ -23,9 +23,10 @@ import {
   Line,
   Cell,
 } from "recharts";
-import { useHistory } from "@/store/gameStore";
+import { useHistory, useGameStore } from "@/store/gameStore";
 import { GlassCard, Stat, Badge, BallDot } from "@/components/ui";
 import { formatMoney } from "@/lib/utils";
+import { t } from "@/lib/i18n";
 import type { Player } from "@/types";
 
 const COLORS = {
@@ -48,6 +49,7 @@ interface AggRow {
 
 export default function StatsPage() {
   const history = useHistory();
+  const locale = useGameStore((s) => s.locale);
 
   const { rows, sorted, netData, trendData, topWins, bestSingleNet, totalPoints, totalPlayers } =
     useMemo(() => {
@@ -150,10 +152,10 @@ export default function StatsPage() {
     <div className="flex flex-col gap-5">
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="flex items-center gap-2 text-3xl font-bold">
-          <BarChart3 size={26} className="text-primary" /> Stats
+          <BarChart3 size={26} className="text-primary" /> {t("stats.title", locale)}
         </h1>
         <p className="text-sm text-muted-foreground">
-          Lifetime performance across all finished games
+          {t("stats.subtitle", locale)}
         </p>
       </motion.div>
 
@@ -167,7 +169,7 @@ export default function StatsPage() {
             <BarChart3 size={24} />
           </span>
           <p className="text-sm text-muted-foreground">
-            No finished games yet — start a match and End session to seed your stats here.
+            {t("stats.empty", locale)}
           </p>
         </motion.div>
       ) : (
@@ -175,23 +177,23 @@ export default function StatsPage() {
           {/* Headline stats */}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <GlassCard className="p-4">
-              <Stat label="Games" value={history.length} />
+              <Stat label={t("stats.gamesPlayed", locale)} value={history.length} />
             </GlassCard>
             <GlassCard className="p-4">
-              <Stat label="Players" value={totalPlayers} />
+              <Stat label={t("stats.totalPlayers", locale)} value={totalPlayers} />
             </GlassCard>
             <GlassCard className="p-4">
-              <Stat label="Points won" value={totalPoints} variant="accent" />
+              <Stat label={t("stats.pointsWon", locale)} value={totalPoints} variant="accent" />
             </GlassCard>
             <GlassCard className="p-4">
-              <Stat label="Best single net" value={bestSingleNet} variant="money" />
+              <Stat label={t("stats.bestNet", locale)} value={bestSingleNet} variant="money" />
             </GlassCard>
           </div>
 
           {/* Leaderboard */}
           <GlassCard glow="gold" className="p-5">
             <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-              <Trophy size={16} className="text-gold" /> Leaderboard
+              <Trophy size={16} className="text-gold" /> {t("stats.leaderboard", locale)}
             </h3>
             <div className="flex flex-col gap-2">
               {sorted.map((r, i) => (
@@ -217,7 +219,7 @@ export default function StatsPage() {
           {netData.length > 0 && (
             <GlassCard className="p-5">
               <h3 className="mb-1 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                Net money per player
+                {t("stats.netChart", locale)}
               </h3>
               <p className="mb-3 text-xs text-muted-foreground">Overall profit across all games</p>
               <div className="h-56 w-full">
@@ -245,7 +247,7 @@ export default function StatsPage() {
           {trendData.length > 1 && trendLines.length > 0 && (
             <GlassCard className="p-5">
               <h3 className="mb-1 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                Net money over games
+                {t("stats.netChart", locale)}
               </h3>
               <p className="mb-3 text-xs text-muted-foreground">
                 Cumulative running net per player (top {trendLines.length} by balance)
@@ -280,7 +282,7 @@ export default function StatsPage() {
           {/* Achievements */}
           <GlassCard className="p-5">
             <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-              <Award size={16} className="text-gold" /> Achievements
+              <Award size={16} className="text-gold" /> {t("stats.achievements", locale)}
             </h3>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               {achievements.map((a, i) => (

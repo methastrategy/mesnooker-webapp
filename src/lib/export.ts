@@ -12,7 +12,7 @@ export function buildSummaryText(opts: {
 }): string {
   const { session, players, runningBalance } = opts;
   const lines: string[] = [];
-  lines.push("🥚 SNOOKER MONEY TRACKER");
+  lines.push("🎱 MESNOOKER");
   lines.push("════════════════════════");
   if (session) lines.push(`Session: ${formatDateTime(session.createdAt)}`);
   lines.push(`Mode: ${session ? session.mode : "n/a"}`);

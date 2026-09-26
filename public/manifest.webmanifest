@@ -1,6 +1,6 @@
 {
-  "name": "Snooker Money Tracker Pro",
-  "short_name": "Snooker Money",
+  "name": "MESNOOKER",
+  "short_name": "MESNOOKER",
   "description": "Premium snooker scoring and money settlement for Thai players.",
   "start_url": "/",
   "display": "standalone",

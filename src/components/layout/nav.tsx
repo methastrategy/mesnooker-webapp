@@ -40,8 +40,8 @@ export function Sidebar() {
           <Wallet size={18} />
         </span>
         <div>
-          <div className="text-sm font-bold leading-tight">Snooker Money</div>
-          <div className="text-[10px] uppercase tracking-widest text-gold">Tracker Pro</div>
+          <div className="text-sm font-extrabold leading-tight tracking-wider text-foreground">MESNOOKER</div>
+          <div className="text-[10px] uppercase tracking-widest text-gold">Snooker Tracker</div>
         </div>
       </div>
 

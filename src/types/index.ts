@@ -1,4 +1,4 @@
-/** Core domain types for Snooker Money Tracker Pro */
+/** Core domain types for MESNOOKER */
 
 export type GameMode = "points" | "balls";
 

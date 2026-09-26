@@ -3,16 +3,18 @@
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Search, Trophy, History as HistoryIcon, Filter, Users, ArrowRight, ChevronRight } from "lucide-react";
-import { useHistory } from "@/store/gameStore";
+import { useHistory, useGameStore } from "@/store/gameStore";
 import { GlassCard, Badge, Button, BallDot } from "@/components/ui";
 import { HistorySessionSheet } from "@/components/history/HistorySessionSheet";
 import { AvatarBubble } from "@/components/game/AvatarPicker";
 import { formatMoney, formatDateTime } from "@/lib/utils";
 import { optimizeTransfers } from "@/lib/money";
+import { t } from "@/lib/i18n";
 import type { ArchivedGame, GameMode } from "@/types";
 
 export default function HistoryPage() {
   const history = useHistory();
+  const locale = useGameStore((s) => s.locale);
 
   const [playerId, setPlayerId] = useState<string>("all");
   const [mode, setMode] = useState<"all" | GameMode>("all");
@@ -70,12 +72,12 @@ export default function HistoryPage() {
     <div className="flex flex-col gap-5">
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="flex items-center gap-2 text-3xl font-bold">
-          <HistoryIcon size={26} className="text-primary" /> History
+          <HistoryIcon size={26} className="text-primary" /> {t("history.title", locale)}
         </h1>
         <p className="text-sm text-muted-foreground">
           {history.length > 0
-            ? `${history.length} finished game(s) · net money per player`
-            : "Finished games settle up the table and live here"}
+            ? `${history.length} ${t("stats.gamesPlayed", locale)} · ${t("history.subtitle", locale)}`
+            : t("history.empty", locale)}
         </p>
       </motion.div>
 
@@ -88,7 +90,7 @@ export default function HistoryPage() {
               onChange={(e) => setPlayerId(e.target.value)}
               className="h-10 flex-1 min-w-[140px] rounded-xl bg-white/5 px-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-primary/60"
             >
-              <option value="all">All players</option>
+              <option value="all">{t("history.filter.allPlayers", locale)}</option>
               {allPlayers.map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.nickname}
@@ -100,9 +102,9 @@ export default function HistoryPage() {
               onChange={(e) => setMode(e.target.value as "all" | GameMode)}
               className="h-10 flex-1 min-w-[120px] rounded-xl bg-white/5 px-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-primary/60"
             >
-              <option value="all">All modes</option>
-              <option value="points">Point count</option>
-              <option value="balls">Ball count</option>
+              <option value="all">{t("history.filter.allModes", locale)}</option>
+              <option value="points">{t("match.mode.points", locale)}</option>
+              <option value="balls">{t("match.mode.balls", locale)}</option>
             </select>
             <input
               type="date"
@@ -116,7 +118,7 @@ export default function HistoryPage() {
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search by player nickname…"
+              placeholder={t("history.filter.search", locale)}
               className="h-10 w-full rounded-xl bg-white/5 pl-9 pr-3 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/60"
             />
           </div>
@@ -134,8 +136,8 @@ export default function HistoryPage() {
           </span>
           <p className="text-sm text-muted-foreground">
             {history.length === 0
-              ? "No finished games yet — start a match and End session to save it here."
-              : "No finished games match these filters."}
+              ? t("history.empty", locale)
+              : t("history.emptyFilter", locale)}
           </p>
         </motion.div>
       ) : (
