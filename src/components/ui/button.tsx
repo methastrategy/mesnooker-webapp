@@ -45,7 +45,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <motion.button
         ref={ref}
-        whileTap={animate ? { scale: 0.96 } : undefined}
+        whileTap={animate ? { y: 2, filter: "brightness(0.9)" } : undefined}
         transition={{ type: "spring", stiffness: 500, damping: 30 }}
         className={cn(buttonVariants({ variant, size, className }))}
         {...props}

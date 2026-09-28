@@ -61,33 +61,38 @@ export function BallPad({
         </div>
       ) : null}
 
-      <div className="relative flex w-full flex-row items-center justify-center gap-1.5 sm:gap-3 py-2 flex-nowrap overflow-x-auto no-scrollbar">
-        {BALL_ORDER.map((c) => {
-          const isLegal = legalSet.has(c);
-          const value = ballValues[c];
-          const left = showCount ? showCount(c) : 0;
-          return (
-            <div key={c} className="relative flex flex-col items-center gap-1.5 shrink-0">
-              <SnookerBall
-                color={c}
-                value={value}
-                disabled={!isLegal || left <= 0}
-                selected={isLegal}
-                onClick={() => onPot(c)}
-              />
-              <div className="flex items-center gap-1 rounded bg-white/[0.04] px-1.5 py-0.5 border border-white/[0.06]">
-                <span className="text-[9px] sm:text-[10px] font-medium text-zinc-300 leading-tight">
-                  {BALL_NAME[c]}
-                </span>
-                {left > 0 ? (
-                  <span className="font-mono text-[9px] text-zinc-400">×{left}</span>
-                ) : (
-                  <span className="font-mono text-[9px] text-rose-400">0</span>
-                )}
+      <div className="relative w-full">
+        {/* Right fade hint for horizontal scrolling */}
+        <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-[#0c0d11] to-transparent z-10 sm:hidden" />
+        
+        <div className="relative flex w-full flex-row items-center justify-center gap-1.5 sm:gap-3 py-2 flex-nowrap overflow-x-auto no-scrollbar px-1">
+          {BALL_ORDER.map((c) => {
+            const isLegal = legalSet.has(c);
+            const value = ballValues[c];
+            const left = showCount ? showCount(c) : 0;
+            return (
+              <div key={c} className="relative flex flex-col items-center gap-1.5 shrink-0">
+                <SnookerBall
+                  color={c}
+                  value={value}
+                  disabled={!isLegal || left <= 0}
+                  selected={isLegal}
+                  onClick={() => onPot(c)}
+                />
+                <div className="flex items-center gap-1 rounded bg-white/[0.04] px-1.5 py-0.5 border border-white/[0.06]">
+                  <span className="text-[9px] sm:text-[10px] font-medium text-zinc-300 leading-tight">
+                    {BALL_NAME[c]}
+                  </span>
+                  {left > 0 ? (
+                    <span className="font-mono text-[9px] text-zinc-400">×{left}</span>
+                  ) : (
+                    <span className="font-mono text-[9px] text-rose-400">0</span>
+                  )}
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </div>
   );

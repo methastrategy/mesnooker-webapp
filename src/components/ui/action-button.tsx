@@ -29,7 +29,7 @@ export function ActionButton({
     <button
       type="button"
       className={cn(
-        "inline-flex h-12 select-none items-center justify-center gap-1.5 rounded-xl px-4 text-center text-sm font-semibold tracking-wide transition-all active:scale-[0.97] disabled:opacity-40 disabled:pointer-events-none cursor-pointer",
+        "inline-flex h-12 select-none items-center justify-center gap-1.5 rounded-xl px-4 text-center text-sm font-semibold tracking-wide transition-all active:translate-y-[2px] active:brightness-90 disabled:opacity-40 disabled:pointer-events-none cursor-pointer",
         TONE_CLASS[tone],
         className
       )}

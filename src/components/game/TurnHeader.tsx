@@ -1,6 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useScroll, useMotionValueEvent } from "framer-motion";
+import * as React from "react";
 import { Timer, ArrowRight, Zap, Trophy } from "lucide-react";
 import type { Player } from "@/types";
 import { AnimatedNumber } from "@/components/ui";
@@ -70,12 +71,22 @@ export function TurnHeader({
     }
   }
 
+  const { scrollY } = useScroll();
+  const [isScrolled, setIsScrolled] = React.useState(false);
+  
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    setIsScrolled(latest > 30);
+  });
+
   return (
     <motion.div
       layout
       initial={{ opacity: 0, y: -4 }}
       animate={{ opacity: 1, y: 0 }}
-      className="sticky top-0 z-30 flex flex-col gap-2 bg-background/95 backdrop-blur-sm pt-safe pb-2"
+      className={cn(
+        "sticky top-0 z-30 flex flex-col gap-2 bg-background/95 backdrop-blur-sm pt-safe transition-all duration-300",
+        isScrolled ? "pb-1" : "pb-2"
+      )}
     >
       {/* ═════════════ 1. LIVE SCOREBOARD CARDS (TOPMOST) ═════════════ */}
       <div
@@ -105,7 +116,8 @@ export function TurnHeader({
             <div
               key={p.id}
               className={cn(
-                "relative flex flex-col justify-between rounded-lg p-2.5 sm:p-3 transition-all duration-200 border",
+                "relative flex flex-col justify-between rounded-lg transition-all duration-200 border",
+                isScrolled ? "p-1.5 sm:p-2" : "p-2.5 sm:p-3",
                 isShooting
                   ? "border-primary bg-primary/10 ring-1 ring-primary/40"
                   : "border-border bg-card opacity-85 hover:opacity-100"
@@ -114,7 +126,7 @@ export function TurnHeader({
               {/* Player Top Line: Avatar + Name + Badges */}
               <div className="flex items-center justify-between gap-1.5">
                 <div className="flex items-center gap-1.5 min-w-0">
-                  <div className="relative shrink-0">
+                  <div className={cn("relative shrink-0 transition-transform", isScrolled ? "scale-90 origin-left" : "")}>
                     <AvatarBubble avatar={p.avatar} size={22} />
                     {isShooting && (
                       <span className="absolute -bottom-0.5 -right-0.5 flex h-2 w-2 items-center justify-center rounded-full bg-primary">
@@ -124,7 +136,8 @@ export function TurnHeader({
                   </div>
                   <span
                     className={cn(
-                      "truncate text-xs sm:text-sm font-semibold tracking-tight leading-tight",
+                      "truncate font-semibold tracking-tight leading-tight transition-all",
+                      isScrolled ? "text-[11px] sm:text-xs" : "text-xs sm:text-sm",
                       isShooting ? "text-foreground" : "text-muted-foreground"
                     )}
                   >
@@ -137,28 +150,31 @@ export function TurnHeader({
                   {isLeading && (
                     <span className="flex items-center gap-0.5 rounded px-1 py-0.2 bg-gold/10 border border-gold/25 text-[9px] font-mono font-medium text-gold uppercase">
                       <Trophy size={9} />
-                      Lead
+                      <span className={cn(isScrolled ? "hidden sm:inline" : "")}>Lead</span>
                     </span>
                   )}
                   {isShooting && (
                     <span className="flex items-center gap-0.5 rounded px-1 py-0.2 bg-primary/20 border border-primary/35 text-[9px] font-mono font-bold text-primary uppercase">
                       <Zap size={9} className="text-primary" />
-                      Turn
+                      <span className={cn(isScrolled ? "hidden sm:inline" : "")}>Turn</span>
                     </span>
                   )}
                 </div>
               </div>
 
               {/* Main Score Display */}
-              <div className="my-1 flex items-baseline justify-between gap-2">
-                <div className="font-mono text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-foreground tabular-nums leading-none">
+              <div className={cn("flex items-baseline justify-between gap-2 transition-all", isScrolled ? "my-0" : "my-1")}>
+                <div className={cn(
+                  "font-mono font-bold tracking-tight text-foreground tabular-nums leading-none transition-all",
+                  isScrolled ? "text-xl sm:text-2xl md:text-3xl" : "text-2xl sm:text-3xl md:text-4xl"
+                )}>
                   <AnimatedNumber value={score} />
                 </div>
                 <div className="text-right">
-                  <span className="text-[9px] uppercase tracking-wider font-mono text-muted-foreground block leading-tight">
+                  <span className={cn("uppercase tracking-wider font-mono text-muted-foreground block leading-tight transition-all", isScrolled ? "text-[8px]" : "text-[9px]")}>
                     Money
                   </span>
-                  <span className={cn("text-xs sm:text-sm font-mono font-medium tabular-nums leading-none", balColor)}>
+                  <span className={cn("font-mono font-medium tabular-nums leading-none transition-all", isScrolled ? "text-[10px] sm:text-xs" : "text-xs sm:text-sm", balColor)}>
                     {bal > 0 ? "+" : ""}
                     <AnimatedNumber value={bal} prefix="฿" decimals={0} />
                   </span>
@@ -166,7 +182,7 @@ export function TurnHeader({
               </div>
 
               {/* Active Shooter Break Subtext */}
-              {isShooting && breakCount > 0 && (
+              {isShooting && breakCount > 0 && !isScrolled && (
                 <div className="mt-0.5 flex items-center justify-between border-t border-white/[0.06] pt-1 text-[10px] font-mono">
                   <span className="text-muted-foreground">Current Break</span>
                   <span className="font-bold text-gold">+{breakCount}</span>
@@ -178,10 +194,13 @@ export function TurnHeader({
       </div>
 
       {/* ═════════════ 2. SHOOTER & UP-NEXT QUEUE BAR (BELOW SCOREBOARD) ═════════════ */}
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs">
+      <div className={cn(
+        "flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs transition-all duration-300",
+        isScrolled ? "hidden sm:flex" : "flex"
+      )}>
         {/* Active Shooter Identity & Ball State */}
         <div className="flex items-center gap-2 min-w-0">
-          <span className="text-muted-foreground text-[11px] font-medium shrink-0">
+          <span className="text-zinc-300 text-[11px] font-medium shrink-0">
             {locale === "th" ? "คิวแทง:" : "Turn:"}
           </span>
           <span className="font-semibold text-foreground tracking-tight truncate">
@@ -211,15 +230,15 @@ export function TurnHeader({
         </div>
 
         {/* Up-Next Queue & Live Clocks */}
-        <div className="flex items-center gap-3 ml-auto text-[11px] font-mono text-muted-foreground">
+        <div className="flex items-center gap-3 ml-auto text-[11px] font-mono">
           {queue.length > 0 && (
             <div className="flex items-center gap-1.5">
-              <span className="text-muted-foreground">{locale === "th" ? "คิวถัดไป:" : "Next:"}</span>
+              <span className="text-zinc-300">{locale === "th" ? "คิวถัดไป:" : "Next:"}</span>
               <div className="flex items-center gap-1">
                 {queue.map((p, i) => (
                   <div key={p.id} className="flex items-center gap-1">
                     {i > 0 && <ArrowRight size={10} className="text-muted-foreground" />}
-                    <div className="flex items-center gap-1 rounded bg-white/[0.04] border border-white/[0.07] px-1.5 py-0.5 text-foreground">
+                    <div className="flex items-center gap-1 rounded bg-white/[0.04] border border-white/[0.07] px-1.5 py-0.5 text-foreground shadow-sm">
                       <AvatarBubble avatar={p.avatar} size={13} />
                       <span className="text-[10px] font-medium">{p.nickname}</span>
                     </div>

@@ -30,7 +30,7 @@ export function SnookerBall({
     <motion.button
       onClick={onClick}
       disabled={disabled}
-      whileTap={disabled ? undefined : { scale: 0.95 }}
+      whileTap={disabled ? undefined : { y: 2, filter: "brightness(0.85)" }}
       whileHover={disabled ? undefined : { filter: "brightness(1.1)" }}
       transition={{ type: "spring", stiffness: 400, damping: 30 }}
       className={cn(
