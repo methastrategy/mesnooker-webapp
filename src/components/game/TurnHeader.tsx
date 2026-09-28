@@ -1,17 +1,41 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Timer, Hourglass, ArrowRight } from "lucide-react";
+import { Timer, ArrowRight, Zap, Trophy } from "lucide-react";
 import type { Player } from "@/types";
 import { AnimatedNumber } from "@/components/ui";
 import { AvatarBubble } from "@/components/game/AvatarPicker";
 import { cn } from "@/lib/utils";
-
 import { useGameStore } from "@/store/gameStore";
 import { t } from "@/lib/i18n";
 
-/** Compact shooter identity + live break count + running money + clocks.
- *  Now includes a "Up Next" player queue strip showing who shoots after. */
+export interface TurnHeaderProps {
+  shooter: Player;
+  targetName?: string;
+  breakCount: number;
+  runningMoney: number;
+  isClearing?: boolean;
+  clearingLabel?: string;
+  players?: Player[];
+  shooterIndex?: number;
+  reverse?: boolean;
+  /** Live frame scores per player */
+  scores?: Record<string, number>;
+  /** Net running money per player */
+  runningBalances?: Record<string, number>;
+  /** Break starting phase indicator */
+  canStartBreak?: boolean;
+  /** Clocks */
+  frameClock?: string;
+  sessionClock?: string;
+  frameNumber?: number;
+}
+
+/**
+ * Top Match Header:
+ * 1. TOP: Live Player Scoreboard cards (immediate visual feedback on every ball/foul tap).
+ * 2. SUB-ROW: Current Shooter break status + Up-Next player queue + live clocks.
+ */
 export function TurnHeader({
   shooter,
   targetName,
@@ -19,33 +43,24 @@ export function TurnHeader({
   runningMoney,
   isClearing,
   clearingLabel,
-  players,
+  players = [],
   shooterIndex,
   reverse,
-}: {
-  shooter: Player;
-  targetName?: string;
-  breakCount: number;
-  runningMoney: number;
-  isClearing?: boolean;
-  clearingLabel?: string;
-  /** Full player list — used to render the "Up Next" queue */
-  players?: Player[];
-  shooterIndex?: number;
-  reverse?: boolean;
-}) {
+  scores = {},
+  runningBalances = {},
+  canStartBreak,
+  frameClock,
+  sessionClock,
+  frameNumber = 1,
+}: TurnHeaderProps) {
   const locale = useGameStore((s) => s.locale);
 
-  const moneyColor =
-    runningMoney === 0
-      ? "text-muted-foreground"
-      : runningMoney > 0
-        ? "text-primary"
-        : "text-destructive";
+  // Determine top score for leader badge
+  const maxScore = Math.max(0, ...players.map((p) => scores[p.id] ?? 0));
 
-  // Build "up next" queue: next 2 players after the shooter
+  // Build "up next" queue: next players in rotation after the current shooter
   const queue: Player[] = [];
-  if (players && players.length > 1 && shooterIndex !== undefined) {
+  if (players.length > 1 && shooterIndex !== undefined) {
     const n = players.length;
     for (let step = 1; step <= Math.min(2, n - 1); step++) {
       const idx = reverse
@@ -58,98 +73,183 @@ export function TurnHeader({
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, y: 6 }}
+      initial={{ opacity: 0, y: -4 }}
       animate={{ opacity: 1, y: 0 }}
-      className="flex flex-col gap-0 overflow-hidden rounded-xl border border-white/[0.08] bg-[#111216] shadow-md"
+      className="flex flex-col gap-2"
     >
-      {/* Main shooter row */}
-      <div className="flex items-center gap-3 p-3 md:p-4">
-        {/* Avatar with clean status */}
-        <div className="relative shrink-0">
-          <AvatarBubble avatar={shooter.avatar} size={42} />
-          {/* Active shooter pulse dot */}
-          <span className="absolute -bottom-0.5 -right-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full border-2 border-[#111216] bg-primary">
-            <span className="h-1.5 w-1.5 rounded-full bg-white" />
-          </span>
-        </div>
+      {/* ═════════════ 1. LIVE SCOREBOARD CARDS (TOPMOST) ═════════════ */}
+      <div
+        className={cn(
+          "grid gap-2",
+          players.length <= 2
+            ? "grid-cols-2"
+            : players.length === 3
+              ? "grid-cols-3"
+              : "grid-cols-2 sm:grid-cols-4"
+        )}
+      >
+        {players.map((p) => {
+          const isShooting = p.id === shooter.id;
+          const score = scores[p.id] ?? 0;
+          const bal = runningBalances[p.id] ?? (isShooting ? runningMoney : 0);
+          const isLeading = maxScore > 0 && score === maxScore;
 
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <span className="truncate font-semibold text-base md:text-lg leading-tight tracking-tight text-white">
-              {shooter.nickname}
-            </span>
-            <span className={cn(
-              "px-2 py-0.5 rounded-full text-[10px] font-mono font-medium tracking-wide uppercase",
-              isClearing
-                ? "bg-amber-400/15 text-amber-300 border border-amber-400/30"
-                : "bg-primary/15 text-primary-hover border border-primary/30"
-            )}>
-              {isClearing ? `🎯 CLEAR: ${clearingLabel ?? "..."}` : "● ON BREAK"}
-            </span>
-          </div>
-          <div className="text-[11px] text-muted-foreground mt-0.5 font-sans">
-            {targetName ? (
-              <span>
-                vs{" "}
-                <span className="font-medium text-zinc-300">{targetName}</span>
-              </span>
-            ) : (
-              t("match.currentShooter", locale)
-            )}
-          </div>
-        </div>
+          const balColor =
+            bal === 0
+              ? "text-zinc-500"
+              : bal > 0
+                ? "text-emerald-400"
+                : "text-rose-400";
 
-        {/* Stats cluster: money + break */}
-        <div className="flex items-center gap-3">
-          {/* Running money */}
-          <div className="text-right leading-tight">
-            <div className="text-[10px] uppercase font-mono tracking-wider text-muted-foreground">Money</div>
-            <div className={cn("text-xl md:text-2xl font-bold font-mono tabular-nums tracking-tight", moneyColor)}>
-              {runningMoney > 0 ? "+" : ""}
-              <AnimatedNumber value={runningMoney} prefix="฿" decimals={0} />
-            </div>
-          </div>
-          {/* Break count */}
-          <div className="text-right leading-tight pl-3 border-l border-white/10">
-            <div className="text-[10px] uppercase font-mono tracking-wider text-muted-foreground flex items-center gap-1 justify-end">
-              Break
-            </div>
-            <div className="text-xl md:text-2xl font-bold font-mono tabular-nums text-white tracking-tight">
-              <AnimatedNumber value={breakCount} />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Up Next queue strip — only show when >1 players */}
-      {queue.length > 0 && (
-        <div className="flex items-center gap-2 border-t border-white/[0.07] bg-white/[0.02] px-4 py-1.5">
-          <span className="text-[10px] uppercase tracking-wider text-muted-foreground shrink-0">
-            {t("match.upNext", locale)}
-          </span>
-          <div className="flex items-center gap-1.5">
-            {queue.map((p, i) => (
-              <div key={p.id} className="flex items-center gap-1">
-                {i > 0 && <ArrowRight size={10} className="text-white/20" />}
-                <div className="flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5">
-                  <AvatarBubble avatar={p.avatar} size={14} />
-                  <span className="text-[11px] font-medium text-foreground/70 leading-none">
+          return (
+            <div
+              key={p.id}
+              className={cn(
+                "relative flex flex-col justify-between rounded-xl p-2.5 sm:p-3 transition-all duration-200 border",
+                isShooting
+                  ? "border-[#5e6ad2] bg-[#141622] ring-1 ring-[#5e6ad2]/50 shadow-[0_0_16px_rgba(94,106,210,0.18)]"
+                  : "border-white/[0.08] bg-[#0c0d11] opacity-85 hover:opacity-100"
+              )}
+            >
+              {/* Player Top Line: Avatar + Name + Badges */}
+              <div className="flex items-center justify-between gap-1.5">
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <div className="relative shrink-0">
+                    <AvatarBubble avatar={p.avatar} size={22} />
+                    {isShooting && (
+                      <span className="absolute -bottom-0.5 -right-0.5 flex h-2 w-2 items-center justify-center rounded-full bg-[#5e6ad2]">
+                        <span className="h-1 w-1 rounded-full bg-white" />
+                      </span>
+                    )}
+                  </div>
+                  <span
+                    className={cn(
+                      "truncate text-xs sm:text-sm font-semibold tracking-tight leading-tight",
+                      isShooting ? "text-white" : "text-zinc-400"
+                    )}
+                  >
                     {p.nickname}
                   </span>
                 </div>
+
+                {/* Status Badges */}
+                <div className="flex items-center gap-1 shrink-0">
+                  {isLeading && (
+                    <span className="flex items-center gap-0.5 rounded px-1 py-0.2 bg-amber-400/10 border border-amber-400/25 text-[9px] font-mono font-medium text-amber-300 uppercase">
+                      <Trophy size={9} />
+                      Lead
+                    </span>
+                  )}
+                  {isShooting && (
+                    <span className="flex items-center gap-0.5 rounded px-1 py-0.2 bg-[#5e6ad2]/20 border border-[#5e6ad2]/35 text-[9px] font-mono font-bold text-[#828fff] uppercase">
+                      <Zap size={9} className="text-[#828fff]" />
+                      Turn
+                    </span>
+                  )}
+                </div>
               </div>
-            ))}
-          </div>
-          {reverse && (
-            <span className="ml-auto text-[10px] text-muted-foreground/60 shrink-0">↩ {locale === "th" ? "ย้อนคิว" : "reversed"}</span>
+
+              {/* Main Score Display */}
+              <div className="my-1 flex items-baseline justify-between gap-2">
+                <div className="font-mono text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-white tabular-nums leading-none">
+                  <AnimatedNumber value={score} />
+                </div>
+                <div className="text-right">
+                  <span className="text-[9px] uppercase tracking-wider font-mono text-zinc-500 block leading-tight">
+                    Money
+                  </span>
+                  <span className={cn("text-xs sm:text-sm font-mono font-medium tabular-nums leading-none", balColor)}>
+                    {bal > 0 ? "+" : ""}
+                    <AnimatedNumber value={bal} prefix="฿" decimals={0} />
+                  </span>
+                </div>
+              </div>
+
+              {/* Active Shooter Break Subtext */}
+              {isShooting && breakCount > 0 && (
+                <div className="mt-0.5 flex items-center justify-between border-t border-white/[0.06] pt-1 text-[10px] font-mono">
+                  <span className="text-zinc-400">Current Break</span>
+                  <span className="font-bold text-amber-300">+{breakCount}</span>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* ═════════════ 2. SHOOTER & UP-NEXT QUEUE BAR (BELOW SCOREBOARD) ═════════════ */}
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/[0.08] bg-[#0f1014] px-3 py-2 text-xs">
+        {/* Active Shooter Identity & Ball State */}
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="text-zinc-500 text-[11px] font-medium shrink-0">
+            {locale === "th" ? "คิวแทง:" : "Turn:"}
+          </span>
+          <span className="font-semibold text-white tracking-tight truncate">
+            {shooter.nickname}
+            {targetName && (
+              <span className="text-zinc-500 font-normal text-[10px] ml-1">
+                vs {targetName}
+              </span>
+            )}
+          </span>
+          <span
+            className={cn(
+              "px-2 py-0.5 rounded-full text-[10px] font-mono font-medium tracking-wide uppercase shrink-0",
+              isClearing
+                ? "bg-amber-400/15 text-amber-300 border border-amber-400/30"
+                : canStartBreak
+                  ? "bg-[#5e6ad2]/15 text-[#828fff] border border-[#5e6ad2]/35"
+                  : "bg-rose-500/15 text-rose-300 border border-rose-500/35"
+            )}
+          >
+            {isClearing
+              ? `🎯 CLEAR: ${clearingLabel ?? "..."}`
+              : canStartBreak
+                ? "● Any Colour"
+                : "● Red First"}
+          </span>
+        </div>
+
+        {/* Up-Next Queue & Live Clocks */}
+        <div className="flex items-center gap-3 ml-auto text-[11px] font-mono text-zinc-400">
+          {queue.length > 0 && (
+            <div className="flex items-center gap-1.5">
+              <span className="text-zinc-500">{locale === "th" ? "คิวถัดไป:" : "Next:"}</span>
+              <div className="flex items-center gap-1">
+                {queue.map((p, i) => (
+                  <div key={p.id} className="flex items-center gap-1">
+                    {i > 0 && <ArrowRight size={10} className="text-zinc-600" />}
+                    <div className="flex items-center gap-1 rounded bg-white/[0.04] border border-white/[0.07] px-1.5 py-0.5 text-zinc-300">
+                      <AvatarBubble avatar={p.avatar} size={13} />
+                      <span className="text-[10px] font-medium">{p.nickname}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {reverse && (
+                <span className="text-[10px] text-amber-400/80" title="Reversed rotation">
+                  ↩
+                </span>
+              )}
+            </div>
+          )}
+
+          {frameClock && (
+            <div className="hidden sm:flex items-center gap-1 pl-2 border-l border-white/[0.08] text-zinc-400">
+              <Timer size={12} className="text-[#5e6ad2]" />
+              <span>
+                F{frameNumber}: {frameClock}
+                {sessionClock && <span className="text-zinc-500 ml-1">· {sessionClock}</span>}
+              </span>
+            </div>
           )}
         </div>
-      )}
+      </div>
     </motion.div>
   );
 }
 
-/** Live clocks + frame step strip — merged into the header row on ≥lg */
+/** Standalone ClockStrip (backward compatibility) */
 export function ClockStrip({
   frameNumber,
   frameClock,
@@ -162,13 +262,15 @@ export function ClockStrip({
   const locale = useGameStore((s) => s.locale);
 
   return (
-    <div className="flex items-center justify-between gap-2 px-1 text-[11px] md:text-[12px] tabular-nums">
-      <span className="flex items-center gap-1.5 text-foreground/80">
-        <Timer className="text-primary" size={13} /> {t("dash.frame", locale)} {frameNumber}: {frameClock}
+    <div className="flex items-center justify-between gap-2 px-1 text-[11px] md:text-[12px] tabular-nums font-mono">
+      <span className="flex items-center gap-1.5 text-zinc-300">
+        <Timer className="text-[#5e6ad2]" size={13} /> {t("dash.frame", locale)} {frameNumber}: {frameClock}
       </span>
-      <span className="flex items-center gap-1.5 text-foreground/60">
-        <Hourglass className="text-gold" size={13} /> Session: {sessionClock}
-      </span>
+      {sessionClock && (
+        <span className="flex items-center gap-1.5 text-zinc-400">
+          Session: {sessionClock}
+        </span>
+      )}
     </div>
   );
 }

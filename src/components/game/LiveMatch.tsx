@@ -224,7 +224,7 @@ export function LiveMatch({ onPause }: {
 
   return (
     <LiveShell>
-      {/* Turn identity + money + break — one compact header row */}
+      {/* Top Match Scoreboard + Shooter & Queue Bar */}
       <TurnHeader
         shooter={shooter}
         targetName={targetName}
@@ -235,6 +235,12 @@ export function LiveMatch({ onPause }: {
         players={players}
         shooterIndex={shooterIndex}
         reverse={reverse}
+        scores={frame.scores}
+        runningBalances={running}
+        canStartBreak={canStartBreak}
+        frameClock={frameClock}
+        sessionClock={sessionClock}
+        frameNumber={store.frames.length}
       />
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
