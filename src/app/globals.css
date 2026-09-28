@@ -15,28 +15,29 @@
    ═══════════════════════════════════════════════════════════════════ */
 
 @theme {
-  --color-background: #08090b;          /* Linear deepest dark canvas */
-  --color-surface: #0f1012;             /* Linear surface-1 */
-  --color-card: #131418;                /* Linear card surface */
-  --color-card-solid: #131418;          /* Linear solid surface */
-  --color-primary: #5e6ad2;             /* Linear signature indigo */
-  --color-secondary: #272832;           /* Linear subtle surface */
+  --color-background: #121212;          /* Supabase deep graphite canvas */
+  --color-surface: #171717;             /* Supabase surface-1 */
+  --color-card: #1c1c1c;                /* Supabase card surface */
+  --color-card-solid: #1c1c1c;          /* Supabase solid surface */
+  --color-primary: #3ecf8e;             /* Supabase signature electric emerald */
+  --color-primary-hover: #4ade80;       /* Supabase emerald soft */
+  --color-secondary: #242424;           /* Supabase subtle surface */
   --color-gold: #ffd166;                /* Pure clean gold for money */
-  --color-danger: #eb5757;              /* Linear red */
-  --color-info: #57c1ff;                /* Linear blue */
-  --color-muted: #8a8f98;               /* Linear ink-subtle */
-  --color-foreground: #f7f8f8;          /* Linear crisp ink text */
-  --color-line: rgba(255, 255, 255, 0.08); /* Linear hairline */
+  --color-danger: #ef4444;              /* Supabase red */
+  --color-info: #38bdf8;                /* Supabase cyan/blue */
+  --color-muted: #8c8c8c;               /* Supabase ink-mute */
+  --color-foreground: #ededed;          /* Supabase crisp text */
+  --color-line: rgba(255, 255, 255, 0.08); /* Supabase hairline */
 
   --color-violation: #f59e0b;
-  --color-destructive: #eb5757;
+  --color-destructive: #ef4444;
   --color-destructive-foreground: #ffffff;
-  --color-felt-hi: #12141a;             /* Linear slate workspace */
-  --color-felt-mid: #0e1014;
-  --color-felt-deep: #08090b;
-  --color-pos-soft: rgba(46, 204, 113, 0.15);
-  --color-neg-soft: rgba(235, 87, 87, 0.15);
-  --color-rail: #131418;
+  --color-felt-hi: #1c1c1c;             /* Supabase graphite table workspace */
+  --color-felt-mid: #171717;
+  --color-felt-deep: #121212;
+  --color-pos-soft: rgba(62, 207, 142, 0.15);
+  --color-neg-soft: rgba(239, 68, 68, 0.15);
+  --color-rail: #1c1c1c;
 
   --font-sans: "Inter Variable", "Inter", -apple-system, BlinkMacSystemFont,
     "SF Pro Display", "SF Pro Text", system-ui, sans-serif;
@@ -44,30 +45,30 @@
 
 :root {
   color-scheme: dark;
-  --background: #08090b;
-  --foreground: #f7f8f8;
-  --card: #131418;
-  --card-foreground: #f7f8f8;
-  --popover: #0f1012;
-  --popover-foreground: #f7f8f8;
-  --primary: #5e6ad2;
-  --primary-foreground: #ffffff;
-  --secondary: #1a1b22;
-  --secondary-foreground: #f7f8f8;
-  --muted: #0f1012;
-  --muted-foreground: #8a8f98;
-  --accent: #5e6ad2;
-  --accent-foreground: #ffffff;
-  --destructive: #eb5757;
+  --background: #121212;
+  --foreground: #ededed;
+  --card: #1c1c1c;
+  --card-foreground: #ededed;
+  --popover: #171717;
+  --popover-foreground: #ededed;
+  --primary: #3ecf8e;
+  --primary-foreground: #121212;
+  --secondary: #242424;
+  --secondary-foreground: #ededed;
+  --muted: #171717;
+  --muted-foreground: #8c8c8c;
+  --accent: #3ecf8e;
+  --accent-foreground: #121212;
+  --destructive: #ef4444;
   --destructive-foreground: #ffffff;
   --border: rgba(255, 255, 255, 0.08);
   --input: rgba(255, 255, 255, 0.08);
-  --ring: #5e6ad2;
-  --radius: 0.75rem;
+  --ring: #3ecf8e;
+  --radius: 0.625rem;
   --gold: #ffd166;
   --violation: #f59e0b;
-  --pos-soft: rgba(46, 204, 113, 0.15);
-  --neg-soft: rgba(235, 87, 87, 0.15);
+  --pos-soft: rgba(62, 207, 142, 0.15);
+  --neg-soft: rgba(239, 68, 68, 0.15);
 }
 
 /* ───────── Themes — applied via <html data-theme="…"> ─────────
@@ -214,8 +215,8 @@ html {
 body {
   background-color: var(--background);
   background-image:
-    radial-gradient(80% 50% at 50% -10%, rgba(94, 106, 210, 0.04), transparent 70%),
-    linear-gradient(180deg, #08090b 0%, #0c0d10 100%);
+    radial-gradient(80% 50% at 50% -10%, rgba(62, 207, 142, 0.05), transparent 70%),
+    linear-gradient(180deg, #121212 0%, #171717 100%);
   background-attachment: fixed;
   color: var(--foreground);
   font-family: var(--font-sans);
@@ -232,26 +233,26 @@ body {
   .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
 }
 
-/* Linear-style Clean Panels */
+/* Supabase-style Clean Panels */
 .glass {
   position: relative;
   background: var(--card);
   border: 1px solid var(--border);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-  border-radius: 14px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  border-radius: 10px;
 }
 
 .glass-strong {
   position: relative;
-  background: #16171d;
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
-  border-radius: 16px;
+  background: #171717;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  border-radius: 12px;
 }
 
 /* Precision status accents */
 .glow-emerald {
-  box-shadow: 0 0 0 1px rgba(94, 106, 210, 0.3), 0 4px 16px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 0 1px rgba(62, 207, 142, 0.35), 0 4px 16px rgba(0, 0, 0, 0.4);
 }
 .glow-gold {
   box-shadow: 0 0 0 1px rgba(255, 209, 102, 0.3), 0 4px 16px rgba(0, 0, 0, 0.5);
@@ -306,7 +307,7 @@ body {
   margin-bottom: 0.75rem;
 }
 
-/* ───────── Linear-grade Control Dock ───────── */
+/* ───────── Supabase-grade Control Dock ───────── */
 .control-dock {
   position: fixed;
   left: 0;
@@ -318,7 +319,7 @@ body {
   align-items: center;
   gap: 0.5rem;
   padding: 0.65rem 1rem;
-  background: rgba(11, 12, 16, 0.94);
+  background: rgba(23, 23, 23, 0.95);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-top: 1px solid rgba(255, 255, 255, 0.08);

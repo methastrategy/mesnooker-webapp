@@ -36,7 +36,7 @@ export function SnookerBall({
         isLight ? "text-zinc-950" : "text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]",
         disabled && "opacity-15 pointer-events-none",
         selected
-          ? "ring-2 ring-primary ring-offset-2 ring-offset-[#08090b] shadow-[0_0_16px_rgba(94,106,210,0.35)]"
+          ? "ring-2 ring-primary ring-offset-2 ring-offset-[#121212] shadow-[0_0_16px_rgba(62,207,142,0.35)]"
           : "border border-white/20 shadow-sm"
       )}
       style={{

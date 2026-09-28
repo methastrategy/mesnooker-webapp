@@ -248,8 +248,8 @@ export function LiveMatch({ onPause }: {
         <div className="flex flex-col gap-3">
           <ClockStrip frameNumber={store.frames.length} frameClock={frameClock} sessionClock={sessionClock} />
 
-          {/* THE TABLE / BALL RACK — Linear Tactical Workspace */}
-          <div className="rounded-2xl border border-white/[0.08] bg-[#101115] p-3 md:p-4 shadow-md">
+          {/* THE TABLE / BALL RACK — Supabase Technical Workspace */}
+          <div className="rounded-2xl border border-white/[0.08] bg-[#171717] p-3 md:p-4 shadow-md">
             <div className="mb-3 flex items-center justify-between px-1">
               <span className="text-[11px] font-mono uppercase tracking-wider text-zinc-400">
                 Shot selection
@@ -257,7 +257,7 @@ export function LiveMatch({ onPause }: {
               <span className={cn(
                 "px-2.5 py-0.5 rounded-full text-[10px] font-mono font-medium tracking-wide uppercase",
                 canStartBreak
-                  ? "bg-[#5e6ad2]/15 text-[#828fff] border border-[#5e6ad2]/35"
+                  ? "bg-[#3ecf8e]/15 text-[#3ecf8e] border border-[#3ecf8e]/35"
                   : "bg-rose-500/15 text-rose-300 border border-rose-500/35"
               )}>
                 {canStartBreak ? "● Any Colour" : "● Red First"}

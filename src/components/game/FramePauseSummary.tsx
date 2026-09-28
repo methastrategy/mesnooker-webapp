@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Play, Flag, Trophy, ArrowRight } from "lucide-react";
+import { Play, Flag, Trophy, Target, Coins, CheckCircle2 } from "lucide-react";
 import { useGameStore, useRunningBalance } from "@/store/gameStore";
 import { Button, Badge, Stat } from "@/components/ui";
 import { AvatarBubble } from "@/components/game/AvatarPicker";
@@ -11,14 +11,7 @@ import type { ArchivedGame } from "@/types";
 
 /**
  * Shown right after a frame is ended (via "End frame" or auto-end on black).
- * Summarises that single frame + the running session total so far, then lets
- * the player choose:
- *   - Next frame  → continue the session with a fresh frame
- *   - End session → finish the whole session and see the full summary
- * The session clock here is the SUM of all elapsed frame durations (it stops
- * counting while you sit on this screen between frames).
- *
- * NEW: Shows "who breaks next" (nextFrameFirstShooter) when auto-end on black.
+ * Supabase Dark Matrix Style — graphite panels with electric emerald CTA.
  */
 export function FramePauseSummary({
   onFinish,
@@ -60,19 +53,19 @@ export function FramePauseSummary({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 14, scale: 0.97 }}
+      initial={{ opacity: 0, y: 14, scale: 0.98 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ type: "spring", stiffness: 220, damping: 24 }}
-      className="glass-strong glow-emerald flex flex-col gap-5 p-6"
+      transition={{ type: "spring", stiffness: 240, damping: 24 }}
+      className="rounded-2xl border border-white/[0.08] bg-[#171717] p-6 flex flex-col gap-5 shadow-2xl"
     >
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold flex items-center gap-2">
-            🏁 Frame {store.frames.length} complete
+          <h2 className="text-xl font-bold flex items-center gap-2 text-white">
+            <CheckCircle2 size={20} className="text-[#3ecf8e]" /> Frame {store.frames.length} complete
           </h2>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            Frame {frameClock} · Session {sessionClock} (play time)
+          <p className="text-xs font-mono text-zinc-400 mt-1">
+            Frame {frameClock} · Session {sessionClock}
           </p>
         </div>
         <Badge variant="gold">
@@ -86,29 +79,32 @@ export function FramePauseSummary({
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.15 }}
-          className="flex items-center gap-3 rounded-2xl bg-primary/10 ring-1 ring-primary/30 px-4 py-3"
+          className="flex items-center gap-3 rounded-xl bg-[#3ecf8e]/10 border border-[#3ecf8e]/30 px-4 py-3"
         >
-          <span className="text-2xl">🎱</span>
+          <Target size={20} className="text-[#3ecf8e]" />
           <div className="min-w-0 flex-1">
-            <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
+            <div className="text-[10px] font-mono uppercase tracking-wider text-zinc-400">
               Breaks next frame
             </div>
             <div className="flex items-center gap-2 mt-0.5">
-              <AvatarBubble avatar={nextOpener.avatar} size={28} />
-              <span className="font-bold text-primary text-base">
+              <AvatarBubble avatar={nextOpener.avatar} size={24} />
+              <span className="font-bold text-[#3ecf8e] text-sm">
                 {nextOpener.nickname}
               </span>
             </div>
           </div>
-          <Badge variant="default" className="shrink-0">opener</Badge>
+          <span className="rounded bg-[#3ecf8e]/20 border border-[#3ecf8e]/40 px-2 py-0.5 text-[10px] font-mono text-[#3ecf8e] uppercase font-bold">
+            Opener
+          </span>
         </motion.div>
       )}
 
       {/* Per-frame result */}
-      <div className="glass">
-        <h3 className="px-3 pt-3 pb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-          This frame
-        </h3>
+      <div className="rounded-xl border border-white/[0.07] bg-[#121212] overflow-hidden">
+        <div className="px-3 pt-3 pb-2 text-xs font-mono uppercase tracking-wider text-zinc-400 flex items-center justify-between">
+          <span>This frame result</span>
+          <span>{frameTotal} pts</span>
+        </div>
         <div className="flex flex-col">
           {sorted.map((p, i) => {
             const score = frame.scores[p.id] ?? 0;
@@ -121,31 +117,31 @@ export function FramePauseSummary({
               >
                 {/* rank */}
                 <span
-                  className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${
+                  className={`flex h-6 w-6 shrink-0 items-center justify-center rounded font-mono text-[11px] font-bold ${
                     i === 0 && score > 0
-                      ? "bg-gold text-black"
-                      : "bg-white/10 text-muted-foreground"
+                      ? "bg-amber-400 text-zinc-950"
+                      : "bg-white/5 text-zinc-500"
                   }`}
                 >
-                  {i + 1}
+                  #{i + 1}
                 </span>
-                <AvatarBubble avatar={p.avatar} size={32} />
-                <span className="flex-1 truncate font-medium">
+                <AvatarBubble avatar={p.avatar} size={28} />
+                <span className="flex-1 truncate font-medium text-sm text-white">
                   {p.nickname}{" "}
                   {isWinner ? (
-                    <Trophy size={13} className="inline text-gold" />
+                    <Trophy size={13} className="inline text-amber-400 ml-1" />
                   ) : null}
                 </span>
-                <span className="text-sm font-semibold tabular-nums text-foreground/80">
+                <span className="text-sm font-semibold font-mono tabular-nums text-zinc-300">
                   {score} pts
                 </span>
                 <span
-                  className={`w-20 text-right text-sm font-bold tabular-nums ${
+                  className={`w-20 text-right text-sm font-bold font-mono tabular-nums ${
                     money > 0
-                      ? "text-primary"
+                      ? "text-[#3ecf8e]"
                       : money < 0
-                        ? "text-destructive"
-                        : "text-muted-foreground"
+                        ? "text-rose-400"
+                        : "text-zinc-500"
                   }`}
                 >
                   {money > 0 ? "+" : ""}
@@ -158,16 +154,16 @@ export function FramePauseSummary({
       </div>
 
       {/* Running session total */}
-      <div className="glass">
-        <div className="mb-2 flex items-center justify-between px-3 pt-3">
-          <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-            Session total so far 💰
+      <div className="rounded-xl border border-white/[0.07] bg-[#121212] p-3">
+        <div className="mb-2 flex items-center justify-between">
+          <h3 className="text-xs font-mono uppercase tracking-wider text-zinc-400 flex items-center gap-1.5">
+            <Coins size={13} className="text-amber-400" /> Session Net Balance
           </h3>
-          <Badge variant="gold">
+          <span className="text-[10px] font-mono text-zinc-500">
             {store.mode === "points" ? "per point" : "per ball"}
-          </Badge>
+          </span>
         </div>
-        <div className="flex flex-wrap gap-4 px-3 pb-3">
+        <div className="flex flex-wrap gap-4 pt-1">
           {players.map((p) => (
             <Stat key={p.id} label={p.nickname} value={running[p.id] ?? 0} variant="money" />
           ))}
@@ -175,30 +171,23 @@ export function FramePauseSummary({
       </div>
 
       {/* Next frame or end the session */}
-      <div className="flex flex-col gap-2 sm:flex-row">
-        <Button size="lg" className="flex-1 gap-2" onClick={nextFrame}>
-          <Play size={18} />
+      <div className="flex flex-col gap-2 sm:flex-row pt-1">
+        <Button size="lg" className="flex-1 gap-2 bg-[#3ecf8e] text-zinc-950 font-bold hover:bg-[#4ade80]" onClick={nextFrame}>
+          <Play size={16} fill="currentColor" />
           Next frame
           {nextOpener && (
-            <span className="text-sm opacity-70">
+            <span className="text-xs font-normal opacity-80">
               · {nextOpener.nickname} opens
             </span>
           )}
         </Button>
-        <Button variant="danger" size="lg" className="flex-1" onClick={endSession}>
-          <Flag size={18} /> End session
+        <Button variant="ghost" size="lg" className="flex-1 border border-rose-500/30 bg-rose-500/10 text-rose-300 hover:bg-rose-500/20" onClick={endSession}>
+          <Flag size={16} /> End session
         </Button>
       </div>
-      <p className="text-[11px] text-muted-foreground">
-        Next frame starts a fresh frame and keeps counting the session. End session closes
-        the table and shows the full all-frame summary.
+      <p className="text-[11px] text-zinc-500 text-center font-mono">
+        Next frame starts a fresh frame. End session archives and displays settlement matrix.
       </p>
-
-      <div className="text-right">
-        <span className="text-[11px] text-muted-foreground inline-flex items-center gap-1">
-          total {frameTotal} pts this frame
-        </span>
-      </div>
     </motion.div>
   );
 }

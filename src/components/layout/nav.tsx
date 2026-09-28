@@ -34,14 +34,14 @@ export function Sidebar() {
   ];
 
   return (
-    <aside className="sticky top-0 hidden h-screen w-60 flex-col gap-2 border-r border-white/[0.08] bg-[#0a0b0e] p-4 backdrop-blur-xl md:flex">
+    <aside className="sticky top-0 hidden h-screen w-60 flex-col gap-2 border-r border-white/[0.08] bg-[#121212] p-4 backdrop-blur-xl md:flex">
       <div className="mb-6 flex items-center gap-2.5 px-2 pt-2">
-        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/15 text-primary border border-primary/25">
+        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#3ecf8e]/15 text-[#3ecf8e] border border-[#3ecf8e]/30">
           <Wallet size={16} />
         </span>
         <div>
           <div className="text-sm font-bold tracking-tight text-white">MESNOOKER</div>
-          <div className="text-[10px] font-mono uppercase tracking-wider text-zinc-400">Pro Tracker</div>
+          <div className="text-[10px] font-mono uppercase tracking-wider text-[#3ecf8e]">Supabase Matrix</div>
         </div>
       </div>
 
@@ -99,8 +99,8 @@ export function Sidebar() {
             {locale.toUpperCase()}
           </span>
         </button>
-        <div className="text-[10px] font-mono text-zinc-500">
-          Linear Craft v5
+        <div className="text-[10px] font-mono text-[#3ecf8e]">
+          Supabase Matrix v5
         </div>
       </div>
     </aside>
@@ -120,7 +120,7 @@ export function BottomNav() {
   ];
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-white/[0.08] bg-[#0c0d10]/95 pb-safe backdrop-blur-xl md:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-white/[0.08] bg-[#121212]/95 pb-safe backdrop-blur-xl md:hidden">
       <div className="mx-auto flex max-w-md items-center justify-around px-2 py-1.5">
         {NAV_BOTTOM.map((item) => {
           const active = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));

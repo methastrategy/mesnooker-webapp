@@ -6,26 +6,25 @@ import { motion, type HTMLMotionProps } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl font-medium transition-all select-none disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 active:scale-[0.97]",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl font-medium transition-all select-none disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3ecf8e]/60 active:scale-[0.97] cursor-pointer",
   {
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground border border-primary/40 shadow-[0_1px_0_rgba(255,255,255,0.15),0_8px_24px_rgba(217,164,65,0.28)] hover:bg-primary/90",
-        gold: "bg-gold text-black border border-gold/40 shadow-[0_1px_0_rgba(255,255,255,0.15),0_8px_24px_rgba(240,194,92,0.28)] hover:bg-gold/90",
+          "bg-[#3ecf8e] text-zinc-950 font-bold border border-[#3ecf8e]/50 shadow-sm hover:bg-[#4ade80] active:bg-[#24b47e]",
+        gold: "bg-amber-400 text-zinc-950 font-bold border border-amber-400/50 shadow-sm hover:bg-amber-300",
         violation:
-          "bg-violation text-black border border-violation/50 shadow-[0_1px_0_rgba(255,255,255,0.15),0_8px_24px_rgba(242,115,30,0.26)] hover:bg-violation/90",
-        secondary: "bg-secondary text-secondary-foreground border border-secondary/40 hover:bg-secondary/80",
-        outline: "border border-white/20 bg-white/5 text-foreground shadow-[0_1px_0_rgba(255,255,255,0.08)] hover:bg-white/10",
-        ghost: "border border-white/10 text-foreground hover:bg-white/5",
-        danger: "bg-destructive text-destructive-foreground border border-destructive/50 shadow-[0_1px_0_rgba(255,255,255,0.12),0_6px_18px_rgba(239,68,68,0.3)] hover:bg-destructive/90",
-        glass: "glass text-foreground border border-white/15 hover:bg-white/5",
+          "bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30",
+        secondary: "bg-[#242424] text-zinc-200 border border-white/10 hover:bg-[#2e2e2e]",
+        outline: "border border-white/10 bg-white/[0.04] text-zinc-200 hover:bg-white/[0.08] hover:border-white/20",
+        ghost: "border border-white/10 text-zinc-300 hover:bg-white/[0.05]",
+        danger: "bg-rose-500/20 text-rose-300 border border-rose-500/40 hover:bg-rose-500/30",
+        glass: "bg-[#171717] text-zinc-200 border border-white/10 hover:bg-[#222222]",
       },
       size: {
         default: "h-11 px-5 text-sm",
         sm: "h-9 px-3.5 text-xs",
-        lg: "h-13 px-7 text-base",
-        // Tiles: equal-size big tap targets for the action pad / turn cluster
+        lg: "h-12 px-6 text-base",
         tile: "h-14 min-w-14 px-3.5 text-sm",
         icon: "h-11 w-11",
         iconSm: "h-9 w-9",
@@ -46,8 +45,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <motion.button
         ref={ref}
-        whileTap={animate ? { scale: 0.95 } : undefined}
-        whileHover={animate ? { scale: 1.02 } : undefined}
+        whileTap={animate ? { scale: 0.96 } : undefined}
         transition={{ type: "spring", stiffness: 500, damping: 30 }}
         className={cn(buttonVariants({ variant, size, className }))}
         {...props}

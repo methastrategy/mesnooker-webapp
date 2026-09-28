@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 type Tone = "primary" | "danger" | "violation" | "gold" | "outline";
 
 const TONE_CLASS: Record<Tone, string> = {
-  primary: "bg-[#5e6ad2] text-white hover:bg-[#6b77e8] active:bg-[#525db8] border border-[#5e6ad2]/60 shadow-sm",
+  primary: "bg-[#3ecf8e] text-zinc-950 font-bold hover:bg-[#4ade80] active:bg-[#24b47e] border border-[#3ecf8e]/60 shadow-sm",
   danger: "bg-rose-500/15 text-rose-300 hover:bg-rose-500/25 active:bg-rose-500/30 border border-rose-500/30",
   violation: "bg-amber-500/15 text-amber-300 hover:bg-amber-500/25 active:bg-amber-500/30 border border-amber-500/30",
   gold: "bg-amber-400 text-zinc-950 font-bold hover:bg-amber-300 border border-amber-400/60 shadow-sm",

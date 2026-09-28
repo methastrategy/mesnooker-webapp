@@ -1,9 +1,8 @@
-# Design System — Snooker Money Tracker Pro ("Linear Craft Pro")
+# Design System — Snooker Money Tracker Pro ("Supabase Matrix")
 
-The visual identity is *Linear Craft Pro*: distilled directly from **Linear.app**
-in `brand-design-md`. A dense, technical, quietly luxurious software-craft interface
-built on deepest charcoal canvas (`#08090b`), signature indigo accent (`#5e6ad2`),
-crisp white ink (`#f7f8f8`), and 1px hairline dividers (`rgba(255,255,255,0.08)`).
+The visual identity is *Supabase Matrix*: a dense, technical, high-density software-craft interface
+built on deepest graphite canvas (`#121212`), signature emerald accent (`#3ecf8e`),
+crisp zinc ink (`#ededed`), and emerald-tinted hairlines (`rgba(62,207,142,0.15)`).
 **Zero fake 3D skeuomorphism**: all cheesy radial gloss, fake spotlight pools,
 chalk marks, and bulky 3D beveled keycaps have been eradicated in favor of pure
 minimalist billiard geometry, clean tabular monospace numbers, and high-performance

@@ -107,8 +107,8 @@ export function TurnHeader({
               className={cn(
                 "relative flex flex-col justify-between rounded-xl p-2.5 sm:p-3 transition-all duration-200 border",
                 isShooting
-                  ? "border-[#5e6ad2] bg-[#141622] ring-1 ring-[#5e6ad2]/50 shadow-[0_0_16px_rgba(94,106,210,0.18)]"
-                  : "border-white/[0.08] bg-[#0c0d11] opacity-85 hover:opacity-100"
+                  ? "border-[#3ecf8e] bg-[#16231d] ring-1 ring-[#3ecf8e]/40 shadow-[0_0_16px_rgba(62,207,142,0.18)]"
+                  : "border-white/[0.08] bg-[#171717] opacity-85 hover:opacity-100"
               )}
             >
               {/* Player Top Line: Avatar + Name + Badges */}
@@ -117,8 +117,8 @@ export function TurnHeader({
                   <div className="relative shrink-0">
                     <AvatarBubble avatar={p.avatar} size={22} />
                     {isShooting && (
-                      <span className="absolute -bottom-0.5 -right-0.5 flex h-2 w-2 items-center justify-center rounded-full bg-[#5e6ad2]">
-                        <span className="h-1 w-1 rounded-full bg-white" />
+                      <span className="absolute -bottom-0.5 -right-0.5 flex h-2 w-2 items-center justify-center rounded-full bg-[#3ecf8e]">
+                        <span className="h-1 w-1 rounded-full bg-black" />
                       </span>
                     )}
                   </div>
@@ -141,8 +141,8 @@ export function TurnHeader({
                     </span>
                   )}
                   {isShooting && (
-                    <span className="flex items-center gap-0.5 rounded px-1 py-0.2 bg-[#5e6ad2]/20 border border-[#5e6ad2]/35 text-[9px] font-mono font-bold text-[#828fff] uppercase">
-                      <Zap size={9} className="text-[#828fff]" />
+                    <span className="flex items-center gap-0.5 rounded px-1 py-0.2 bg-[#3ecf8e]/20 border border-[#3ecf8e]/35 text-[9px] font-mono font-bold text-[#3ecf8e] uppercase">
+                      <Zap size={9} className="text-[#3ecf8e]" />
                       Turn
                     </span>
                   )}
@@ -178,7 +178,7 @@ export function TurnHeader({
       </div>
 
       {/* ═════════════ 2. SHOOTER & UP-NEXT QUEUE BAR (BELOW SCOREBOARD) ═════════════ */}
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/[0.08] bg-[#0f1014] px-3 py-2 text-xs">
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/[0.08] bg-[#171717] px-3 py-2 text-xs">
         {/* Active Shooter Identity & Ball State */}
         <div className="flex items-center gap-2 min-w-0">
           <span className="text-zinc-500 text-[11px] font-medium shrink-0">
@@ -198,7 +198,7 @@ export function TurnHeader({
               isClearing
                 ? "bg-amber-400/15 text-amber-300 border border-amber-400/30"
                 : canStartBreak
-                  ? "bg-[#5e6ad2]/15 text-[#828fff] border border-[#5e6ad2]/35"
+                  ? "bg-[#3ecf8e]/15 text-[#3ecf8e] border border-[#3ecf8e]/35"
                   : "bg-rose-500/15 text-rose-300 border border-rose-500/35"
             )}
           >
@@ -236,7 +236,7 @@ export function TurnHeader({
 
           {frameClock && (
             <div className="hidden sm:flex items-center gap-1 pl-2 border-l border-white/[0.08] text-zinc-400">
-              <Timer size={12} className="text-[#5e6ad2]" />
+              <Timer size={12} className="text-[#3ecf8e]" />
               <span>
                 F{frameNumber}: {frameClock}
                 {sessionClock && <span className="text-zinc-500 ml-1">· {sessionClock}</span>}
@@ -264,7 +264,7 @@ export function ClockStrip({
   return (
     <div className="flex items-center justify-between gap-2 px-1 text-[11px] md:text-[12px] tabular-nums font-mono">
       <span className="flex items-center gap-1.5 text-zinc-300">
-        <Timer className="text-[#5e6ad2]" size={13} /> {t("dash.frame", locale)} {frameNumber}: {frameClock}
+        <Timer className="text-[#3ecf8e]" size={13} /> {t("dash.frame", locale)} {frameNumber}: {frameClock}
       </span>
       {sessionClock && (
         <span className="flex items-center gap-1.5 text-zinc-400">

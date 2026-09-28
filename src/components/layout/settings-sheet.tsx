@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { apiSignOut, fetchMe } from "@/lib/auth-client";
 
 const THEMES: { id: string; name: string; swatch: string[] }[] = [
-  { id: "mono", name: "Golden Lounge", swatch: ["#e2b96a", "#ffd27a", "#0b0a07"] },
+  { id: "mono", name: "Supabase Matrix", swatch: ["#3ecf8e", "#ffd166", "#121212"] },
   { id: "emerald", name: "Emerald Noir", swatch: ["#16c784", "#f59e0b", "#050505"] },
   { id: "ember", name: "Ember", swatch: ["#f97316", "#f59e0b", "#100a06"] },
   { id: "forest", name: "Forest", swatch: ["#22c55e", "#eab308", "#05080a"] },
@@ -21,13 +21,13 @@ function Toggle({ on, onChange }: { on: boolean; onChange: () => void }) {
     <button
       onClick={onChange}
       aria-pressed={on}
-      className={`relative h-7 w-12 shrink-0 rounded-full transition-colors ${
-        on ? "bg-primary" : "bg-white/15"
+      className={`relative h-6 w-11 shrink-0 rounded-full transition-colors cursor-pointer ${
+        on ? "bg-[#3ecf8e]" : "bg-white/15"
       }`}
     >
       <span
-        className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-all ${
-          on ? "left-6" : "left-1"
+        className={`absolute top-0.5 h-5 w-5 rounded-full transition-all ${
+          on ? "left-5.5 bg-zinc-950" : "left-0.5 bg-white"
         }`}
       />
     </button>
