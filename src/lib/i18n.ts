@@ -10,8 +10,9 @@ export const translations = {
     // Navigation
     "nav.dashboard": "แดชบอร์ด",
     "nav.match": "กระดานแข่ง",
-    "nav.solve": "แก้สนุ๊ก SSS",
-    "nav.solve.full": "จำลองแก้สนุ๊กเกอร์ (SSS)",
+    "nav.solve": "Snooker Simulator",
+    "nav.solve.full": "Snooker Simulator",
+    "nav.tools": "เครื่องมือ",
     "nav.history": "ประวัติการแข่ง",
     "nav.stats": "สถิติรวม",
     "nav.settings": "ตั้งค่า",
@@ -126,8 +127,9 @@ export const translations = {
     // Navigation
     "nav.dashboard": "Dashboard",
     "nav.match": "Live Match",
-    "nav.solve": "AI Coach",
-    "nav.solve.full": "Escape Solver (SSS)",
+    "nav.solve": "Snooker Simulator",
+    "nav.solve.full": "Snooker Simulator",
+    "nav.tools": "Tools",
     "nav.history": "History",
     "nav.stats": "Stats",
     "nav.settings": "Settings",

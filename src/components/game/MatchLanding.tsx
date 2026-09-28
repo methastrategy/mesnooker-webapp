@@ -1,18 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Plus, History, ChevronRight, Trophy, Clock } from "lucide-react";
-import { useHistory } from "@/store/gameStore";
+import { History, Play } from "lucide-react";
+import { useHistory, useGameStore } from "@/store/gameStore";
 import { NewSession } from "@/components/game/NewSession";
-import { AvatarBubble } from "@/components/game/AvatarPicker";
-import { Badge } from "@/components/ui";
-import { formatMoney, formatDateTime } from "@/lib/utils";
-import type { ArchivedGame, GameMode, MoneyRateUnit, Player } from "@/types";
+import { MatchHistoryView } from "@/components/history/MatchHistoryView";
+import { t } from "@/lib/i18n";
+import type { GameMode, MoneyRateUnit, Player } from "@/types";
 
-/** Match page landing — shown when there is no active session.
- *  Two tabs: "New Game" (the NewSession wizard) and "Recent" (last 5 sessions
- *  from history as quick-start shortcuts). */
+/**
+ * MatchLanding — Raycast Precision Style.
+ * Single unified workspace when no live session is active.
+ * Hosts two primary tabs: "New Game" (Setup Wizard) and "Match History" (Full Archives & Ledger Drill-Down).
+ */
 export function MatchLanding({
   onStart,
 }: {
@@ -25,184 +26,102 @@ export function MatchLanding({
     tableFee?: number;
   }) => void;
 }) {
-  const [tab, setTab] = useState<"new" | "recent">("new");
+  const [tab, setTab] = useState<"new" | "history">("new");
   const history = useHistory();
-  const recent = history.slice(0, 5);
+  const locale = useGameStore((s) => s.locale);
+
+  // Check URL search parameters on mount for deep-links like /match?tab=history
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("tab") === "history") {
+        setTab("history");
+      }
+    }
+  }, []);
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      className="flex flex-col gap-5"
+      className="flex flex-col gap-5 max-w-4xl mx-auto"
     >
-      {/* Hero header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold flex items-center gap-2">
-            🎱 Match
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            {history.length > 0
-              ? `${history.length} game${history.length > 1 ? "s" : ""} played · Start a new session or pick up from history`
-              : "Set up your table and start your first session"}
-          </p>
+      {/* Header — Raycast Precision Typography */}
+      <div className="flex flex-col gap-1">
+        <div className="flex items-center gap-2">
+          <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+          <span className="text-[11px] font-mono uppercase tracking-wider text-primary">
+            {tab === "new" ? "Match Setup" : "Match Ledger Archives"}
+          </span>
         </div>
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+          {tab === "new" ? t("match.title", locale) : t("nav.history", locale)}
+        </h1>
+        <p className="text-xs sm:text-sm text-muted-foreground">
+          {tab === "new"
+            ? "Configure players, money rate, and red ball count to start a live session."
+            : `${history.length} completed session${history.length === 1 ? "" : "s"} recorded · Full financial settlement & frame breakdown.`}
+        </p>
       </div>
 
-      {/* Tab switcher */}
-      <div className="flex gap-1 rounded-2xl bg-white/[0.04] p-1">
-        <TabButton
-          active={tab === "new"}
+      {/* Segmented Control Tabs — Raycast Hairline Precision */}
+      <div className="flex items-center gap-1 rounded-[8px] border border-border bg-surface p-1">
+        <button
+          type="button"
           onClick={() => setTab("new")}
-          icon={<Plus size={15} />}
-          label="New Game"
-        />
-        <TabButton
-          active={tab === "recent"}
-          onClick={() => setTab("recent")}
-          icon={<History size={15} />}
-          label={`Recent (${history.length})`}
-          disabled={history.length === 0}
-        />
+          className={`flex flex-1 items-center justify-center gap-2 rounded-[6px] py-2 text-xs font-semibold transition-all cursor-pointer ${
+            tab === "new"
+              ? "bg-card text-primary border border-border shadow-xs"
+              : "text-muted-foreground hover:bg-card/40 hover:text-foreground"
+          }`}
+        >
+          <Play size={14} className={tab === "new" ? "fill-primary text-primary" : ""} />
+          <span>{t("match.newGame", locale)}</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setTab("history")}
+          className={`flex flex-1 items-center justify-center gap-2 rounded-[6px] py-2 text-xs font-semibold transition-all cursor-pointer ${
+            tab === "history"
+              ? "bg-card text-primary border border-border shadow-xs"
+              : "text-muted-foreground hover:bg-card/40 hover:text-foreground"
+          }`}
+        >
+          <History size={14} />
+          <span>{t("nav.history", locale)}</span>
+          <span
+            className={`rounded-[4px] px-1.5 py-0.2 text-[10px] font-mono font-bold ${
+              tab === "history"
+                ? "bg-primary/20 text-primary"
+                : "bg-surface border border-border text-muted-foreground"
+            }`}
+          >
+            {history.length}
+          </span>
+        </button>
       </div>
 
-      {/* Tab content */}
+      {/* Tab Panels */}
       {tab === "new" ? (
         <motion.div
-          key="new"
-          initial={{ opacity: 0, x: -10 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.18 }}
+          key="tab-new"
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.16 }}
         >
           <NewSession onStart={onStart} />
         </motion.div>
       ) : (
         <motion.div
-          key="recent"
-          initial={{ opacity: 0, x: 10 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.18 }}
-          className="flex flex-col gap-3"
+          key="tab-history"
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.16 }}
         >
-          {recent.length === 0 ? (
-            <div className="glass p-8 text-center text-muted-foreground">
-              No finished games yet
-            </div>
-          ) : (
-            recent.map((game) => <RecentGameCard key={game.id} game={game} />)
-          )}
-          {history.length > 5 && (
-            <a
-              href="/history"
-              className="flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] py-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-white/[0.07] hover:text-foreground"
-            >
-              View all {history.length} sessions
-              <ChevronRight size={15} />
-            </a>
-          )}
+          <MatchHistoryView />
         </motion.div>
       )}
     </motion.div>
-  );
-}
-
-function TabButton({
-  active,
-  onClick,
-  icon,
-  label,
-  disabled,
-}: {
-  active: boolean;
-  onClick: () => void;
-  icon: React.ReactNode;
-  label: string;
-  disabled?: boolean;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2.5 text-sm font-semibold transition-all ${
-        active
-          ? "bg-primary/20 text-primary shadow-sm"
-          : disabled
-            ? "text-muted-foreground/40 cursor-not-allowed"
-            : "text-muted-foreground hover:text-foreground hover:bg-white/5"
-      }`}
-    >
-      {icon}
-      {label}
-    </button>
-  );
-}
-
-/** Compact recent-session card — shows players, scores, and final money */
-function RecentGameCard({ game }: { game: ArchivedGame }) {
-  const sortedPlayers = [...game.players].sort(
-    (a, b) => (game.balances[b.id] ?? 0) - (game.balances[a.id] ?? 0)
-  );
-  const winner = sortedPlayers[0];
-  const winnerBalance = game.balances[winner?.id] ?? 0;
-
-  return (
-    <div className="glass flex flex-col gap-3 p-4">
-      {/* Header row */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Clock size={13} className="text-muted-foreground" />
-          <span className="text-[11px] text-muted-foreground">
-            {formatDateTime(game.endedAt)}
-          </span>
-        </div>
-        <div className="flex items-center gap-2">
-          <Badge variant="neutral">
-            {game.frames} frame{game.frames > 1 ? "s" : ""}
-          </Badge>
-          <Badge variant={game.mode === "points" ? "default" : "gold"}>
-            {game.mode === "points" ? "point count" : "ball count"}
-          </Badge>
-        </div>
-      </div>
-
-      {/* Winner callout */}
-      {winner && winnerBalance > 0 && (
-        <div className="flex items-center gap-2 rounded-xl bg-gold/10 px-3 py-1.5">
-          <Trophy size={14} className="text-gold shrink-0" />
-          <AvatarBubble avatar={winner.avatar} size={20} />
-          <span className="text-sm font-semibold text-gold">{winner.nickname}</span>
-          <span className="ml-auto text-sm font-bold text-gold tabular-nums">
-            +{formatMoney(winnerBalance)}
-          </span>
-        </div>
-      )}
-
-      {/* All players balances */}
-      <div className="flex flex-wrap gap-2">
-        {sortedPlayers.map((p) => {
-          const bal = game.balances[p.id] ?? 0;
-          const color =
-            bal === 0
-              ? "text-muted-foreground"
-              : bal > 0
-                ? "text-primary"
-                : "text-destructive";
-          return (
-            <div
-              key={p.id}
-              className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.03] px-2.5 py-1"
-            >
-              <AvatarBubble avatar={p.avatar} size={18} />
-              <span className="text-[12px] font-medium">{p.nickname}</span>
-              <span className={`text-[12px] font-bold tabular-nums ${color}`}>
-                {bal > 0 ? "+" : ""}
-                {formatMoney(bal)}
-              </span>
-            </div>
-          );
-        })}
-      </div>
-    </div>
   );
 }

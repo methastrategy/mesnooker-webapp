@@ -111,7 +111,7 @@ export function FrameCompleteSummary({
         <Button size="lg" className="w-full" onClick={onNewGame}>
           <Trophy size={16} /> New game
         </Button>
-        <Link href="/history" className="btn-mini mx-auto w-full">
+        <Link href="/match?tab=history" className="btn-mini mx-auto w-full">
           View history
         </Link>
       </div>

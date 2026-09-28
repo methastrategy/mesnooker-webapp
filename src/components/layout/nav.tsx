@@ -4,38 +4,37 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import {
-  Home,
   Timer,
-  History,
   BarChart3,
   Settings,
   Wallet,
-  Activity,
+  Zap,
   Globe,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useGameStore } from "@/store/gameStore";
 import { t } from "@/lib/i18n";
 
-/** Desktop left sidebar */
+/** Desktop left sidebar — Raycast Precision Minimal Pro */
 export function Sidebar() {
   const pathname = usePathname();
   const openSettings = useGameStore((s) => s.openSettings);
   const locale = useGameStore((s) => s.locale);
   const setLocale = useGameStore((s) => s.setLocale);
 
-  const NAV = [
-    { href: "/", label: t("nav.dashboard", locale), icon: Home },
+  const PRIMARY_NAV = [
     { href: "/match", label: t("nav.match", locale), icon: Timer },
-    { href: "/solve", label: t("nav.solve.full", locale), icon: Activity },
-    { href: "/history", label: t("nav.history", locale), icon: History },
     { href: "/stats", label: t("nav.stats", locale), icon: BarChart3 },
-    { href: "/settings", label: t("nav.settings", locale), icon: Settings },
+  ];
+
+  const TOOLS_NAV = [
+    { href: "/solve", label: "Snooker Simulator", icon: Zap },
   ];
 
   return (
     <aside className="sticky top-0 hidden h-screen w-60 flex-col gap-1.5 border-r border-border bg-card p-4 md:flex">
-      <div className="mb-5 flex items-center gap-2.5 px-2 pt-2">
+      {/* Brand Header */}
+      <div className="mb-4 flex items-center gap-2.5 px-2 pt-2">
         <span className="flex h-8 w-8 items-center justify-center rounded-[8px] bg-primary/15 text-primary border border-primary/30">
           <Wallet size={16} />
         </span>
@@ -45,47 +44,80 @@ export function Sidebar() {
         </div>
       </div>
 
-      {NAV.map((item) => {
-        if (item.href === "/settings") {
+      {/* Primary Section */}
+      <div className="flex flex-col gap-1">
+        {PRIMARY_NAV.map((item) => {
+          const active = pathname === item.href || pathname.startsWith(item.href);
           return (
-            <button
-              key={item.href}
-              type="button"
-              onClick={openSettings}
-              aria-haspopup="dialog"
-              className={cn(
-                "relative flex w-full items-center gap-3 rounded-[8px] px-3 py-2.5 text-left text-sm font-medium transition-colors cursor-pointer",
-                "text-muted-foreground hover:bg-surface hover:text-foreground"
-              )}
-            >
-              <item.icon size={18} />
-              <span className="flex-1">{item.label}</span>
-            </button>
+            <Link key={item.href} href={item.href}>
+              <span
+                className={cn(
+                  "relative flex items-center gap-3 rounded-[8px] px-3 py-2.5 text-sm font-medium transition-colors",
+                  active ? "text-primary font-semibold" : "text-muted-foreground hover:bg-surface hover:text-foreground"
+                )}
+              >
+                {active && (
+                  <motion.span
+                    layoutId="sidebar-active"
+                    className="absolute inset-0 -z-0 rounded-[8px] bg-primary/10 border border-primary/25"
+                    transition={{ type: "spring", stiffness: 400, damping: 32 }}
+                  />
+                )}
+                <item.icon size={18} className="relative z-10" />
+                <span className="relative z-10">{item.label}</span>
+              </span>
+            </Link>
           );
-        }
-        const active = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
-        return (
-          <Link key={item.href} href={item.href}>
-            <span
-              className={cn(
-                "relative flex items-center gap-3 rounded-[8px] px-3 py-2.5 text-sm font-medium transition-colors",
-                active ? "text-primary font-semibold" : "text-muted-foreground hover:bg-surface hover:text-foreground"
-              )}
-            >
-              {active && (
-                <motion.span
-                  layoutId="sidebar-active"
-                  className="absolute inset-0 -z-0 rounded-[8px] bg-primary/10 border border-primary/25"
-                  transition={{ type: "spring", stiffness: 400, damping: 32 }}
-                />
-              )}
-              <item.icon size={18} className="relative z-10" />
-              <span className="relative z-10">{item.label}</span>
-            </span>
-          </Link>
-        );
-      })}
+        })}
+      </div>
 
+      {/* Hairline Divider & Tools Section */}
+      <div className="my-2 border-t border-border" />
+      <div className="px-3 py-1 text-[10px] font-mono uppercase tracking-wider text-muted-foreground/60">
+        {t("nav.tools", locale)}
+      </div>
+
+      <div className="flex flex-col gap-1">
+        {TOOLS_NAV.map((item) => {
+          const active = pathname === item.href || pathname.startsWith(item.href);
+          return (
+            <Link key={item.href} href={item.href}>
+              <span
+                className={cn(
+                  "relative flex items-center gap-3 rounded-[8px] px-3 py-2.5 text-sm font-medium transition-colors",
+                  active ? "text-primary font-semibold" : "text-muted-foreground hover:bg-surface hover:text-foreground"
+                )}
+              >
+                {active && (
+                  <motion.span
+                    layoutId="sidebar-active"
+                    className="absolute inset-0 -z-0 rounded-[8px] bg-primary/10 border border-primary/25"
+                    transition={{ type: "spring", stiffness: 400, damping: 32 }}
+                  />
+                )}
+                <item.icon size={18} className="relative z-10 text-primary" />
+                <span className="relative z-10">{item.label}</span>
+              </span>
+            </Link>
+          );
+        })}
+
+        {/* Settings Action Button */}
+        <button
+          type="button"
+          onClick={openSettings}
+          aria-haspopup="dialog"
+          className={cn(
+            "relative flex w-full items-center gap-3 rounded-[8px] px-3 py-2.5 text-left text-sm font-medium transition-colors cursor-pointer",
+            "text-muted-foreground hover:bg-surface hover:text-foreground"
+          )}
+        >
+          <Settings size={18} />
+          <span className="flex-1">{t("nav.settings", locale)}</span>
+        </button>
+      </div>
+
+      {/* Bottom Footer */}
       <div className="mt-auto flex flex-col gap-3 px-2 pt-4 border-t border-border">
         <button
           onClick={() => setLocale(locale === "th" ? "en" : "th")}
@@ -111,12 +143,12 @@ export function Sidebar() {
 export function BottomNav() {
   const pathname = usePathname();
   const locale = useGameStore((s) => s.locale);
+  const openSettings = useGameStore((s) => s.openSettings);
 
   const NAV_BOTTOM = [
-    { href: "/", label: t("nav.dashboard", locale), icon: Home },
     { href: "/match", label: t("nav.match", locale), icon: Timer },
-    { href: "/solve", label: t("nav.solve", locale), icon: Activity },
-    { href: "/history", label: t("nav.history", locale), icon: History },
+    { href: "/stats", label: t("nav.stats", locale), icon: BarChart3 },
+    { href: "/solve", label: "Simulator", icon: Zap },
   ];
 
   return (
@@ -145,6 +177,20 @@ export function BottomNav() {
             </Link>
           );
         })}
+
+        {/* Mobile Settings Button */}
+        <button
+          type="button"
+          onClick={openSettings}
+          className="flex flex-1 flex-col items-center gap-0.5 py-1 text-muted-foreground hover:text-foreground cursor-pointer"
+        >
+          <span className="rounded-full p-2 transition-colors">
+            <Settings size={19} />
+          </span>
+          <span className="text-[10px] tracking-tight leading-tight">
+            {t("nav.settings", locale)}
+          </span>
+        </button>
       </div>
     </nav>
   );
