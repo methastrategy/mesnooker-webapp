@@ -26,18 +26,18 @@ export function SnookerBall({
     <motion.button
       onClick={onClick}
       disabled={disabled}
-      whileTap={disabled ? undefined : { scale: 0.94, y: 1 }}
-      whileHover={disabled ? undefined : { scale: 1.05 }}
-      transition={{ type: "spring", stiffness: 420, damping: 16 }}
+      whileTap={disabled ? undefined : { scale: 0.92, y: 2 }}
+      whileHover={disabled ? undefined : { scale: 1.04 }}
+      transition={{ type: "spring", stiffness: 480, damping: 20 }}
       className={cn(
-        "snooker-ball ball-rim relative flex items-center justify-center font-bold text-black/80 select-none",
+        "snooker-ball ball-rim relative flex items-center justify-center font-bold text-black/85 select-none",
         disabled && "opacity-15 pointer-events-none",
-        selected && "ring-2 ring-gold ring-offset-2 ring-offset-black"
+        selected && "ring-2 ring-primary ring-offset-2 ring-offset-[#07080a] shadow-[0_0_14px_rgba(255,209,102,0.3)]"
       )}
       style={{
         width: size,
         height: size,
-        background: `radial-gradient(circle at 30% 25%, rgba(255,255,255,0.45), ${hex} 60%, rgba(0,0,0,0.25))`,
+        background: `radial-gradient(circle at 32% 24%, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.25) 18%, ${hex} 52%, color-mix(in srgb, ${hex} 65%, #000 35%) 82%, #000 100%)`,
         fontSize: size * 0.4,
       }}
       aria-label={`${BALL_NAME[color]} ball${value !== undefined ? ` $${value}` : ""}`}

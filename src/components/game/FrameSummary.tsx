@@ -2,13 +2,13 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { PartyPopper, Trophy, ArrowDown } from "lucide-react";
+import { Trophy, ArrowDown } from "lucide-react";
 import type { ArchivedGame } from "@/types";
 import { optimizeTransfers } from "@/lib/money";
 import { Button, Badge } from "@/components/ui";
 import { AvatarBubble } from "@/components/game/AvatarPicker";
 import { useGameStore } from "@/store/gameStore";
-import { formatMoney, formatDateTime } from "@/lib/utils";
+import { formatMoney, formatDateTime, cn } from "@/lib/utils";
 
 /**
  * Final settlement summary shown after a game ends.
@@ -42,8 +42,10 @@ export function FrameCompleteSummary({
     >
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold">🎉 Game complete</h2>
-          <p className="text-sm text-muted-foreground">
+          <h2 className="text-xl font-bold flex items-center gap-2">
+            <Trophy size={20} className="text-primary" /> Match Concluded
+          </h2>
+          <p className="text-sm text-muted-foreground mt-0.5">
             {live.frames} frame{live.frames > 1 ? "s" : ""} · ฿{live.moneyRate}/{win} · {formatDateTime(live.endedAt)}
           </p>
         </div>
@@ -51,17 +53,25 @@ export function FrameCompleteSummary({
       </div>
 
       {/* Who + / − */}
-      <div className="glass">
-        <h3 className="mb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Tonight’s result</h3>
-        <div className="flex flex-col">
+      <div className="glass p-3.5">
+        <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Tonight’s result</h3>
+        <div className="flex flex-col gap-1.5">
           {sorted.map((p, i) => {
             const bal = live.rawBalances?.[p.id] ?? live.balances[p.id] ?? 0;
             const isWinner = i === 0 && bal > 0;
             return (
-              <div key={p.id} className="flex items-center gap-3 rounded-xl bg-white/[0.03] px-3 py-2">
+              <div
+                key={p.id}
+                className={cn(
+                  "flex items-center gap-3 rounded-xl px-3 py-2 transition-all",
+                  isWinner
+                    ? "bg-primary/10 border border-primary/35 shadow-[0_0_16px_rgba(255,209,102,0.15)]"
+                    : "bg-white/[0.025] border border-white/[0.05]"
+                )}
+              >
                 <AvatarBubble avatar={p.avatar} size={34} />
                 <span className="flex-1 truncate font-medium">
-                  {p.nickname} {isWinner ? <Trophy size={13} className="inline text-gold" /> : null}
+                  {p.nickname} {isWinner ? <Trophy size={13} className="inline text-gold ml-1" /> : null}
                 </span>
                 <span className={`text-lg font-bold tabular-nums ${bal > 0 ? "text-primary" : bal < 0 ? "text-destructive" : "text-muted-foreground"}`}>
                   {bal > 0 ? "+" : ""}
@@ -74,16 +84,16 @@ export function FrameCompleteSummary({
       </div>
 
       {/* Who pays whom */}
-      <div className="glass">
-        <h3 className="mb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Who pays whom</h3>
+      <div className="glass p-3.5">
+        <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Who pays whom</h3>
         {transfers.length === 0 ? (
           <p className="py-4 text-center text-sm text-muted-foreground">
-            Everyone settled — nothing to pay. 🎉
+            Everyone settled — nothing to pay.
           </p>
         ) : (
-          <div className="flex flex-col">
+          <div className="flex flex-col gap-1.5">
             {transfers.map((t, i) => (
-              <div key={i} className="flex items-center gap-2 rounded-xl bg-white/[0.03] px-3 py-2 text-sm">
+              <div key={i} className="flex items-center gap-2 rounded-xl bg-white/[0.025] border border-white/[0.05] px-3 py-2 text-sm">
                 <span className="font-semibold">{t.fromName}</span>
                 <ArrowDown size={14} className="text-gold" />
                 <span className="font-semibold">{t.toName}</span>
@@ -99,7 +109,7 @@ export function FrameCompleteSummary({
 
       <div className="flex flex-col gap-2">
         <Button size="lg" className="w-full" onClick={onNewGame}>
-          <PartyPopper size={16} /> New game
+          <Trophy size={16} /> New game
         </Button>
         <Link href="/history" className="btn-mini mx-auto w-full">
           View history

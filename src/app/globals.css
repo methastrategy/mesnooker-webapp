@@ -15,29 +15,29 @@
    ═══════════════════════════════════════════════════════════════════ */
 
 @theme {
-  --color-background: #0b0a07;          /* espresso room, warm near-black */
-  --color-surface: #151208;             /* raised surfaces, popovers, inputs */
-  --color-card: rgba(21, 18, 8, 0.70);  /* warm glass card fill */
-  --color-card-solid: #171409;          /* opaque cards, sheets */
-  --color-primary: #e2b96a;             /* brass gold: main actions + winning money */
-  --color-secondary: #9c7a35;           /* deep bronze for secondary accents */
-  --color-gold: #ffd27a;                /* champagne: money / settlement highlights */
-  --color-danger: #e5484d;              /* foul red */
-  --color-info: #7fb3ff;                /* soft blue: focus assists */
-  --color-muted: #9c9485;               /* muted/secondary text */
-  --color-foreground: #f4efe6;          /* warm ivory */
-  --color-line: rgba(244, 239, 230, 0.10);
+  --color-background: #07080a;          /* pure onyx / pitch black (OLED zero-glare) */
+  --color-surface: #101216;             /* dark titanium slate */
+  --color-card: rgba(16, 18, 22, 0.82); /* smoked crystal glass fill */
+  --color-card-solid: #111317;          /* opaque titanium cards */
+  --color-primary: #ffd166;             /* champagne gold: main actions + winning money */
+  --color-secondary: #94a3b8;           /* brushed platinum for metallic dividers/rims */
+  --color-gold: #ffd166;                /* champagne gold highlights */
+  --color-danger: #e11d48;              /* ruby carmine: fouls and negative stake */
+  --color-info: #38bdf8;                /* cold ice blue */
+  --color-muted: #8b929e;               /* muted slate text */
+  --color-foreground: #f1f5f9;          /* oyster white text */
+  --color-line: rgba(241, 245, 249, 0.08); /* 1px hairline platinum divider */
 
-  /* Match-page tokens — the table as a tungsten-lit felt pad */
-  --color-violation: #f08c1f;           /* amber-orange: snooker miss / solve */
-  --color-destructive: #e5484d;
-  --color-destructive-foreground: #0b0a07;
-  --color-felt-hi: #2a8f4a;             /* bottle-green felt, lamp-lit top */
-  --color-felt-mid: #176b36;
-  --color-felt-deep: #0b4122;
-  --color-pos-soft: rgba(226, 185, 106, 0.16);
-  --color-neg-soft: rgba(229, 72, 77, 0.14);
-  --color-rail: rgba(21, 18, 8, 0.7);
+  /* Match-page tokens — Monaco Deep Emerald Velvet */
+  --color-violation: #f59e0b;           /* amber-orange: snooker miss / solve */
+  --color-destructive: #e11d48;
+  --color-destructive-foreground: #07080a;
+  --color-felt-hi: #04522c;             /* emerald baize highlight */
+  --color-felt-mid: #034323;            /* deep emerald velvet mid */
+  --color-felt-deep: #012313;           /* deep shade border */
+  --color-pos-soft: rgba(16, 185, 129, 0.16); /* emerald ice positive */
+  --color-neg-soft: rgba(225, 29, 72, 0.16);  /* ruby carmine negative */
+  --color-rail: rgba(16, 18, 22, 0.85);
 
   --font-sans: "Inter Variable", "Inter", -apple-system, BlinkMacSystemFont,
     "SF Pro Display", "SF Pro Text", system-ui, sans-serif;
@@ -45,30 +45,30 @@
 
 :root {
   color-scheme: dark;
-  --background: #0b0a07;
-  --foreground: #f4efe6;
-  --card: #171409;
-  --card-foreground: #f4efe6;
-  --popover: #151208;
-  --popover-foreground: #f4efe6;
-  --primary: #e2b96a;
-  --primary-foreground: #241a07;
-  --secondary: #9c7a35;
-  --secondary-foreground: #f4efe6;
-  --muted: #151208;
-  --muted-foreground: #9c9485;
-  --accent: #9c7a35;
-  --accent-foreground: #f4efe6;
-  --destructive: #e5484d;
+  --background: #07080a;
+  --foreground: #f1f5f9;
+  --card: #111317;
+  --card-foreground: #f1f5f9;
+  --popover: #101216;
+  --popover-foreground: #f1f5f9;
+  --primary: #ffd166;
+  --primary-foreground: #07080a;
+  --secondary: #94a3b8;
+  --secondary-foreground: #f1f5f9;
+  --muted: #101216;
+  --muted-foreground: #8b929e;
+  --accent: #94a3b8;
+  --accent-foreground: #f1f5f9;
+  --destructive: #e11d48;
   --destructive-foreground: #fff;
-  --border: rgba(244, 239, 230, 0.1);
-  --input: rgba(244, 239, 230, 0.12);
-  --ring: #e2b96a;
-  --radius: 0.9rem;
-  --gold: #ffd27a;
-  --violation: #f08c1f;
-  --pos-soft: rgba(226, 185, 106, 0.16);
-  --neg-soft: rgba(229, 72, 77, 0.14);
+  --border: rgba(241, 245, 249, 0.08);
+  --input: rgba(241, 245, 249, 0.10);
+  --ring: #ffd166;
+  --radius: 0.85rem;
+  --gold: #ffd166;
+  --violation: #f59e0b;
+  --pos-soft: rgba(16, 185, 129, 0.16);
+  --neg-soft: rgba(225, 29, 72, 0.16);
 }
 
 /* ───────── Themes — applied via <html data-theme="…"> ─────────
@@ -215,10 +215,8 @@ html {
 body {
   background-color: var(--background);
   background-image:
-    radial-gradient(70% 48% at 82% -6%, rgba(226, 185, 106, 0.10), transparent 62%),
-    radial-gradient(55% 42% at -4% 100%, rgba(255, 210, 122, 0.06), transparent 58%),
-    radial-gradient(60% 55% at 104% 104%, rgba(42, 143, 74, 0.14), transparent 60%),
-    linear-gradient(180deg, #0b0a07, #100d08);
+    radial-gradient(80% 50% at 50% -10%, rgba(148, 163, 184, 0.05), transparent 70%),
+    linear-gradient(180deg, #07080a 0%, #0a0c10 100%);
   background-attachment: fixed;
   color: var(--foreground);
   font-family: var(--font-sans);
@@ -235,133 +233,126 @@ body {
   .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
 }
 
-/* Layered glass surface — warm dark glass with a thin brass top edge,
- * like light from the lounge lamps catching the table rim. */
+/* Layered glass surface — Monaco Smoked Titanium Glass with crisp 1px platinum hairline edge */
 .glass {
   position: relative;
-  background: linear-gradient(180deg, rgba(226, 185, 106, 0.035), rgba(244, 239, 230, 0.014)),
+  background: linear-gradient(180deg, rgba(241, 245, 249, 0.035), rgba(241, 245, 249, 0.01)),
     var(--card);
-  backdrop-filter: blur(22px) saturate(150%);
-  -webkit-backdrop-filter: blur(22px) saturate(150%);
-  border: 1px solid rgba(226, 185, 106, 0.10);
+  backdrop-filter: blur(24px) saturate(140%);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+  border: 1px solid rgba(241, 245, 249, 0.09);
   box-shadow:
-    inset 0 1px 0 rgba(226, 185, 106, 0.14),
-    inset 0 0 0 0.5px rgba(244, 239, 230, 0.03),
-    0 12px 34px rgba(0, 0, 0, 0.55);
-  border-radius: 24px;
+    inset 0 1px 0 rgba(241, 245, 249, 0.12),
+    inset 0 0 0 0.5px rgba(241, 245, 249, 0.02),
+    0 12px 34px rgba(0, 0, 0, 0.7);
+  border-radius: 22px;
 }
 
 .glass-strong {
   position: relative;
-  background: linear-gradient(180deg, rgba(226, 185, 106, 0.05), rgba(244, 239, 230, 0.015)),
-    rgba(23, 20, 9, 0.92);
-  backdrop-filter: blur(30px) saturate(160%);
-  -webkit-backdrop-filter: blur(30px) saturate(160%);
-  border: 1px solid rgba(226, 185, 106, 0.14);
+  background: linear-gradient(180deg, rgba(241, 245, 249, 0.045), rgba(241, 245, 249, 0.015)),
+    rgba(16, 18, 22, 0.95);
+  backdrop-filter: blur(32px) saturate(150%);
+  -webkit-backdrop-filter: blur(32px) saturate(150%);
+  border: 1px solid rgba(241, 245, 249, 0.12);
   box-shadow:
-    inset 0 1px 0 rgba(226, 185, 106, 0.16),
-    inset 0 0 0 0.5px rgba(244, 239, 230, 0.04),
-    0 20px 50px rgba(0, 0, 0, 0.6);
-  border-radius: 26px;
+    inset 0 1px 0 rgba(241, 245, 249, 0.16),
+    inset 0 0 0 0.5px rgba(241, 245, 249, 0.03),
+    0 22px 55px rgba(0, 0, 0, 0.75);
+  border-radius: 24px;
 }
 
-/* Warm glows — class names kept (glow-emerald/glow-gold) so every
- * component stays valid, but re-pointed to the lounge accents:
- * brass for live surfaces, champagne for money. */
+/* Precision glows — Swiss Chronograph & Monaco VIP */
 .glow-emerald {
   box-shadow:
-    0 0 0 1px rgba(226, 185, 106, 0.22),
-    0 0 26px rgba(226, 185, 106, 0.28),
-    0 18px 44px rgba(0, 0, 0, 0.6);
+    0 0 0 1px rgba(16, 185, 129, 0.25),
+    0 0 24px rgba(16, 185, 129, 0.18),
+    0 18px 44px rgba(0, 0, 0, 0.7);
 }
 .glow-gold {
   box-shadow:
-    0 0 0 1px rgba(255, 210, 122, 0.22),
-    0 0 22px rgba(255, 210, 122, 0.30),
-    0 18px 44px rgba(0, 0, 0, 0.6);
+    0 0 0 1px rgba(255, 209, 102, 0.28),
+    0 0 24px rgba(255, 209, 102, 0.22),
+    0 18px 44px rgba(0, 0, 0, 0.7);
 }
 
-/* Ball — glossy billiard ball with bevel + warm rim; bright enough
- * to read on the green felt. The ball-rim variant adds a brass ring. */
+/* Ball — 3D specular billiard sphere with tactile depth */
 .snooker-ball {
   border-radius: 9999px;
   box-shadow:
-    inset 0 -7px 0 rgba(0, 0, 0, 0.4),
-    inset 3px 4px 7px rgba(255, 255, 255, 0.32),
-    inset -4px -4px 8px rgba(0, 0, 0, 0.28),
-    0 6px 14px rgba(0, 0, 0, 0.6),
-    0 2px 4px rgba(0, 0, 0, 0.45);
+    inset 0 -8px 0 rgba(0, 0, 0, 0.55),
+    inset 4px 5px 8px rgba(255, 255, 255, 0.45),
+    inset -4px -4px 9px rgba(0, 0, 0, 0.35),
+    0 8px 18px rgba(0, 0, 0, 0.7),
+    0 2px 5px rgba(0, 0, 0, 0.5);
 }
 
 .ball-rim {
   border-radius: 9999px;
   box-shadow:
-    inset 0 0 0 2px rgba(226, 185, 106, 0.5),
-    inset 0 -7px 0 rgba(0, 0, 0, 0.4),
-    inset 3px 4px 7px rgba(255, 255, 255, 0.32),
-    inset -4px -4px 8px rgba(0, 0, 0, 0.28),
-    0 0 10px rgba(226, 185, 106, 0.22),
-    0 6px 14px rgba(0, 0, 0, 0.6),
-    0 2px 4px rgba(0, 0, 0, 0.45);
+    inset 0 0 0 1.5px rgba(241, 245, 249, 0.35),
+    inset 0 -8px 0 rgba(0, 0, 0, 0.55),
+    inset 4px 5px 8px rgba(255, 255, 255, 0.45),
+    inset -4px -4px 9px rgba(0, 0, 0, 0.35),
+    0 0 12px rgba(255, 209, 102, 0.18),
+    0 8px 18px rgba(0, 0, 0, 0.7),
+    0 2px 5px rgba(0, 0, 0, 0.5);
 }
 
 /* ───────── Ball pad surface ─────────
- * .baize        — layered bottle-green felt (lit from above, warm).
- * .baize-rail   — rubber cushion rail framing the felt.
- * .felt-spot    — tungsten spotlight pool hovering over the felt.
- * .felt-tick    — chalk scoreboard tick marks along the rail.
- * .cushion      — physical contact shadow under a pressed ball. */
+ * .baize        — Monaco Deep Emerald Velvet felt (rich radial depth)
+ * .baize-rail   — brushed titanium cushion rail
+ * .felt-spot    — focused tungsten spotlight pool
+ * .felt-tick    — platinum hairline scoreboard ticks */
 .baize {
   position: relative;
-  border-radius: 24px;
+  border-radius: 22px;
   background:
-    radial-gradient(120% 120% at 50% 0%, var(--color-felt-hi) 0%, var(--color-felt-mid) 55%, var(--color-felt-deep) 100%);
+    radial-gradient(120% 120% at 50% 0%, var(--color-felt-hi) 0%, var(--color-felt-mid) 52%, var(--color-felt-deep) 100%);
   box-shadow:
-    inset 0 0 34px rgba(0, 0, 0, 0.5),
-    inset 0 -10px 0 rgba(11, 65, 34, 0.6),
-    0 0 18px rgba(226, 185, 106, 0.12),
-    0 14px 34px rgba(0, 0, 0, 0.55);
+    inset 0 0 38px rgba(0, 0, 0, 0.65),
+    inset 0 -10px 0 rgba(1, 35, 19, 0.75),
+    0 0 20px rgba(16, 185, 129, 0.08),
+    0 16px 38px rgba(0, 0, 0, 0.7);
 }
 .felt-spot {
   position: absolute;
   inset: 0;
-  border-radius: 24px;
+  border-radius: 22px;
   pointer-events: none;
   background:
-    radial-gradient(62% 55% at 50% 16%, rgba(255, 236, 205, 0.16), transparent 58%),
-    radial-gradient(95% 70% at 50% 100%, rgba(11, 65, 34, 0.55), transparent 62%);
+    radial-gradient(60% 50% at 50% 14%, rgba(255, 255, 255, 0.10), transparent 60%),
+    radial-gradient(90% 70% at 50% 100%, rgba(1, 35, 19, 0.65), transparent 65%);
 }
 .felt-tick {
   position: relative;
   width: 2px;
   height: 7px;
   border-radius: 2px;
-  background: rgba(244, 239, 230, 0.32);
-  box-shadow: 0 3px 0 rgba(11, 65, 34, 0.55);
+  background: rgba(241, 245, 249, 0.35);
+  box-shadow: 0 3px 0 rgba(1, 35, 19, 0.7);
 }
 .cushion {
   box-shadow:
-    0 2px 3px rgba(0, 0, 0, 0.55),
-    0 10px 22px rgba(0, 0, 0, 0.5);
+    0 2px 4px rgba(0, 0, 0, 0.65),
+    0 12px 26px rgba(0, 0, 0, 0.6);
 }
 
 /* ───────── Match table stage ─────────
- * .table-stage   — the brass-railed frame holding the baize pad: the whole
- *                  screen reads as THE lounge table, not a card in a feed.
- * .scoreboard-head — scoreboard-style header strip on the table rail
- *                    (left: instruction · right: phase badge). */
+ * .table-stage   — Brushed Titanium / Dark Platinum cushion rail
+ * .scoreboard-head — header strip on the table rail */
 .table-stage {
   position: relative;
   border-radius: 26px;
-  background: linear-gradient(180deg, rgba(226, 185, 106, 0.05), rgba(244, 239, 230, 0.015)),
-    rgba(23, 20, 9, 0.88);
-  backdrop-filter: blur(26px) saturate(160%);
-  -webkit-backdrop-filter: blur(26px) saturate(160%);
-  border: 1px solid rgba(226, 185, 106, 0.22);   /* brass rail */
+  background: linear-gradient(180deg, rgba(241, 245, 249, 0.03), rgba(241, 245, 249, 0.008)),
+    rgba(16, 18, 22, 0.92);
+  backdrop-filter: blur(28px) saturate(150%);
+  -webkit-backdrop-filter: blur(28px) saturate(150%);
+  border: 1px solid rgba(148, 163, 184, 0.22);   /* brushed titanium rail */
   box-shadow:
-    inset 0 1px 0 rgba(226, 185, 106, 0.12),
-    0 0 14px rgba(226, 185, 106, 0.12),
-    0 16px 40px rgba(0, 0, 0, 0.6);
+    inset 0 1px 0 rgba(241, 245, 249, 0.14),
+    0 0 16px rgba(148, 163, 184, 0.08),
+    0 18px 45px rgba(0, 0, 0, 0.75);
   padding: 0.75rem 1rem;
 }
 .table-stage::before {
@@ -369,10 +360,10 @@ body {
   position: absolute;
   inset-inline: 0;
   top: 0;
-  height: 34%;
+  height: 30%;
   border-radius: 26px;
   pointer-events: none;
-  background: radial-gradient(70% 60% at 50% 0%, rgba(226, 185, 106, 0.06), transparent 62%);
+  background: radial-gradient(70% 60% at 50% 0%, rgba(241, 245, 249, 0.04), transparent 65%);
 }
 .scoreboard-head {
   display: flex;
@@ -382,10 +373,8 @@ body {
 }
 
 /* ───────── Control dock (table-side deck) ─────────
- * On mobile (<lg) the deck is FIXED just above the bottom nav, clear of any
- * safe-area inset, so the scorer's thumb always lands on the keys without
- * covering navigation. On desktop (≥lg) it flips to static and sits in-flow
- * directly under the baize — the rail of the table. */
+ * Mobile (<lg): thumb-reach dock fixed to bottom viewport
+ * Desktop (≥lg): static deck in-flow directly under baize */
 .control-dock {
   position: fixed;
   left: 0;
@@ -397,15 +386,15 @@ body {
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
-  background: linear-gradient(180deg, rgba(21, 18, 8, 0.94), rgba(11, 10, 7, 0.98));
-  backdrop-filter: blur(24px) saturate(150%);
-  -webkit-backdrop-filter: blur(24px) saturate(150%);
-  border: 1px solid rgba(226, 185, 106, 0.18);
+  background: linear-gradient(180deg, rgba(16, 18, 22, 0.96), rgba(7, 8, 10, 0.98));
+  backdrop-filter: blur(26px) saturate(150%);
+  -webkit-backdrop-filter: blur(26px) saturate(150%);
+  border: 1px solid rgba(148, 163, 184, 0.20);
   border-radius: 24px;
   box-shadow:
-    inset 0 1px 0 rgba(226, 185, 106, 0.12),
-    0 0 12px rgba(226, 185, 106, 0.08),
-    0 18px 44px rgba(0, 0, 0, 0.6);
+    inset 0 1px 0 rgba(241, 245, 249, 0.12),
+    0 0 14px rgba(148, 163, 184, 0.06),
+    0 20px 48px rgba(0, 0, 0, 0.75);
 }
 @media (min-width: 1024px) {
   .control-dock {
@@ -436,45 +425,44 @@ body {
   display: inline-flex;
   overflow: hidden;
   vertical-align: bottom;
+  font-variant-numeric: tabular-nums;
 }
 
 /* Subtle hairline utility for grouped rows */
 .hairline {
-  border-top: 1px solid rgba(244, 239, 230, 0.07);
+  border-top: 1px solid rgba(241, 245, 249, 0.08);
 }
 
-/* Physical "action key" button — raised brass keycap with press-down
- * depth. Shared by the Match action tiles so Foul / End turn / Miss /
- * Solve all read as one tactile family, like lounge-piano keys. */
+/* Tactile Chrono-Pusher button — raised keycap with mechanical spring feel */
 .action-key {
   position: relative;
-  border-radius: 18px;
-  border: 1px solid rgba(226, 185, 106, 0.4);
-  background-image: linear-gradient(180deg, rgba(226, 185, 106, 0.30), rgba(226, 185, 106, 0.07) 55%, rgba(244, 239, 230, 0.03));
+  border-radius: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.32);
+  background-image: linear-gradient(180deg, rgba(241, 245, 249, 0.14), rgba(241, 245, 249, 0.03) 55%, rgba(0, 0, 0, 0.15));
   box-shadow:
-    inset 0 1px 0 rgba(255, 236, 205, 0.45),
-    inset 0 -2px 0 rgba(0, 0, 0, 0.3),
-    0 0 8px rgba(226, 185, 106, 0.16),
-    0 6px 0 -1px rgba(0, 0, 0, 0.5),
-    0 10px 20px rgba(0, 0, 0, 0.5);
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.4),
+    0 0 8px rgba(148, 163, 184, 0.12),
+    0 5px 0 -1px rgba(0, 0, 0, 0.65),
+    0 10px 22px rgba(0, 0, 0, 0.6);
   transform: translateY(0);
   transition:
-    transform 90ms ease,
-    box-shadow 90ms ease,
-    filter 90ms ease;
+    transform 80ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 80ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    filter 80ms ease;
   -webkit-tap-highlight-color: transparent;
 }
 .action-key:hover {
-  filter: brightness(1.1);
+  filter: brightness(1.08);
 }
 .action-key:active {
-  transform: translateY(4px);
+  transform: translateY(3px);
   box-shadow:
-    inset 0 1px 0 rgba(255, 236, 205, 0.3),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.28),
-    0 2px 0 -1px rgba(0, 0, 0, 0.45),
-    0 0 4px rgba(226, 185, 106, 0.1),
-    0 3px 6px rgba(0, 0, 0, 0.4);
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.35),
+    0 2px 0 -1px rgba(0, 0, 0, 0.5),
+    0 0 4px rgba(148, 163, 184, 0.08),
+    0 4px 8px rgba(0, 0, 0, 0.45);
 }
 .action-key:focus-visible {
   outline: 2px solid var(--ring);

@@ -41,7 +41,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           className="pointer-events-none fixed inset-0 z-0"
           style={{
             background:
-              "radial-gradient(60% 40% at 85% 0%, color-mix(in srgb, var(--primary) 13%, #000 87%), transparent 60%), radial-gradient(50% 35% at 0% 100%, color-mix(in srgb, var(--gold) 9%, #000 91%), transparent 60%)",
+              "radial-gradient(60% 40% at 50% 0%, rgba(148, 163, 184, 0.04), transparent 60%)",
           }}
         />
         <main className="relative z-10 w-full min-w-0 flex-1 px-4 py-8">
@@ -58,7 +58,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         className="pointer-events-none fixed inset-0 z-0"
         style={{
           background:
-            "radial-gradient(60% 40% at 85% 0%, color-mix(in srgb, var(--primary) 13%, #000 87%), transparent 60%), radial-gradient(50% 35% at 0% 100%, color-mix(in srgb, var(--gold) 9%, #000 91%), transparent 60%)",
+            "radial-gradient(60% 40% at 50% 0%, rgba(148, 163, 184, 0.04), transparent 60%)",
         }}
       />
       <div className="fixed right-4 top-4 z-30 flex items-center gap-2">

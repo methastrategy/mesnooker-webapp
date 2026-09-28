@@ -100,7 +100,7 @@ export function Sidebar() {
           </span>
         </button>
         <div className="text-[10px] text-muted-foreground">
-          Golden Lounge v4
+          Monaco Gentleman VIP v4
         </div>
       </div>
     </aside>

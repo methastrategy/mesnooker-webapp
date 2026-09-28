@@ -1,11 +1,14 @@
-# Design System — Snooker Money Tracker Pro ("Golden Lounge")
+# Design System — Snooker Money Tracker Pro ("Monaco Gentleman VIP")
 
-The visual identity is *Golden Lounge*: a money snooker table read as a warm
-private lounge. Espresso-dark room, **brass-gold** action color, **champagne**
-money highlights, amber-orange rule violations, and a bottle-green felt pad
-wherever balls sit. Calmer and warmer than the Arcade neon it replaced — no
-screen glare on a long night. Lightweight, mobile-first, tuned for both the
-desktop dashboard and the "tap" tethered match screen.
+The visual identity is *Monaco Gentleman VIP*: a private high-stakes salon
+read as a refined, zero-glare luxury lounge. Pure Onyx Black room (`#07080a`),
+**Champagne Gold** (`#ffd166`) action color and positive money highlights,
+**Brushed Platinum / Titanium** (`#94a3b8`) metallic accents and hairline dividers,
+**Ruby Carmine** (`#e11d48`) fouls and negative stakes, and a deep emerald velvet
+felt pad (`#04522c` → `#034323` → `#012313`) under a focused spotlight.
+Zero screen glare on OLED screens, Swiss Chronograph precision tabular numerals,
+and tactile chrono-pusher keycaps. Lightweight, mobile-first, tuned for both the
+desktop dashboard and the one-handed table-side match screen.
 
 All tokens live in `src/app/globals.css`. There are two parallel token banks:
 

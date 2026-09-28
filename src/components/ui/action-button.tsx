@@ -6,14 +6,11 @@ import { cn } from "@/lib/utils";
 type Tone = "primary" | "danger" | "violation" | "gold" | "outline";
 
 const TONE_CLASS: Record<Tone, string> = {
-  // Each tone uses the semantic token as the keycap base, tinted by the
-  // shared `.action-key` top gradient so every action tile reads as a
-  // tactile raised button from the same family.
-  primary: "bg-primary text-primary-foreground border-primary/50",
-  danger: "bg-destructive text-white border-destructive/60",
-  violation: "bg-violation text-black border-violation/60",
-  gold: "bg-gold text-black border-gold/60",
-  outline: "bg-white/5 text-foreground border-white/20 hover:bg-white/10",
+  primary: "bg-primary text-primary-foreground border-primary/60 shadow-[0_0_12px_rgba(255,209,102,0.2)]",
+  danger: "bg-destructive text-white border-destructive/70 shadow-[0_0_10px_rgba(225,29,72,0.25)]",
+  violation: "bg-violation text-black border-violation/70",
+  gold: "bg-gold text-black border-gold/70 shadow-[0_0_12px_rgba(255,209,102,0.2)]",
+  outline: "bg-white/[0.04] text-foreground border-white/15 hover:bg-white/[0.08] hover:border-white/25",
 };
 
 /**
