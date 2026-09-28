@@ -2,7 +2,6 @@
 
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { Settings as SettingsIcon } from "lucide-react";
 import { Sidebar, BottomNav } from "./nav";
 import { SettingsSheet } from "./settings-sheet";
 import { useGameStore } from "@/store/gameStore";
@@ -56,15 +55,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <span className={store.locale === "th" ? "text-primary font-bold" : "text-muted-foreground"}>TH</span>
           <span className="text-border text-[10px]">/</span>
           <span className={store.locale === "en" ? "text-primary font-bold" : "text-muted-foreground"}>EN</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => store.openSettings()}
-          aria-label="Settings"
-          aria-haspopup="dialog"
-          className="rounded-[8px] border border-border border-t-white/15 bg-card p-2 text-muted-foreground transition-all hover:bg-surface hover:text-foreground active:translate-y-[2px] active:brightness-90 cursor-pointer"
-        >
-          <SettingsIcon size={17} />
         </button>
       </div>
       <SettingsSheet />

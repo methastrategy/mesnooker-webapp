@@ -114,14 +114,15 @@ export function LiveMatch({ onPause }: {
   // still entitled to any colour — show the free ball pad.
   const clearOrderLocked = clearingColours && phase === BreakPhase.RED_FIRST;
   const nextColour = clearOrderLocked ? legal[0] : undefined;
+  const customRules = store.customRules;
   const ballValues: Record<BallColor, number> = {
-    red: ballValue("red", mode),
-    yellow: ballValue("yellow", mode),
-    green: ballValue("green", mode),
-    brown: ballValue("brown", mode),
-    blue: ballValue("blue", mode),
-    pink: ballValue("pink", mode),
-    black: ballValue("black", mode),
+    red: ballValue("red", mode, customRules),
+    yellow: ballValue("yellow", mode, customRules),
+    green: ballValue("green", mode, customRules),
+    brown: ballValue("brown", mode, customRules),
+    blue: ballValue("blue", mode, customRules),
+    pink: ballValue("pink", mode, customRules),
+    black: ballValue("black", mode, customRules),
   };
 
   function handleHaptics() {

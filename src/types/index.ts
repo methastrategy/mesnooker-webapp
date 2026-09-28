@@ -11,6 +11,18 @@ export type BallColor =
   | "pink"
   | "black";
 
+export interface ModeRules {
+  balls: Record<BallColor, number>;
+  foul: number;
+  miss: number;
+}
+
+export interface CustomRulesConfig {
+  points: ModeRules;
+  balls: ModeRules;
+}
+
+
 export type EventType =
   | "pot"
   | "foul"

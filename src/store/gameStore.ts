@@ -8,10 +8,11 @@ import {
   ballValue,
   BreakPhase,
   buildTargetCycle,
-  FOUL_VALUES,
+  DEFAULT_CUSTOM_RULES,
+  getFoulValue,
+  getMissValue,
   inferBreakPhase,
   pottedBallsPerPlayer,
-  SNOOKER_MISS_VALUES,
 } from "@/lib/rules";
 import {
   computeFrameMoney,
@@ -23,6 +24,7 @@ import type {
   ArchivedGame,
   BallColor,
   BallCounts,
+  CustomRulesConfig,
   FrameSnapshot,
   GameEvent,
   GameMode,
@@ -107,6 +109,7 @@ interface PersistShape {
   events: GameEvent[];
   startCounts: BallCounts;
   history: ArchivedGame[];
+  customRules: CustomRulesConfig;
   /** undo/redo stacks (in-memory only, not persisted) */
   undoStack: StateSnapshot[];
   redoStack: StateSnapshot[];
@@ -149,6 +152,12 @@ interface GameStore extends PersistShape {
   closeSettings: () => void;
   /** apply (or clear) the table fee to an archived game's balances; fee split evenly */
   setArchivedTableFee: (gameId: string, fee: number) => void;
+  /** custom rules configuration actions */
+  setBallPointValue: (mode: GameMode, ball: BallColor, value: number) => void;
+  setFoulPenalty: (mode: GameMode, value: number) => void;
+  setMissPenalty: (mode: GameMode, value: number) => void;
+  resetCustomRules: (mode?: GameMode) => void;
+  clearHistory: () => void;
 }
 
 /** A full state snapshot used for undo/redo. Deep-copied because frames/events
@@ -204,6 +213,7 @@ export const useGameStore = create<GameStore>()(
       events: [],
       startCounts: initialCounts(),
       history: [],
+      customRules: DEFAULT_CUSTOM_RULES,
       undoStack: [],
       redoStack: [],
       settingsOpen: false,
@@ -362,7 +372,7 @@ export const useGameStore = create<GameStore>()(
         const st = get();
         const f = st.frames[st.frames.length - 1];
         if (!f || !st.session) return;
-        const value = ballValue(ball, f.mode);
+        const value = ballValue(ball, f.mode, st.customRules);
         const scorer = st.players[st.shooterIndex];
         if (!scorer) return;
         const counts = { ...st.ballCounts };
@@ -453,7 +463,7 @@ export const useGameStore = create<GameStore>()(
         const st = get();
         const f = st.frames[st.frames.length - 1];
         if (!f || !st.session) return;
-        const value = FOUL_VALUES[f.mode];
+        const value = getFoulValue(f.mode, st.customRules);
         const scorer = st.players[st.shooterIndex];
         if (!scorer) return;
         const evt: GameEvent = {
@@ -474,7 +484,7 @@ export const useGameStore = create<GameStore>()(
         if (!f || !st.session) return;
         const scorer = st.players[st.shooterIndex];
         if (!scorer) return;
-        const value = SNOOKER_MISS_VALUES[f.mode];
+        const value = getMissValue(f.mode, st.customRules);
         const evt: GameEvent = {
           id: nid(), ts: Date.now(), playerId: scorer.id, playerName: scorer.nickname,
           targetId: f.targetCycle[scorer.id],
@@ -527,11 +537,11 @@ export const useGameStore = create<GameStore>()(
         let points: number;
         if (kind === "foul") {
           type = "foul";
-          points = FOUL_VALUES[f.mode];
+          points = getFoulValue(f.mode, st.customRules);
           f.fouls[scorer.id] = (f.fouls[scorer.id] ?? 0) + 1;
         } else if (kind === "miss") {
           type = "snooker_miss";
-          points = SNOOKER_MISS_VALUES[f.mode];
+          points = getMissValue(f.mode, st.customRules);
           f.snookerMisses[scorer.id] = (f.snookerMisses[scorer.id] ?? 0) + 1;
         } else {
           type = "snooker_hit";
@@ -796,6 +806,67 @@ export const useGameStore = create<GameStore>()(
         });
         set({ history });
       },
+      setBallPointValue: (mode, ball, value) => {
+        const { customRules } = get();
+        const base = customRules || DEFAULT_CUSTOM_RULES;
+        set({
+          customRules: {
+            ...base,
+            [mode]: {
+              ...base[mode],
+              balls: {
+                ...base[mode].balls,
+                [ball]: value,
+              },
+            },
+          },
+        });
+      },
+      setFoulPenalty: (mode, value) => {
+        const { customRules } = get();
+        const base = customRules || DEFAULT_CUSTOM_RULES;
+        set({
+          customRules: {
+            ...base,
+            [mode]: {
+              ...base[mode],
+              foul: value,
+            },
+          },
+        });
+      },
+      setMissPenalty: (mode, value) => {
+        const { customRules } = get();
+        const base = customRules || DEFAULT_CUSTOM_RULES;
+        set({
+          customRules: {
+            ...base,
+            [mode]: {
+              ...base[mode],
+              miss: value,
+            },
+          },
+        });
+      },
+      resetCustomRules: (mode) => {
+        const { customRules } = get();
+        const base = customRules || DEFAULT_CUSTOM_RULES;
+        if (mode) {
+          set({
+            customRules: {
+              ...base,
+              [mode]: {
+                balls: { ...DEFAULT_CUSTOM_RULES[mode].balls },
+                foul: DEFAULT_CUSTOM_RULES[mode].foul,
+                miss: DEFAULT_CUSTOM_RULES[mode].miss,
+              },
+            },
+          });
+        } else {
+          set({ customRules: DEFAULT_CUSTOM_RULES });
+        }
+      },
+      clearHistory: () => set({ history: [] }),
     }),
     {
       name: "smoke-master-v1",
@@ -816,6 +887,7 @@ export const useGameStore = create<GameStore>()(
         events: s.events,
         startCounts: s.startCounts,
         history: s.history,
+        customRules: s.customRules,
       }),
       version: 1,
     }

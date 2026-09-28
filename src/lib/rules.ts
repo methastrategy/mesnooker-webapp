@@ -86,10 +86,43 @@ export const BALL_HEX: Record<BallColor, string> = {
   black: "#242728",
 };
 
-/** point value of a ball in a given mode */
-export function ballValue(ball: BallColor, mode: GameMode): number {
+export const DEFAULT_CUSTOM_RULES: import("@/types").CustomRulesConfig = {
+  points: {
+    balls: { ...POINTS_RULES },
+    foul: -4,
+    miss: -2,
+  },
+  balls: {
+    balls: { ...BALLS_RULES },
+    foul: -2,
+    miss: -1,
+  },
+};
+
+/** point value of a ball in a given mode, with optional custom rule overrides */
+export function ballValue(ball: BallColor, mode: GameMode, customRules?: import("@/types").CustomRulesConfig | null): number {
+  if (customRules?.[mode]?.balls?.[ball] !== undefined) {
+    return customRules[mode].balls[ball];
+  }
   return mode === "points" ? POINTS_RULES[ball] : BALLS_RULES[ball];
 }
+
+/** Foul penalty (negative value) for the given mode */
+export function getFoulValue(mode: GameMode, customRules?: import("@/types").CustomRulesConfig | null): number {
+  if (customRules?.[mode]?.foul !== undefined) {
+    return customRules[mode].foul;
+  }
+  return FOUL_VALUES[mode];
+}
+
+/** Snooker miss penalty (negative value) for the given mode */
+export function getMissValue(mode: GameMode, customRules?: import("@/types").CustomRulesConfig | null): number {
+  if (customRules?.[mode]?.miss !== undefined) {
+    return customRules[mode].miss;
+  }
+  return SNOOKER_MISS_VALUES[mode];
+}
+
 
 /** Build the target cycle: player i scores against player (i-1) mod n.
  *  3 players: 0->2, 1->0, 2->1
