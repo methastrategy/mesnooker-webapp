@@ -536,6 +536,14 @@ export function CoachTable({
             }}
             style={{ cursor: "grab" }}
           >
+            {/* Expanded touch target hit area for mobile touch drag */}
+            <circle
+              cx={pos.x}
+              cy={pos.y}
+              r={BALL_R * 2.2}
+              fill="transparent"
+              pointerEvents="all"
+            />
             {/* Ambient ball drop shadow on baize felt (anchors ball to the table) */}
             <ellipse
               cx={pos.x + 1.8}

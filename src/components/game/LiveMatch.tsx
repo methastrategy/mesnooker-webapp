@@ -286,6 +286,7 @@ export function LiveMatch({ onPause }: {
               baize on desktop. */}
           <ControlDock
             mode={mode}
+            canSolve={legal.includes("red")}
             onFoul={() => scoringAction("foul", "Foul", mode === "points" ? "-4" : "-2", "danger")}
             onMiss={() => scoringAction("miss", "Snooker miss", mode === "points" ? "-2" : "-1", "danger")}
             onSolve={() => scoringAction("solve", "Solve", "+1", "success")}
@@ -365,7 +366,7 @@ export function LiveMatch({ onPause }: {
 
       {/* Bottom clearance on mobile so the fixed control deck never covers
           the details accordion (desktop deck is in-flow, no spacer needed). */}
-      <div className="h-24 lg:hidden" aria-hidden />
+      <div className="h-40 lg:hidden" aria-hidden />
     </LiveShell>
   );
 }

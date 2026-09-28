@@ -24,33 +24,33 @@ export function ClearRack({
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      className="glass-strong glow-gold flex flex-col gap-3 p-4"
+      className="rounded-[10px] border border-gold/30 bg-card p-3 sm:p-4 flex flex-col gap-3"
       role="region"
       aria-label="Clear the table — colours must be potted in order"
     >
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-1.5">
         <Badge variant="gold">Clear the table</Badge>
-        <span className="text-[11px] text-muted-foreground">
+        <span className="text-[11px] font-mono text-muted-foreground">
           Colours in order — no skipping
         </span>
       </div>
 
-      {/* official order rack */}
-      <div className="flex items-center justify-center gap-1.5 md:gap-2">
+      {/* official order rack — safe single row with scroll containment */}
+      <div className="flex items-center justify-start sm:justify-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar py-1 px-0.5">
         {COLOUR_ORDER.map((c, i) => {
           const isDone = done[c];
           const onNow = c === nextColour;
           return (
-            <div key={c} className="flex flex-col items-center gap-1">
+            <div key={c} className="flex flex-col items-center gap-1 shrink-0">
               <span
                 className={`flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold ${
-                  onNow ? "ring-2 ring-gold text-black/80" : isDone ? "text-white/50" : "text-black/60"
+                  onNow ? "ring-2 ring-gold text-black/80 font-bold" : isDone ? "text-white/50" : "text-black/70"
                 }`}
-                style={{ background: BALL_HEX[c], opacity: isDone ? 0.4 : 1 }}
+                style={{ background: BALL_HEX[c], opacity: isDone ? 0.35 : 1 }}
               >
                 {i + 1}
               </span>
-              <span className={`text-[11px] leading-none ${onNow ? "font-bold text-white" : isDone ? "text-white/60 line-through" : "text-white/75"}`}>
+              <span className={`text-[10px] sm:text-[11px] font-mono leading-none ${onNow ? "font-bold text-foreground" : isDone ? "text-muted-foreground line-through opacity-50" : "text-muted-foreground"}`}>
                 {BALL_NAME[c]}
               </span>
             </div>
@@ -59,26 +59,24 @@ export function ClearRack({
       </div>
 
       {/* only the next colour is pottable */}
-      <div className="flex flex-col items-center gap-2">
+      <div className="flex flex-col items-center gap-2 pt-1">
         {nextColour ? (
           <>
             <SnookerBall
               color={nextColour}
-              size={88}
+              size={84}
               value={ballValues[nextColour]}
               selected
               onClick={() => onPot(nextColour)}
             />
-            <span className="text-xs text-foreground/70">
-              Pot the{" "}
-              <span className="font-bold" style={{ color: BALL_HEX[nextColour] }}>
-                {BALL_NAME[nextColour]}
-              </span>{" "}
-              ball
+            <span className="text-xs font-mono font-medium text-gold animate-pulse">
+              ● Tap {BALL_NAME[nextColour]} to pot (+{ballValues[nextColour]})
             </span>
           </>
         ) : (
-          <p className="py-4 text-center text-sm text-gold">Table cleared — nice shuffle! 🎉</p>
+          <div className="rounded-[8px] bg-primary/10 border border-primary/30 p-3 text-center text-xs font-semibold text-primary">
+            🎉 All colours cleared! Frame complete.
+          </div>
         )}
       </div>
     </motion.div>

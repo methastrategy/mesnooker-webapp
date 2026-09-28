@@ -49,17 +49,17 @@ export function SettlementPanel({
   return (
     <div className="flex flex-col gap-4">
       {/* Running balances */}
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+      <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 gap-2">
         {players.map((p) => {
           const bal = runningBalance[p.id] ?? 0;
           return (
-            <div key={p.id} className="glass p-3">
-              <div className="flex items-center gap-2">
+            <div key={p.id} className="rounded-[8px] border border-border bg-card p-3">
+              <div className="flex items-center gap-2 min-w-0">
                 <BallDot color={p.color as any} />
-                <span className="truncate text-sm">{p.nickname}</span>
+                <span className="truncate text-xs sm:text-sm font-medium">{p.nickname}</span>
               </div>
               <div
-                className={`mt-1 text-xl font-bold tabular-nums ${
+                className={`mt-1 text-base sm:text-lg font-bold font-mono tabular-nums truncate ${
                   bal > 0 ? "text-primary" : bal < 0 ? "text-destructive" : "text-muted-foreground"
                 }`}
               >

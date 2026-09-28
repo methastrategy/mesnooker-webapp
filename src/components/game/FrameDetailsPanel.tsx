@@ -54,7 +54,7 @@ export function FrameDetailsPanel({
       </div>
 
       {/* scoreboard table */}
-      <div className="glass overflow-hidden">
+      <div className="rounded-[10px] border border-border bg-card overflow-hidden">
         <div className="flex items-center justify-between px-3 pt-3 pb-2">
           <h3 className="text-xs font-mono font-semibold uppercase tracking-wider text-muted-foreground">
             Scoreboard
