@@ -12,8 +12,7 @@ export default function NotFound() {
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ type: "spring", stiffness: 260, damping: 20 }}
-        className="text-7xl font-black tracking-tight text-primary"
-        style={{ textShadow: "0 0 40px rgba(217,164,65,0.32)" }}
+        className="text-7xl font-black font-mono tracking-tight text-primary"
       >
         404
       </motion.div>

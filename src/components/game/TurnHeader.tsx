@@ -73,9 +73,10 @@ export function TurnHeader({
 
   const { scrollY } = useScroll();
   const [isScrolled, setIsScrolled] = React.useState(false);
-  
+
   useMotionValueEvent(scrollY, "change", (latest) => {
-    setIsScrolled(latest > 30);
+    // Hysteresis threshold prevents layout oscillation when sticky header shrinks
+    setIsScrolled((prev) => (prev ? latest > 12 : latest > 36));
   });
 
   return (
@@ -84,18 +85,18 @@ export function TurnHeader({
       initial={{ opacity: 0, y: -4 }}
       animate={{ opacity: 1, y: 0 }}
       className={cn(
-        "sticky top-0 z-30 flex flex-col gap-2 bg-background/95 backdrop-blur-sm pt-safe transition-all duration-300",
-        isScrolled ? "pb-1" : "pb-2"
+        "sticky top-0 z-30 flex flex-col bg-background/95 backdrop-blur-md pt-safe border-b border-transparent transition-all duration-200",
+        isScrolled ? "gap-1 pb-1.5 border-border" : "gap-2 pb-2"
       )}
     >
       {/* ═════════════ 1. LIVE SCOREBOARD CARDS (TOPMOST) ═════════════ */}
       <div
         className={cn(
-          "grid gap-2",
+          "grid gap-1.5 sm:gap-2",
           players.length <= 2
             ? "grid-cols-2"
             : players.length === 3
-              ? "grid-cols-3"
+              ? "grid-cols-2 sm:grid-cols-3"
               : "grid-cols-2 sm:grid-cols-4"
         )}
       >
@@ -107,27 +108,27 @@ export function TurnHeader({
 
           const balColor =
             bal === 0
-              ? "text-zinc-500"
+              ? "text-muted-foreground"
               : bal > 0
-                ? "text-emerald-400"
-                : "text-rose-400";
+                ? "text-primary"
+                : "text-destructive";
 
           return (
             <div
               key={p.id}
               className={cn(
-                "relative flex flex-col justify-between rounded-lg transition-all duration-200 border",
-                isScrolled ? "p-1.5 sm:p-2" : "p-2.5 sm:p-3",
+                "relative flex flex-col justify-between rounded-[8px] transition-all duration-200 border",
+                isScrolled ? "px-2 py-1 sm:p-2" : "p-2.5 sm:p-3",
                 isShooting
-                  ? "border-primary bg-primary/10 ring-1 ring-primary/40"
-                  : "border-border bg-card opacity-85 hover:opacity-100"
+                  ? "border-primary bg-primary/10"
+                  : "border-border bg-card opacity-90 hover:opacity-100"
               )}
             >
               {/* Player Top Line: Avatar + Name + Badges */}
               <div className="flex items-center justify-between gap-1.5">
                 <div className="flex items-center gap-1.5 min-w-0">
-                  <div className={cn("relative shrink-0 transition-transform", isScrolled ? "scale-90 origin-left" : "")}>
-                    <AvatarBubble avatar={p.avatar} size={22} />
+                  <div className={cn("relative shrink-0 transition-transform", isScrolled ? "scale-85 origin-left" : "")}>
+                    <AvatarBubble avatar={p.avatar} size={isScrolled ? 18 : 22} />
                     {isShooting && (
                       <span className="absolute -bottom-0.5 -right-0.5 flex h-2 w-2 items-center justify-center rounded-full bg-primary">
                         <span className="h-1 w-1 rounded-full bg-black" />
@@ -138,7 +139,7 @@ export function TurnHeader({
                     className={cn(
                       "truncate font-semibold tracking-tight leading-tight transition-all",
                       isScrolled ? "text-[11px] sm:text-xs" : "text-xs sm:text-sm",
-                      isShooting ? "text-foreground" : "text-muted-foreground"
+                      isShooting ? "text-foreground" : "text-[#d3d3d4]"
                     )}
                   >
                     {p.nickname}
@@ -148,13 +149,13 @@ export function TurnHeader({
                 {/* Status Badges */}
                 <div className="flex items-center gap-1 shrink-0">
                   {isLeading && (
-                    <span className="flex items-center gap-0.5 rounded px-1 py-0.2 bg-gold/10 border border-gold/25 text-[9px] font-mono font-medium text-gold uppercase">
+                    <span className="flex items-center gap-0.5 rounded-[4px] px-1 py-0.2 bg-gold/10 border border-gold/25 text-[9px] font-mono font-medium text-gold uppercase">
                       <Trophy size={9} />
                       <span className={cn(isScrolled ? "hidden sm:inline" : "")}>Lead</span>
                     </span>
                   )}
                   {isShooting && (
-                    <span className="flex items-center gap-0.5 rounded px-1 py-0.2 bg-primary/20 border border-primary/35 text-[9px] font-mono font-bold text-primary uppercase">
+                    <span className="flex items-center gap-0.5 rounded-[4px] px-1 py-0.2 bg-primary/20 border border-primary/35 text-[9px] font-mono font-bold text-primary uppercase">
                       <Zap size={9} className="text-primary" />
                       <span className={cn(isScrolled ? "hidden sm:inline" : "")}>Turn</span>
                     </span>
@@ -166,15 +167,17 @@ export function TurnHeader({
               <div className={cn("flex items-baseline justify-between gap-2 transition-all", isScrolled ? "my-0" : "my-1")}>
                 <div className={cn(
                   "font-mono font-bold tracking-tight text-foreground tabular-nums leading-none transition-all",
-                  isScrolled ? "text-xl sm:text-2xl md:text-3xl" : "text-2xl sm:text-3xl md:text-4xl"
+                  isScrolled ? "text-lg sm:text-2xl md:text-3xl" : "text-2xl sm:text-3xl md:text-4xl"
                 )}>
                   <AnimatedNumber value={score} />
                 </div>
                 <div className="text-right">
-                  <span className={cn("uppercase tracking-wider font-mono text-muted-foreground block leading-tight transition-all", isScrolled ? "text-[8px]" : "text-[9px]")}>
-                    Money
-                  </span>
-                  <span className={cn("font-mono font-medium tabular-nums leading-none transition-all", isScrolled ? "text-[10px] sm:text-xs" : "text-xs sm:text-sm", balColor)}>
+                  {!isScrolled && (
+                    <span className="text-[9px] uppercase tracking-wider font-mono text-muted-foreground block leading-tight">
+                      Money
+                    </span>
+                  )}
+                  <span className={cn("font-mono font-semibold tabular-nums leading-none transition-all", isScrolled ? "text-[11px] sm:text-xs" : "text-xs sm:text-sm", balColor)}>
                     {bal > 0 ? "+" : ""}
                     <AnimatedNumber value={bal} prefix="฿" decimals={0} />
                   </span>
@@ -183,8 +186,8 @@ export function TurnHeader({
 
               {/* Active Shooter Break Subtext */}
               {isShooting && breakCount > 0 && !isScrolled && (
-                <div className="mt-0.5 flex items-center justify-between border-t border-white/[0.06] pt-1 text-[10px] font-mono">
-                  <span className="text-muted-foreground">Current Break</span>
+                <div className="mt-0.5 flex items-center justify-between border-t border-border pt-1 text-[10px] font-mono">
+                  <span className="text-[#d3d3d4]">Current Break</span>
                   <span className="font-bold text-gold">+{breakCount}</span>
                 </div>
               )}
@@ -195,17 +198,17 @@ export function TurnHeader({
 
       {/* ═════════════ 2. SHOOTER & UP-NEXT QUEUE BAR (BELOW SCOREBOARD) ═════════════ */}
       <div className={cn(
-        "flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs transition-all duration-300",
-        isScrolled ? "hidden sm:flex" : "flex"
+        "flex flex-wrap items-center justify-between gap-1.5 rounded-[8px] border border-border bg-card transition-all duration-200",
+        isScrolled ? "px-2.5 py-1 text-[11px]" : "px-3 py-2 text-xs"
       )}>
         {/* Active Shooter Identity & Ball State */}
-        <div className="flex items-center gap-2 min-w-0">
-          <span className="text-zinc-300 text-[11px] font-medium shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+          <span className="text-[#d3d3d4] text-[11px] font-medium shrink-0">
             {locale === "th" ? "คิวแทง:" : "Turn:"}
           </span>
           <span className="font-semibold text-foreground tracking-tight truncate">
             {shooter.nickname}
-            {targetName && (
+            {targetName && !isScrolled && (
               <span className="text-muted-foreground font-normal text-[10px] ml-1">
                 vs {targetName}
               </span>
@@ -213,7 +216,7 @@ export function TurnHeader({
           </span>
           <span
             className={cn(
-              "px-2 py-0.5 rounded-full text-[10px] font-mono font-medium tracking-wide uppercase shrink-0",
+              "px-2 py-0.5 rounded-[6px] text-[10px] font-mono font-medium tracking-wide uppercase shrink-0",
               isClearing
                 ? "bg-gold/15 text-gold border border-gold/30"
                 : canStartBreak
@@ -230,15 +233,15 @@ export function TurnHeader({
         </div>
 
         {/* Up-Next Queue & Live Clocks */}
-        <div className="flex items-center gap-3 ml-auto text-[11px] font-mono">
+        <div className="flex items-center gap-2 sm:gap-3 ml-auto text-[11px] font-mono">
           {queue.length > 0 && (
             <div className="flex items-center gap-1.5">
-              <span className="text-zinc-300">{locale === "th" ? "คิวถัดไป:" : "Next:"}</span>
+              <span className="text-[#d3d3d4]">{locale === "th" ? "คิวถัดไป:" : "Next:"}</span>
               <div className="flex items-center gap-1">
-                {queue.map((p, i) => (
+                {(isScrolled ? queue.slice(0, 1) : queue).map((p, i) => (
                   <div key={p.id} className="flex items-center gap-1">
                     {i > 0 && <ArrowRight size={10} className="text-muted-foreground" />}
-                    <div className="flex items-center gap-1 rounded bg-white/[0.04] border border-white/[0.07] px-1.5 py-0.5 text-foreground shadow-sm">
+                    <div className="flex items-center gap-1 rounded-[6px] bg-surface border border-border px-1.5 py-0.5 text-foreground">
                       <AvatarBubble avatar={p.avatar} size={13} />
                       <span className="text-[10px] font-medium">{p.nickname}</span>
                     </div>
@@ -246,7 +249,7 @@ export function TurnHeader({
                 ))}
               </div>
               {reverse && (
-                <span className="text-[10px] text-gold/80" title="Reversed rotation">
+                <span className="text-[10px] text-gold" title="Reversed rotation">
                   ↩
                 </span>
               )}
@@ -282,11 +285,11 @@ export function ClockStrip({
 
   return (
     <div className="flex items-center justify-between gap-2 px-1 text-[11px] md:text-[12px] tabular-nums font-mono">
-      <span className="flex items-center gap-1.5 text-zinc-300">
-        <Timer className="text-[#3ecf8e]" size={13} /> {t("dash.frame", locale)} {frameNumber}: {frameClock}
+      <span className="flex items-center gap-1.5 text-foreground/85">
+        <Timer className="text-primary" size={13} /> {t("dash.frame", locale)} {frameNumber}: {frameClock}
       </span>
       {sessionClock && (
-        <span className="flex items-center gap-1.5 text-zinc-400">
+        <span className="flex items-center gap-1.5 text-muted-foreground">
           Session: {sessionClock}
         </span>
       )}

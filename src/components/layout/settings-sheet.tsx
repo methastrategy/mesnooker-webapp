@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { apiSignOut, fetchMe } from "@/lib/auth-client";
 
 const THEMES: { id: string; name: string; swatch: string[] }[] = [
-  { id: "mono", name: "Supabase Matrix", swatch: ["#3ecf8e", "#ffd166", "#121212"] },
+  { id: "mono", name: "Raycast Dark", swatch: ["#57c1ff", "#ffc533", "#07080a"] },
   { id: "emerald", name: "Emerald Noir", swatch: ["#16c784", "#f59e0b", "#050505"] },
   { id: "ember", name: "Ember", swatch: ["#f97316", "#f59e0b", "#100a06"] },
   { id: "forest", name: "Forest", swatch: ["#22c55e", "#eab308", "#05080a"] },
@@ -19,15 +19,16 @@ const THEMES: { id: string; name: string; swatch: string[] }[] = [
 function Toggle({ on, onChange }: { on: boolean; onChange: () => void }) {
   return (
     <button
+      type="button"
       onClick={onChange}
       aria-pressed={on}
-      className={`relative h-6 w-11 shrink-0 rounded-full transition-colors cursor-pointer ${
-        on ? "bg-[#3ecf8e]" : "bg-white/15"
+      className={`relative h-6 w-11 shrink-0 rounded-full border transition-colors cursor-pointer ${
+        on ? "bg-primary border-primary/50" : "bg-surface border-border"
       }`}
     >
       <span
-        className={`absolute top-0.5 h-5 w-5 rounded-full transition-all ${
-          on ? "left-5.5 bg-zinc-950" : "left-0.5 bg-white"
+        className={`absolute top-0.5 h-4.5 w-4.5 rounded-full transition-all ${
+          on ? "left-5.5 bg-primary-foreground" : "left-0.5 bg-foreground"
         }`}
       />
     </button>
@@ -48,7 +49,7 @@ function Row({
   const Icon = icon;
   return (
     <div className="flex items-center gap-3 px-2 py-2.5">
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/5 text-primary">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[8px] border border-border bg-surface text-primary">
         <Icon size={18} />
       </span>
       <div className="min-w-0 flex-1">
@@ -105,9 +106,9 @@ export function SettingsSheet() {
       </div>
 
       {/* Language Selector */}
-      <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 p-3 mb-2">
+      <div className="flex items-center justify-between rounded-[10px] border border-border bg-surface p-3 mb-2">
         <div className="flex items-center gap-2.5">
-          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10 text-primary">
+          <span className="flex h-8 w-8 items-center justify-center rounded-[8px] bg-primary/10 text-primary border border-primary/25">
             <Globe size={16} />
           </span>
           <div>
@@ -119,14 +120,14 @@ export function SettingsSheet() {
             </div>
           </div>
         </div>
-        <div className="flex items-center rounded-xl bg-black/40 p-1 border border-white/5">
+        <div className="flex items-center rounded-[8px] bg-background p-1 border border-border">
           <button
             type="button"
             onClick={() => store.setLocale("th")}
             className={cn(
-              "rounded-lg px-2.5 py-1 text-xs font-bold transition-all",
+              "rounded-[6px] px-2.5 py-1 text-xs font-bold transition-colors cursor-pointer",
               store.locale === "th"
-                ? "bg-primary text-primary-foreground shadow"
+                ? "bg-primary text-primary-foreground"
                 : "text-muted-foreground hover:text-foreground"
             )}
           >
@@ -136,9 +137,9 @@ export function SettingsSheet() {
             type="button"
             onClick={() => store.setLocale("en")}
             className={cn(
-              "rounded-lg px-2.5 py-1 text-xs font-bold transition-all",
+              "rounded-[6px] px-2.5 py-1 text-xs font-bold transition-colors cursor-pointer",
               store.locale === "en"
-                ? "bg-primary text-primary-foreground shadow"
+                ? "bg-primary text-primary-foreground"
                 : "text-muted-foreground hover:text-foreground"
             )}
           >
@@ -174,15 +175,15 @@ export function SettingsSheet() {
             onClick={() => setTheme(t.id)}
             aria-pressed={theme === t.id}
             className={cn(
-              "flex flex-col items-center gap-2 rounded-2xl border px-2 py-2.5",
+              "flex flex-col items-center gap-2 rounded-[8px] border px-2 py-2.5 text-center leading-tight cursor-pointer transition-colors",
               theme === t.id
-                ? "border-primary/60 bg-primary/15 ring-1 ring-primary/50"
-                : "border-white/10 bg-white/5"
+                ? "border-primary bg-primary/15"
+                : "border-border bg-surface hover:bg-card"
             )}
           >
             <span className="flex items-center gap-1">
               {t.swatch.map((c) => (
-                <span key={c} className="h-3 w-3 rounded-full" style={{ background: c }} />
+                <span key={c} className="h-3 w-3 rounded-full border border-white/15" style={{ background: c }} />
               ))}
             </span>
             <span className="text-[11px] font-medium">{t.name}</span>
@@ -196,7 +197,7 @@ export function SettingsSheet() {
           Account
         </div>
         <div className="flex items-center gap-3 px-2 py-1.5">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/5 text-primary">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[8px] border border-border bg-surface text-primary">
             <UserRound size={18} />
           </span>
           <div className="min-w-0 flex-1">

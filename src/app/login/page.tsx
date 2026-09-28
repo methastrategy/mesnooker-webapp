@@ -63,33 +63,30 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-[100dvh] w-full items-center justify-center bg-background p-4">
-      {/* table-lamp atmosphere: warm radial from above, deep felt below */}
-      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_50%_-10%,rgba(22,199,132,0.12),transparent_55%),radial-gradient(circle_at_50%_120%,rgba(11,65,34,0.5),transparent_60%)]" />
-
       <div className="relative w-full max-w-[400px]">
         <div className="mb-6 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl border border-primary/25 bg-primary/10 text-xl">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-[10px] border border-primary/25 bg-primary/10 text-xl">
             🎱
           </div>
           <h1 className="mt-4 text-2xl font-semibold tracking-tight text-foreground">
             Mes<span className="text-primary">nooker</span>
           </h1>
-          <p className="mt-1 text-xs uppercase tracking-[0.22em] text-muted-foreground">
+          <p className="mt-1 text-xs font-mono uppercase tracking-[0.2em] text-muted-foreground">
             Coach engine &amp; money tracker
           </p>
         </div>
 
-        <form onSubmit={submit} className="glass p-6">
+        <form onSubmit={submit} className="glass p-4 sm:p-6">
           {/* Sign in / Sign up tabs */}
-          <div className="mb-5 grid grid-cols-2 gap-1 rounded-xl bg-white/5 p-1">
+          <div className="mb-5 grid grid-cols-2 gap-1 rounded-[8px] border border-border bg-surface p-1">
             {(["signin", "signup"] as const).map((m) => (
               <button
                 key={m}
                 type="button"
                 onClick={() => switchMode(m)}
-                className={`rounded-lg px-3 py-1.5 text-sm transition-colors ${
+                className={`rounded-[6px] px-3 py-1.5 text-sm transition-colors cursor-pointer ${
                   mode === m
-                    ? "bg-primary/15 font-medium text-primary"
+                    ? "bg-primary/15 font-medium text-primary border border-primary/30"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
@@ -113,11 +110,11 @@ export default function LoginPage() {
               inputMode="email"
               autoFocus
               ref={emailRef}
-              className="w-full rounded-xl border border-white/10 bg-surface/80 py-2.5 pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/30"
+              className="w-full rounded-[8px] border border-border bg-surface py-2.5 pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/30"
             />
           </div>
 
-          <label htmlFor="login-pass" className="mt-4 text-xs font-medium text-muted-foreground">
+          <label htmlFor="login-pass" className="mt-4 block text-xs font-medium text-muted-foreground">
             Password
           </label>
           <div className="relative mt-1.5">
@@ -129,20 +126,20 @@ export default function LoginPage() {
               placeholder="8–72 characters"
               type={show ? "text" : "password"}
               autoComplete={mode === "signin" ? "current-password" : "new-password"}
-              className="w-full rounded-xl border border-white/10 bg-surface/80 py-2.5 pl-9 pr-10 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/30"
+              className="w-full rounded-[8px] border border-border bg-surface py-2.5 pl-9 pr-10 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/30"
             />
             <button
               type="button"
               onClick={() => setShow(!show)}
               aria-label={show ? "Hide password" : "Show password"}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground/70 hover:text-foreground"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground/70 hover:text-foreground cursor-pointer"
             >
               {show ? <EyeOff size={15} /> : <Eye size={15} />}
             </button>
           </div>
 
           {error && (
-            <p role="alert" aria-live="polite" className="mt-3 flex items-center gap-1.5 rounded-lg border border-danger/30 bg-danger/10 px-3 py-2 text-xs text-danger">
+            <p role="alert" aria-live="polite" className="mt-3 flex items-center gap-1.5 rounded-[8px] border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive">
               <AlertCircle size={13} className="shrink-0" />
               {error}
             </p>
@@ -151,7 +148,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={busy}
-            className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-[0_8px_24px_rgba(217,164,65,0.28)] transition-all hover:bg-primary/90 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-40"
+            className="mt-6 flex w-full items-center justify-center gap-2 rounded-[8px] border border-primary/50 border-t-white/25 bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground transition-all hover:bg-primary-hover active:translate-y-[2px] active:brightness-90 disabled:pointer-events-none disabled:opacity-40 cursor-pointer"
           >
             {busy ? (
               <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground/40 border-t-primary-foreground" />

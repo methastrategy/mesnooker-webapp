@@ -45,19 +45,19 @@ export function ControlDock({
 }) {
   return (
     <div className="control-dock">
-      <div className="flex items-center gap-1.5">
+      <div className="flex w-full max-w-md items-center justify-center gap-1 sm:gap-1.5">
         <ViolationPanel mode={mode} onFoul={onFoul} onMiss={onMiss} onSolve={onSolve} />
-        <div className="mx-1 h-8 w-px shrink-0 bg-white/10" />
-        <ActionButton tone="primary" onClick={onEndTurn} className="h-12 min-w-16 shrink-0 px-4 gap-1.5" aria-label="End turn">
-          <span className="text-xs font-bold uppercase tracking-wider">Turn</span>
-          <ArrowRight size={16} />
+        <div className="mx-0.5 sm:mx-1 h-8 w-px shrink-0 bg-border" />
+        <ActionButton tone="primary" onClick={onEndTurn} className="h-12 min-w-14 sm:min-w-16 shrink-0 px-2.5 sm:px-4 gap-1 sm:gap-1.5" aria-label="End turn">
+          <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider">Turn</span>
+          <ArrowRight size={15} />
         </ActionButton>
         <ActionButton
           tone="outline"
           onClick={onMoreOpen}
           aria-label="More actions"
           title="More actions"
-          className="h-12 w-10 shrink-0 px-0"
+          className="h-12 w-9 sm:w-10 shrink-0 px-0"
         >
           <span className="text-base font-bold leading-none">⋯</span>
         </ActionButton>
@@ -68,7 +68,7 @@ export function ControlDock({
           tone="outline"
           onClick={onEndFrame}
           aria-label="End frame"
-          className="h-8 w-auto min-w-0 px-3 text-xs text-rose-400/80 hover:text-rose-300 border-transparent hover:border-rose-500/20 shadow-none"
+          className="h-8 w-auto min-w-0 px-3 text-xs text-destructive/80 hover:text-destructive border-transparent hover:border-destructive/25"
         >
           <Flag size={13} className="mr-1 inline" /> End frame
         </ActionButton>

@@ -56,15 +56,15 @@ export function FramePauseSummary({
       initial={{ opacity: 0, y: 14, scale: 0.98 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ type: "spring", stiffness: 240, damping: 24 }}
-      className="rounded-2xl border border-white/[0.08] bg-[#171717] p-6 flex flex-col gap-5 shadow-2xl"
+      className="rounded-[10px] border border-border bg-card p-4 sm:p-6 flex flex-col gap-5"
     >
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h2 className="text-xl font-bold flex items-center gap-2 text-white">
-            <CheckCircle2 size={20} className="text-[#3ecf8e]" /> Frame {store.frames.length} complete
+          <h2 className="text-lg sm:text-xl font-bold flex items-center gap-2 text-foreground">
+            <CheckCircle2 size={20} className="text-primary" /> Frame {store.frames.length} complete
           </h2>
-          <p className="text-xs font-mono text-zinc-400 mt-1">
+          <p className="text-xs font-mono text-muted-foreground mt-1">
             Frame {frameClock} · Session {sessionClock}
           </p>
         </div>
@@ -79,29 +79,29 @@ export function FramePauseSummary({
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.15 }}
-          className="flex items-center gap-3 rounded-xl bg-[#3ecf8e]/10 border border-[#3ecf8e]/30 px-4 py-3"
+          className="flex items-center gap-3 rounded-[8px] bg-primary/10 border border-primary/30 px-3.5 py-3"
         >
-          <Target size={20} className="text-[#3ecf8e]" />
+          <Target size={20} className="text-primary shrink-0" />
           <div className="min-w-0 flex-1">
-            <div className="text-[10px] font-mono uppercase tracking-wider text-zinc-400">
+            <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
               Breaks next frame
             </div>
             <div className="flex items-center gap-2 mt-0.5">
               <AvatarBubble avatar={nextOpener.avatar} size={24} />
-              <span className="font-bold text-[#3ecf8e] text-sm">
+              <span className="font-bold text-primary text-sm truncate">
                 {nextOpener.nickname}
               </span>
             </div>
           </div>
-          <span className="rounded bg-[#3ecf8e]/20 border border-[#3ecf8e]/40 px-2 py-0.5 text-[10px] font-mono text-[#3ecf8e] uppercase font-bold">
+          <span className="rounded-[6px] bg-primary/20 border border-primary/40 px-2 py-0.5 text-[10px] font-mono text-primary uppercase font-bold shrink-0">
             Opener
           </span>
         </motion.div>
       )}
 
       {/* Per-frame result */}
-      <div className="rounded-xl border border-white/[0.07] bg-[#121212] overflow-hidden">
-        <div className="px-3 pt-3 pb-2 text-xs font-mono uppercase tracking-wider text-zinc-400 flex items-center justify-between">
+      <div className="rounded-[8px] border border-border bg-surface overflow-hidden">
+        <div className="px-3 pt-3 pb-2 text-xs font-mono uppercase tracking-wider text-muted-foreground flex items-center justify-between">
           <span>This frame result</span>
           <span>{frameTotal} pts</span>
         </div>
@@ -113,35 +113,35 @@ export function FramePauseSummary({
             return (
               <div
                 key={p.id}
-                className="flex items-center gap-3 border-b border-white/[0.04] last:border-0 px-3 py-2.5"
+                className="flex items-center gap-2.5 sm:gap-3 border-b border-border last:border-0 px-3 py-2.5"
               >
                 {/* rank */}
                 <span
-                  className={`flex h-6 w-6 shrink-0 items-center justify-center rounded font-mono text-[11px] font-bold ${
+                  className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-[6px] font-mono text-[11px] font-bold ${
                     i === 0 && score > 0
-                      ? "bg-amber-400 text-zinc-950"
-                      : "bg-white/5 text-zinc-500"
+                      ? "bg-gold text-primary-foreground"
+                      : "bg-card border border-border text-muted-foreground"
                   }`}
                 >
                   #{i + 1}
                 </span>
-                <AvatarBubble avatar={p.avatar} size={28} />
-                <span className="flex-1 truncate font-medium text-sm text-white">
+                <AvatarBubble avatar={p.avatar} size={26} />
+                <span className="flex-1 min-w-0 truncate font-medium text-sm text-foreground">
                   {p.nickname}{" "}
                   {isWinner ? (
-                    <Trophy size={13} className="inline text-amber-400 ml-1" />
+                    <Trophy size={13} className="inline text-gold ml-1" />
                   ) : null}
                 </span>
-                <span className="text-sm font-semibold font-mono tabular-nums text-zinc-300">
+                <span className="text-xs sm:text-sm font-semibold font-mono tabular-nums text-foreground/85 shrink-0">
                   {score} pts
                 </span>
                 <span
-                  className={`w-20 text-right text-sm font-bold font-mono tabular-nums ${
+                  className={`w-16 sm:w-20 text-right text-xs sm:text-sm font-bold font-mono tabular-nums shrink-0 ${
                     money > 0
-                      ? "text-[#3ecf8e]"
+                      ? "text-primary"
                       : money < 0
-                        ? "text-rose-400"
-                        : "text-zinc-500"
+                        ? "text-destructive"
+                        : "text-muted-foreground"
                   }`}
                 >
                   {money > 0 ? "+" : ""}
@@ -154,12 +154,12 @@ export function FramePauseSummary({
       </div>
 
       {/* Running session total */}
-      <div className="rounded-xl border border-white/[0.07] bg-[#121212] p-3">
+      <div className="rounded-[8px] border border-border bg-surface p-3">
         <div className="mb-2 flex items-center justify-between">
-          <h3 className="text-xs font-mono uppercase tracking-wider text-zinc-400 flex items-center gap-1.5">
-            <Coins size={13} className="text-amber-400" /> Session Net Balance
+          <h3 className="text-xs font-mono uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+            <Coins size={13} className="text-gold" /> Session Net Balance
           </h3>
-          <span className="text-[10px] font-mono text-zinc-500">
+          <span className="text-[10px] font-mono text-muted-foreground">
             {store.mode === "points" ? "per point" : "per ball"}
           </span>
         </div>
@@ -172,20 +172,20 @@ export function FramePauseSummary({
 
       {/* Next frame or end the session */}
       <div className="flex flex-col gap-2 sm:flex-row pt-1">
-        <Button size="lg" className="flex-1 gap-2 bg-[#3ecf8e] text-zinc-950 font-bold hover:bg-[#4ade80]" onClick={nextFrame}>
+        <Button size="lg" className="flex-1 gap-2" onClick={nextFrame}>
           <Play size={16} fill="currentColor" />
           Next frame
           {nextOpener && (
-            <span className="text-xs font-normal opacity-80">
+            <span className="text-xs font-normal opacity-80 truncate">
               · {nextOpener.nickname} opens
             </span>
           )}
         </Button>
-        <Button variant="ghost" size="lg" className="flex-1 border border-rose-500/30 bg-rose-500/10 text-rose-300 hover:bg-rose-500/20" onClick={endSession}>
+        <Button variant="danger" size="lg" className="flex-1" onClick={endSession}>
           <Flag size={16} /> End session
         </Button>
       </div>
-      <p className="text-[11px] text-zinc-500 text-center font-mono">
+      <p className="text-[11px] text-muted-foreground text-center font-mono">
         Next frame starts a fresh frame. End session archives and displays settlement matrix.
       </p>
     </motion.div>

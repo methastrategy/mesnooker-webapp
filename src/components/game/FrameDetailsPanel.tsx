@@ -56,113 +56,113 @@ export function FrameDetailsPanel({
       {/* scoreboard table */}
       <div className="glass overflow-hidden">
         <div className="flex items-center justify-between px-3 pt-3 pb-2">
-          <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+          <h3 className="text-xs font-mono font-semibold uppercase tracking-wider text-muted-foreground">
             Scoreboard
           </h3>
           <Badge variant="gold">{mode === "points" ? "per point" : "per ball"}</Badge>
         </div>
-        <table className="w-full border-collapse text-sm">
-          <thead>
-            <tr className="border-b border-white/5 text-[11px] uppercase tracking-wider text-muted-foreground">
-              <th className="px-3 py-2 text-left font-medium">Player</th>
-              <th className="px-3 py-2 text-right font-medium tabular-nums">Pts</th>
-              <th className="px-3 py-2 text-right font-medium tabular-nums">Fouls</th>
-              <th className="px-3 py-2 text-right font-medium tabular-nums">Money</th>
-            </tr>
-          </thead>
-          <tbody>
-            {players.map((p) => {
-              const pts = scores[p.id] ?? 0;
-              const bal = balances[p.id] ?? 0;
-              const fouls = foulCount[p.id] ?? 0;
-              const balColor =
-                bal === 0
-                  ? "text-muted-foreground"
-                  : bal > 0
-                    ? "text-primary"
-                    : "text-destructive";
-              const active = p.id === activeId;
-              const rank = rankOf(p.id);
-              const isLeading = rank === 1 && pts > 0;
+        <div className="w-full overflow-x-auto no-scrollbar">
+          <table className="w-full border-collapse text-xs sm:text-sm">
+            <thead>
+              <tr className="border-b border-border text-[10px] sm:text-[11px] font-mono uppercase tracking-wider text-muted-foreground">
+                <th className="px-2.5 sm:px-3 py-2 text-left font-medium">Player</th>
+                <th className="px-2 sm:px-3 py-2 text-right font-medium tabular-nums">Pts</th>
+                <th className="px-2 sm:px-3 py-2 text-right font-medium tabular-nums">Fouls</th>
+                <th className="px-2.5 sm:px-3 py-2 text-right font-medium tabular-nums">Money</th>
+              </tr>
+            </thead>
+            <tbody>
+              {players.map((p) => {
+                const pts = scores[p.id] ?? 0;
+                const bal = balances[p.id] ?? 0;
+                const fouls = foulCount[p.id] ?? 0;
+                const balColor =
+                  bal === 0
+                    ? "text-muted-foreground"
+                    : bal > 0
+                      ? "text-primary"
+                      : "text-destructive";
+                const active = p.id === activeId;
+                const rank = rankOf(p.id);
+                const isLeading = rank === 1 && pts > 0;
 
-              return (
-                <tr
-                  key={p.id}
-                  className={cn(
-                    "border-b border-white/[0.03] last:border-0 transition-colors",
-                    active
-                      ? "bg-primary/[0.08] ring-inset ring-1 ring-primary/20"
-                      : "bg-transparent"
-                  )}
-                >
-                  <td className="px-3 py-2.5">
-                    <div className="flex items-center gap-2">
-                      {/* Rank badge */}
-                      <span
-                        className={cn(
-                          "inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold tabular-nums",
-                          rank === 1 && pts > 0
-                            ? "bg-gold text-black"
-                            : rank === 2
-                              ? "bg-white/20 text-foreground/80"
-                              : "bg-white/8 text-muted-foreground"
-                        )}
-                      >
-                        {rank}
-                      </span>
-                      <AvatarBubble avatar={p.avatar} size={24} />
-                      <span
-                        className={cn(
-                          "truncate font-medium",
-                          active && "text-primary font-semibold"
-                        )}
-                      >
-                        {p.nickname}
-                      </span>
-                      {active && <ActiveShooterDot />}
-                      {isLeading && !active && (
-                        <span className="text-gold text-[11px]">🏆</span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-3 py-2.5 text-right font-bold tabular-nums">
-                    <AnimatedNumber value={pts} />
-                  </td>
-                  <td className="px-3 py-2.5 text-right tabular-nums">
-                    {fouls > 0 ? (
-                      <span className="text-destructive/80 text-xs font-semibold">
-                        {fouls}×
-                      </span>
-                    ) : (
-                      <span className="text-muted-foreground/40 text-xs">—</span>
-                    )}
-                  </td>
-                  <td
+                return (
+                  <tr
+                    key={p.id}
                     className={cn(
-                      "px-3 py-2.5 text-right font-semibold tabular-nums",
-                      balColor
+                      "border-b border-border last:border-0 transition-colors",
+                      active ? "bg-primary/10" : "bg-transparent"
                     )}
                   >
-                    {bal > 0 ? "+" : ""}
-                    <AnimatedNumber value={bal} prefix="฿" decimals={0} />
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+                    <td className="px-2.5 sm:px-3 py-2.5 max-w-[130px] sm:max-w-none">
+                      <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                        {/* Rank badge */}
+                        <span
+                          className={cn(
+                            "inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-[5px] text-[10px] font-mono font-bold tabular-nums",
+                            rank === 1 && pts > 0
+                              ? "bg-gold text-black"
+                              : rank === 2
+                                ? "bg-surface border border-border text-foreground/80"
+                                : "bg-surface border border-border text-muted-foreground"
+                          )}
+                        >
+                          {rank}
+                        </span>
+                        <AvatarBubble avatar={p.avatar} size={22} />
+                        <span
+                          className={cn(
+                            "truncate font-medium",
+                            active && "text-primary font-semibold"
+                          )}
+                        >
+                          {p.nickname}
+                        </span>
+                        {active && <ActiveShooterDot />}
+                        {isLeading && !active && (
+                          <span className="text-gold text-[11px] shrink-0">🏆</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-2 sm:px-3 py-2.5 text-right font-mono font-bold tabular-nums">
+                      <AnimatedNumber value={pts} />
+                    </td>
+                    <td className="px-2 sm:px-3 py-2.5 text-right font-mono tabular-nums">
+                      {fouls > 0 ? (
+                        <span className="text-destructive/80 text-xs font-semibold">
+                          {fouls}×
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground/40 text-xs">—</span>
+                      )}
+                    </td>
+                    <td
+                      className={cn(
+                        "px-2.5 sm:px-3 py-2.5 text-right font-mono font-semibold tabular-nums whitespace-nowrap",
+                        balColor
+                      )}
+                    >
+                      {bal > 0 ? "+" : ""}
+                      <AnimatedNumber value={bal} prefix="฿" decimals={0} />
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* potted rack */}
       <div className="glass p-3">
-        <h3 className="mb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+        <h3 className="mb-2 text-xs font-mono font-semibold uppercase tracking-wider text-muted-foreground">
           Potted this frame
         </h3>
         <div className="flex flex-wrap gap-2">
           {BALL_ORDER.filter((c) => potted[c] > 0).map((c) => (
             <span
               key={c}
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/10 px-2 py-0.5 text-[11px] font-semibold tabular-nums"
+              className="inline-flex items-center gap-1.5 rounded-[6px] border border-border bg-surface px-2 py-0.5 text-[11px] font-mono font-semibold tabular-nums"
               style={{ borderColor: `${BALL_HEX[c]}40` }}
             >
               <span

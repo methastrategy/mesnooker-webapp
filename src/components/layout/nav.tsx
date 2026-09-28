@@ -34,14 +34,14 @@ export function Sidebar() {
   ];
 
   return (
-    <aside className="sticky top-0 hidden h-screen w-60 flex-col gap-2 border-r border-white/[0.08] bg-[#121212] p-4 backdrop-blur-xl md:flex">
-      <div className="mb-6 flex items-center gap-2.5 px-2 pt-2">
-        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#3ecf8e]/15 text-[#3ecf8e] border border-[#3ecf8e]/30">
+    <aside className="sticky top-0 hidden h-screen w-60 flex-col gap-1.5 border-r border-border bg-card p-4 md:flex">
+      <div className="mb-5 flex items-center gap-2.5 px-2 pt-2">
+        <span className="flex h-8 w-8 items-center justify-center rounded-[8px] bg-primary/15 text-primary border border-primary/30">
           <Wallet size={16} />
         </span>
         <div>
-          <div className="text-sm font-bold tracking-tight text-white">MESNOOKER</div>
-          <div className="text-[10px] font-mono uppercase tracking-wider text-[#3ecf8e]">Supabase Matrix</div>
+          <div className="text-sm font-bold tracking-tight text-foreground">MESNOOKER</div>
+          <div className="text-[10px] font-mono uppercase tracking-wider text-primary">Raycast Precision</div>
         </div>
       </div>
 
@@ -54,8 +54,8 @@ export function Sidebar() {
               onClick={openSettings}
               aria-haspopup="dialog"
               className={cn(
-                "relative flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-left text-sm font-medium transition-colors",
-                "text-muted-foreground hover:bg-white/5 hover:text-foreground"
+                "relative flex w-full items-center gap-3 rounded-[8px] px-3 py-2.5 text-left text-sm font-medium transition-colors cursor-pointer",
+                "text-muted-foreground hover:bg-surface hover:text-foreground"
               )}
             >
               <item.icon size={18} />
@@ -68,14 +68,14 @@ export function Sidebar() {
           <Link key={item.href} href={item.href}>
             <span
               className={cn(
-                "relative flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium transition-colors",
-                active ? "text-primary font-semibold" : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
+                "relative flex items-center gap-3 rounded-[8px] px-3 py-2.5 text-sm font-medium transition-colors",
+                active ? "text-primary font-semibold" : "text-muted-foreground hover:bg-surface hover:text-foreground"
               )}
             >
               {active && (
                 <motion.span
                   layoutId="sidebar-active"
-                  className="absolute inset-0 -z-0 rounded-2xl bg-primary/10"
+                  className="absolute inset-0 -z-0 rounded-[8px] bg-primary/10 border border-primary/25"
                   transition={{ type: "spring", stiffness: 400, damping: 32 }}
                 />
               )}
@@ -86,21 +86,21 @@ export function Sidebar() {
         );
       })}
 
-      <div className="mt-auto flex flex-col gap-3 px-2 pt-4 border-t border-white/5">
+      <div className="mt-auto flex flex-col gap-3 px-2 pt-4 border-t border-border">
         <button
           onClick={() => setLocale(locale === "th" ? "en" : "th")}
-          className="flex items-center justify-between rounded-xl bg-white/5 px-3 py-2 text-xs font-semibold text-muted-foreground hover:bg-white/10 hover:text-foreground transition-all"
+          className="flex items-center justify-between rounded-[8px] border border-border bg-surface px-3 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
         >
           <span className="flex items-center gap-1.5">
             <Globe size={14} className="text-gold" />
             <span>Language</span>
           </span>
-          <span className="rounded bg-primary/15 px-1.5 py-0.5 text-[10px] font-bold text-primary">
+          <span className="rounded-[4px] bg-primary/15 px-1.5 py-0.5 text-[10px] font-bold text-primary">
             {locale.toUpperCase()}
           </span>
         </button>
-        <div className="text-[10px] font-mono text-[#3ecf8e]">
-          Supabase Matrix v5
+        <div className="text-[10px] font-mono text-muted-foreground">
+          Raycast UI · v5
         </div>
       </div>
     </aside>
@@ -120,7 +120,7 @@ export function BottomNav() {
   ];
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-white/[0.08] bg-[#121212]/95 pb-safe backdrop-blur-xl md:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-surface/95 pb-safe backdrop-blur-xl md:hidden">
       <div className="mx-auto flex max-w-md items-center justify-around px-2 py-1.5">
         {NAV_BOTTOM.map((item) => {
           const active = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));

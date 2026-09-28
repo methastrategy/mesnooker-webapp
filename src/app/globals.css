@@ -179,28 +179,31 @@
   --gold: #f59e0b;
 }
 
-/* `mono` now maps to Golden Lounge (default identity under the legacy
- * pull-down; kept as an explicit alias so old saved prefs still apply). */
+/* `mono` maps to the Raycast Design System (default identity). */
 [data-theme="mono"] {
-  --color-background: #0b0a07;
-  --color-surface: #151208;
-  --color-card: rgba(21, 18, 8, 0.70);
-  --color-card-solid: #171409;
-  --color-primary: #e2b96a;          /* brass gold */
-  --color-secondary: #9c7a35;
-  --color-gold: #ffd27a;             /* champagne */
-  --color-danger: #e5484d;
-  --color-muted: #9c9485;
-  --color-foreground: #f4efe6;
-  --color-line: rgba(244, 239, 230, 0.10);
-  --color-violation: #f08c1f;
-  --background: #0b0a07;
-  --foreground: #f4efe6;
-  --card: #171409;
-  --primary: #e2b96a;
-  --muted-foreground: #9c9485;
-  --ring: #e2b96a;
-  --gold: #ffd27a;
+  --color-background: #07080a;
+  --color-surface: #0d0d0d;
+  --color-card: #121212;
+  --color-card-solid: #101111;
+  --color-primary: #57c1ff;
+  --color-primary-hover: #3ca2de;
+  --color-secondary: #121212;
+  --color-gold: #ffc533;
+  --color-danger: #ff6161;
+  --color-info: #57c1ff;
+  --color-muted: #9c9c9d;
+  --color-foreground: #f4f4f6;
+  --color-line: #242728;
+  --color-violation: #ffc533;
+  --background: #07080a;
+  --foreground: #f4f4f6;
+  --card: #121212;
+  --primary: #57c1ff;
+  --primary-foreground: #000000;
+  --muted-foreground: #9c9c9d;
+  --border: #242728;
+  --ring: #57c1ff;
+  --gold: #ffc533;
 }
 
 * {
@@ -311,7 +314,7 @@ body {
   margin-bottom: 0.75rem;
 }
 
-/* ───────── Supabase-grade Control Dock ───────── */
+/* ───────── Raycast-grade Control Dock ───────── */
 .control-dock {
   position: fixed;
   left: 0;
@@ -364,21 +367,23 @@ body {
   border-top: 1px solid var(--border);
 }
 
-/* Linear-style Tactical Command Button -> Raycast style */
+/* Raycast Tactical Keycap Command Button */
 .action-key {
   position: relative;
   border-radius: 8px;
   border: 1px solid var(--border);
+  border-top-color: rgba(255, 255, 255, 0.14);
   background: #121212;
   color: #f4f4f6;
-  transition: all 120ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition: transform 80ms cubic-bezier(0.2, 0.8, 0.2, 1), filter 80ms ease, background-color 120ms ease;
   -webkit-tap-highlight-color: transparent;
 }
 .action-key:hover {
   background: #1a1b1d;
 }
 .action-key:active {
-  transform: scale(0.97);
+  transform: translateY(2px);
+  filter: brightness(0.88);
   background: #0d0d0d;
 }
 .action-key:focus-visible {

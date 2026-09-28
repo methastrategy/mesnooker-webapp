@@ -84,7 +84,7 @@ export function NewSession({
   }
 
   return (
-    <div className="glass flex flex-col gap-5 p-5">
+    <div className="glass flex flex-col gap-5 p-4 sm:p-5">
       <div className="flex items-start justify-between gap-3">
         <div>
           <h2 className="text-lg font-bold">Set the table</h2>
@@ -93,21 +93,21 @@ export function NewSession({
         <Badge variant="gold">#{step + 1} / {STEPS.length}</Badge>
       </div>
 
-      {/* Step indicator — brass rail on the active step */}
+      {/* Step indicator */}
       <div className="flex items-center gap-2" aria-label="Setup progress">
         {STEPS.map((s, i) => (
           <div
             key={s.id}
-            className={`flex flex-1 items-center gap-1.5 rounded-xl px-2 py-1.5 text-[11px] font-semibold ${
+            className={`flex flex-1 items-center gap-1.5 rounded-[8px] border px-2 py-1.5 text-[11px] font-semibold ${
               i === step
-                ? "bg-primary/15 text-primary ring-1 ring-primary/50"
+                ? "border-primary/50 bg-primary/15 text-primary"
                 : i < step
-                  ? "bg-white/8 text-gold"
-                  : "bg-white/5 text-muted-foreground"
+                  ? "border-gold/30 bg-surface text-gold"
+                  : "border-border bg-surface text-muted-foreground"
             }`}
           >
-            <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold tabular-nums ${
-              i < step ? "bg-gold text-black" : i === step ? "bg-primary text-primary-foreground" : "bg-white/10 text-muted-foreground"
+            <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-[5px] text-[10px] font-bold tabular-nums ${
+              i < step ? "bg-gold text-black" : i === step ? "bg-primary text-primary-foreground" : "bg-card border border-border text-muted-foreground"
             }`}>
               {i < step ? "✓" : i + 1}
             </span>
@@ -121,27 +121,26 @@ export function NewSession({
         <>
           {/* Mini baize preview — the table you're about to set, live.
               Shows redCount reds + one of each colour to clear. */}
-          <div className="baize relative rounded-[18px] p-3">
-            <div className="felt-spot" />
-            <div className="mb-1 flex items-center justify-between">
-              <span className="text-[10px] uppercase tracking-wider text-foreground/70">Table</span>
-              <span className="text-[10px] text-foreground/70">{redCount} reds · 6 colours</span>
+          <div className="baize relative rounded-[10px] p-3">
+            <div className="mb-2 flex items-center justify-between">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Table</span>
+              <span className="text-[10px] font-mono text-muted-foreground">{redCount} reds · 6 colours</span>
             </div>
             <div className="flex flex-wrap items-center justify-center gap-2">
               {Array.from({ length: Math.min(redCount, 15) }, (_, i) => (
                 <span
                   key={`r${i}`}
-                  className="flex h-5 w-5 items-center justify-center rounded-full text-[8px] font-bold text-black/70"
+                  className="flex h-5 w-5 items-center justify-center rounded-full border border-white/15 text-[8px] font-bold text-white"
                   style={{ background: BALL_HEX.red }}
                 />
               ))}
               {BALL_ORDER.filter((c) => c !== "red").map((c) => (
                 <span
                   key={c}
-                  className="flex h-5 w-5 items-center justify-center rounded-full text-[8px] font-bold text-black/70 opacity-60"
+                  className="flex h-5 w-5 items-center justify-center rounded-full border border-white/15 text-[8px] font-bold text-black/80 opacity-80"
                   style={{ background: BALL_HEX[c] }}
                 >
-                  {c === "black" ? "7" : c === "brown" ? "5" : ""}
+                  {c === "black" ? "7" : c === "brown" ? "4" : ""}
                 </span>
               ))}
             </div>
@@ -190,14 +189,14 @@ export function NewSession({
         <>
           {/* Money */}
           <div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center justify-between sm:justify-start gap-2 sm:gap-3">
               <span className="text-sm font-medium">Rate</span>
               <Button variant="glass" size="icon" onClick={() => setMoneyRate(Math.max(0.5, moneyRate - 0.5))} aria-label="Decrease rate">
                 <Minus size={18} />
               </Button>
-              <div className="h-12 min-w-24 rounded-2xl border border-gold/40 bg-white/5 px-4 text-center text-xl font-bold text-gold tabular-nums">
+              <div className="flex h-11 min-w-24 items-center justify-center rounded-[8px] border border-gold/40 bg-surface px-3 text-center text-lg sm:text-xl font-bold font-mono text-gold tabular-nums">
                 ฿{moneyRate.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 1 })}
-                <span className="text-[10px] text-gold/70">/{moneyPer}</span>
+                <span className="text-[10px] text-gold/70 ml-0.5">/{moneyPer}</span>
               </div>
               <Button variant="gold" size="icon" onClick={() => setMoneyRate(moneyRate + 0.5)} aria-label="Increase rate">
                 <Plus size={18} />
@@ -212,19 +211,19 @@ export function NewSession({
           <div>
             <div className="mb-2 flex items-center justify-between">
               <span className="text-sm font-medium">Players</span>
-              <div className="flex items-center gap-1 rounded-full bg-white/5 px-2">
+              <div className="flex items-center gap-1 rounded-[8px] border border-border bg-surface p-1">
                 <Button variant="glass" size="iconSm" onClick={() => bump(-1)} aria-label="Remove player">
                   <Minus size={15} />
                 </Button>
-                <span className="min-w-7 text-center font-bold tabular-nums">{count}</span>
+                <span className="min-w-7 text-center font-bold font-mono tabular-nums">{count}</span>
                 <Button variant="glass" size="iconSm" onClick={() => bump(1)} aria-label="Add player">
                   <Plus size={15} />
                 </Button>
               </div>
             </div>
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2.5">
               {shown.map((n, i) => (
-                <div key={i} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-2">
+                <div key={i} className="flex items-center gap-2.5 rounded-[8px] border border-border bg-surface p-2">
                   <AvatarPicker value={avatars[i] ?? ""} onChange={(v) => setAvatar(i, v)} />
                   <input
                     value={n}
@@ -234,7 +233,7 @@ export function NewSession({
                       setNames(next);
                     }}
                     placeholder={`Player ${i + 1}`}
-                    className="h-11 min-w-0 flex-1 rounded-2xl border border-white/10 bg-white/5 px-3 text-sm outline-none focus:ring-2 focus:ring-primary/60"
+                    className="h-10 min-w-0 flex-1 rounded-[6px] border border-border bg-card px-3 text-sm outline-none focus:ring-2 focus:ring-primary/60"
                   />
                   {i > 0 && (
                     <Button
@@ -254,16 +253,16 @@ export function NewSession({
               ))}
             </div>
             <p className="mt-2 text-[11px] text-muted-foreground">
-              Tap a player's avatar to pick, upload or shuffle. Min 2 players.
+              Tap a player&apos;s avatar to pick, upload or shuffle. Min 2 players.
             </p>
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-2.5">
             <Button variant="glass" size="lg" onClick={() => setStep(0)} aria-label="Back to table settings">
               <ArrowLeft size={16} className="mr-1" /> Back
             </Button>
             <Button onClick={start} disabled={validPlayers.length < 2} size="lg" className="flex-1">
-              Start session <span className="text-sm opacity-70">{validPlayers.length} players</span>
+              Start session <span className="text-xs opacity-75">({validPlayers.length} players)</span>
             </Button>
           </div>
         </>

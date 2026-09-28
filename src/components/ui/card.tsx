@@ -5,8 +5,7 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 /**
- * Glassmorphism card with optional emerald/gold glow and a premium top-edge
- * highlight (a thin light catch on the upper border, like a lit edge).
+ * Raycast-style flat structural card with 1px solid hairline border.
  */
 export function GlassCard({
   children,
@@ -24,11 +23,6 @@ export function GlassCard({
       )}
       {...props}
     >
-      {/* top edge light catch */}
-      <span
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent"
-      />
       {children}
     </div>
   );
@@ -46,15 +40,11 @@ export function AnimatedCard({
 }: AnimatedCardProps) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ type: "spring", stiffness: 260, damping: 26, delay }}
+      transition={{ type: "spring", stiffness: 300, damping: 28, delay }}
       className={cn("glass relative overflow-hidden", className)}
     >
-      <span
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent"
-      />
       {children}
     </motion.div>
   );

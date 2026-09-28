@@ -38,14 +38,14 @@ export function FrameCompleteSummary({
       initial={{ opacity: 0, y: 16, scale: 0.96 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ type: "spring", stiffness: 220, damping: 22 }}
-      className="glass-strong glow-emerald flex flex-col gap-5 p-6"
+      className="glass-strong glow-emerald flex flex-col gap-5 p-4 sm:p-6"
     >
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h2 className="text-xl font-bold flex items-center gap-2">
+          <h2 className="text-lg sm:text-xl font-bold flex items-center gap-2">
             <Trophy size={20} className="text-primary" /> Match Concluded
           </h2>
-          <p className="text-sm text-muted-foreground mt-0.5">
+          <p className="text-xs sm:text-sm font-mono text-muted-foreground mt-0.5">
             {live.frames} frame{live.frames > 1 ? "s" : ""} · ฿{live.moneyRate}/{win} · {formatDateTime(live.endedAt)}
           </p>
         </div>
@@ -54,7 +54,7 @@ export function FrameCompleteSummary({
 
       {/* Who + / − */}
       <div className="glass p-3.5">
-        <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Tonight’s result</h3>
+        <h3 className="mb-2 text-[11px] font-mono font-semibold uppercase tracking-wider text-muted-foreground">Tonight’s result</h3>
         <div className="flex flex-col gap-1.5">
           {sorted.map((p, i) => {
             const bal = live.rawBalances?.[p.id] ?? live.balances[p.id] ?? 0;
@@ -63,17 +63,17 @@ export function FrameCompleteSummary({
               <div
                 key={p.id}
                 className={cn(
-                  "flex items-center gap-3 rounded-xl px-3 py-2 transition-all",
+                  "flex items-center gap-3 rounded-[8px] px-3 py-2 transition-all border",
                   isWinner
-                    ? "bg-primary/10 border border-primary/35 shadow-[0_0_16px_rgba(255,209,102,0.15)]"
-                    : "bg-white/[0.025] border border-white/[0.05]"
+                    ? "bg-primary/10 border-primary/40"
+                    : "bg-surface border-border"
                 )}
               >
-                <AvatarBubble avatar={p.avatar} size={34} />
-                <span className="flex-1 truncate font-medium">
+                <AvatarBubble avatar={p.avatar} size={30} />
+                <span className="flex-1 min-w-0 truncate font-medium">
                   {p.nickname} {isWinner ? <Trophy size={13} className="inline text-gold ml-1" /> : null}
                 </span>
-                <span className={`text-lg font-bold tabular-nums ${bal > 0 ? "text-primary" : bal < 0 ? "text-destructive" : "text-muted-foreground"}`}>
+                <span className={`text-base sm:text-lg font-mono font-bold tabular-nums shrink-0 ${bal > 0 ? "text-primary" : bal < 0 ? "text-destructive" : "text-muted-foreground"}`}>
                   {bal > 0 ? "+" : ""}
                   {formatMoney(bal)}
                 </span>
@@ -85,7 +85,7 @@ export function FrameCompleteSummary({
 
       {/* Who pays whom */}
       <div className="glass p-3.5">
-        <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Who pays whom</h3>
+        <h3 className="mb-2 text-[11px] font-mono font-semibold uppercase tracking-wider text-muted-foreground">Who pays whom</h3>
         {transfers.length === 0 ? (
           <p className="py-4 text-center text-sm text-muted-foreground">
             Everyone settled — nothing to pay.
@@ -93,11 +93,11 @@ export function FrameCompleteSummary({
         ) : (
           <div className="flex flex-col gap-1.5">
             {transfers.map((t, i) => (
-              <div key={i} className="flex items-center gap-2 rounded-xl bg-white/[0.025] border border-white/[0.05] px-3 py-2 text-sm">
-                <span className="font-semibold">{t.fromName}</span>
-                <ArrowDown size={14} className="text-gold" />
-                <span className="font-semibold">{t.toName}</span>
-                <span className="ml-auto font-bold tabular-nums text-gold">{formatMoney(t.amount)}</span>
+              <div key={i} className="flex items-center gap-2 rounded-[8px] bg-surface border border-border px-3 py-2 text-sm">
+                <span className="font-semibold truncate">{t.fromName}</span>
+                <ArrowDown size={14} className="text-gold shrink-0" />
+                <span className="font-semibold truncate">{t.toName}</span>
+                <span className="ml-auto font-mono font-bold tabular-nums text-gold shrink-0">{formatMoney(t.amount)}</span>
               </div>
             ))}
           </div>

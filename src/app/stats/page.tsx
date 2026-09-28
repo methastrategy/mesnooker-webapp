@@ -30,12 +30,12 @@ import { t } from "@/lib/i18n";
 import type { Player } from "@/types";
 
 const COLORS = {
-  emerald: "#d9a441",
-  gold: "#f0c25c",
-  red: "#e8534a",
-  blue: "#3b82f6",
+  emerald: "#57c1ff",
+  gold: "#ffc533",
+  red: "#ff6161",
+  blue: "#57c1ff",
   pink: "#ec4899",
-  grey: "#9aa58f",
+  grey: "#9c9c9d",
 };
 
 interface AggRow {

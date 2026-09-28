@@ -37,13 +37,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   if (isAuthPage) {
     return (
       <div className="relative flex min-h-screen bg-background text-foreground">
-        <div
-          className="pointer-events-none fixed inset-0 z-0"
-          style={{
-            background:
-              "radial-gradient(60% 40% at 50% 0%, rgba(148, 163, 184, 0.04), transparent 60%)",
-          }}
-        />
         <main className="relative z-10 w-full min-w-0 flex-1 px-4 py-8">
           <div className="mx-auto w-full max-w-6xl">{children}</div>
         </main>
@@ -53,38 +46,30 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="relative flex min-h-screen bg-background text-foreground">
-      {/* ambient glow — theme-aware via tokens */}
-      <div
-        className="pointer-events-none fixed inset-0 z-0"
-        style={{
-          background:
-            "radial-gradient(60% 40% at 50% 0%, rgba(148, 163, 184, 0.04), transparent 60%)",
-        }}
-      />
       <div className="fixed right-4 top-4 z-30 flex items-center gap-2">
         <button
           type="button"
           onClick={() => store.setLocale(store.locale === "th" ? "en" : "th")}
           aria-label="Switch Language TH/EN"
-          className="flex items-center gap-1 rounded-lg border border-white/10 bg-[#121317] px-2.5 py-1.5 text-[11px] font-mono font-medium backdrop-blur-md transition-all hover:bg-white/10 active:scale-95 shadow-sm"
+          className="flex items-center gap-1 rounded-[8px] border border-border border-t-white/15 bg-card px-2.5 py-1.5 text-[11px] font-mono font-medium transition-all hover:bg-surface active:translate-y-[2px] active:brightness-90 cursor-pointer"
         >
-          <span className={store.locale === "th" ? "text-primary font-bold" : "text-zinc-500"}>TH</span>
-          <span className="text-white/20 text-[10px]">/</span>
-          <span className={store.locale === "en" ? "text-primary font-bold" : "text-zinc-500"}>EN</span>
+          <span className={store.locale === "th" ? "text-primary font-bold" : "text-muted-foreground"}>TH</span>
+          <span className="text-border text-[10px]">/</span>
+          <span className={store.locale === "en" ? "text-primary font-bold" : "text-muted-foreground"}>EN</span>
         </button>
         <button
           type="button"
           onClick={() => store.openSettings()}
           aria-label="Settings"
           aria-haspopup="dialog"
-          className="rounded-lg border border-white/10 bg-[#121317] p-2 text-zinc-400 backdrop-blur-md transition-all hover:bg-white/10 hover:text-white active:scale-95 shadow-sm"
+          className="rounded-[8px] border border-border border-t-white/15 bg-card p-2 text-muted-foreground transition-all hover:bg-surface hover:text-foreground active:translate-y-[2px] active:brightness-90 cursor-pointer"
         >
           <SettingsIcon size={17} />
         </button>
       </div>
       <SettingsSheet />
       <Sidebar />
-      <main className="relative z-10 w-full min-w-0 flex-1 px-4 pb-36 pt-16 md:px-8 md:pb-12 md:pt-8">
+      <main className="relative z-10 w-full min-w-0 flex-1 px-3.5 sm:px-4 pb-36 pt-16 md:px-8 md:pb-12 md:pt-8">
         <div className="mx-auto w-full max-w-6xl">{children}</div>
       </main>
       <BottomNav />
