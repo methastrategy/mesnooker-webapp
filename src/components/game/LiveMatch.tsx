@@ -12,7 +12,7 @@ import { ClearRack } from "@/components/game/ClearRack";
 import { ControlDock } from "@/components/game/ControlDock";
 import { FrameDetailsPanel } from "@/components/game/FrameDetailsPanel";
 import { ActionToast } from "@/components/game/ActionToast";
-import { Badge, Stat } from "@/components/ui";
+import { Stat } from "@/components/ui";
 import {
   BALL_NAME,
   BALL_ORDER,
@@ -23,6 +23,7 @@ import {
   legalBalls,
 } from "@/lib/rules";
 import type { ArchivedGame, BallColor, Player } from "@/types";
+import { cn } from "@/lib/utils";
 
 import { useElapsed, useElapsedSum } from "@/hooks/useElapsed";
 import { playPotSound, playPenaltySound } from "@/lib/sound";
@@ -241,17 +242,20 @@ export function LiveMatch({ onPause }: {
         <div className="flex flex-col gap-3">
           <ClockStrip frameNumber={store.frames.length} frameClock={frameClock} sessionClock={sessionClock} />
 
-          {/* THE TABLE — the baize is the hero of the screen. The free ball pad
-              while a shooter may play any colour, or the ordered ClearRack once
-              the table locks into yellow→…→black. */}
-          <div className="table-stage">
-            <div className="scoreboard-head">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-foreground/80">
-                Tap to play
-              </h3>
-              <Badge variant={canStartBreak ? "default" : "danger"}>
-                {canStartBreak ? "pick a colour" : "red first"}
-              </Badge>
+          {/* THE TABLE / BALL RACK — Linear Tactical Workspace */}
+          <div className="rounded-2xl border border-white/[0.08] bg-[#101115] p-3 md:p-4 shadow-md">
+            <div className="mb-3 flex items-center justify-between px-1">
+              <span className="text-[11px] font-mono uppercase tracking-wider text-zinc-400">
+                Shot selection
+              </span>
+              <span className={cn(
+                "px-2.5 py-0.5 rounded-full text-[10px] font-mono font-medium tracking-wide uppercase",
+                canStartBreak
+                  ? "bg-[#5e6ad2]/15 text-[#828fff] border border-[#5e6ad2]/35"
+                  : "bg-rose-500/15 text-rose-300 border border-rose-500/35"
+              )}>
+                {canStartBreak ? "● Any Colour" : "● Red First"}
+              </span>
             </div>
             {clearOrderLocked ? (
               <ClearRack done={clearDone} nextColour={nextColour} ballValues={ballValues} onPot={onPot} />

@@ -6,19 +6,16 @@ import { cn } from "@/lib/utils";
 type Tone = "primary" | "danger" | "violation" | "gold" | "outline";
 
 const TONE_CLASS: Record<Tone, string> = {
-  primary: "bg-primary text-primary-foreground border-primary/60 shadow-[0_0_12px_rgba(255,209,102,0.2)]",
-  danger: "bg-destructive text-white border-destructive/70 shadow-[0_0_10px_rgba(225,29,72,0.25)]",
-  violation: "bg-violation text-black border-violation/70",
-  gold: "bg-gold text-black border-gold/70 shadow-[0_0_12px_rgba(255,209,102,0.2)]",
-  outline: "bg-white/[0.04] text-foreground border-white/15 hover:bg-white/[0.08] hover:border-white/25",
+  primary: "bg-[#5e6ad2] text-white hover:bg-[#6b77e8] active:bg-[#525db8] border border-[#5e6ad2]/60 shadow-sm",
+  danger: "bg-rose-500/15 text-rose-300 hover:bg-rose-500/25 active:bg-rose-500/30 border border-rose-500/30",
+  violation: "bg-amber-500/15 text-amber-300 hover:bg-amber-500/25 active:bg-amber-500/30 border border-amber-500/30",
+  gold: "bg-amber-400 text-zinc-950 font-bold hover:bg-amber-300 border border-amber-400/60 shadow-sm",
+  outline: "bg-white/[0.04] text-zinc-200 border border-white/10 hover:bg-white/[0.08] hover:border-white/20 active:bg-white/[0.03]",
 };
 
 /**
- * Tactile "action key" — a plain (non-motion) button sharing one raised-keycap
- * look across the Match action tiles. The CSS `.action-key` class owns the
- * keycap depth + press-down travel (CSS :active, not framer, so the transform
- * isn't clobbered). Use for ALL match actions — End turn / Foul / Snooker miss /
- * Solve / Prev / Reverse / Skip so they read as one button family.
+ * Linear-grade tactile command action button.
+ * Clean, flat, high-contrast, responsive.
  */
 export function ActionButton({
   tone = "primary",
@@ -32,7 +29,7 @@ export function ActionButton({
     <button
       type="button"
       className={cn(
-        "action-key inline-flex h-14 select-none items-center justify-center gap-1.5 rounded-[18px] px-4 text-center font-semibold leading-tight",
+        "inline-flex h-12 select-none items-center justify-center gap-1.5 rounded-xl px-4 text-center text-sm font-semibold tracking-wide transition-all active:scale-[0.97] disabled:opacity-40 disabled:pointer-events-none cursor-pointer",
         TONE_CLASS[tone],
         className
       )}

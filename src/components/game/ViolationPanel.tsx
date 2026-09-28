@@ -1,13 +1,12 @@
 "use client";
 
+import { AlertTriangle, CircleSlash, CheckCircle2 } from "lucide-react";
 import { ActionButton } from "@/components/ui";
 import type { GameMode } from "@/types";
 
-/** The three "how the round ended" scoring inputs — equal-size tactile keys,
- *  colored by context so their consequence is legible at a glance:
- *  🚫 Foul (red −4/−2) · ❌ Snooker miss (amber −2/−1) · ✅ Solve (gold +1).
- *  Each, when pressed, will auto-advance the turn to the next player (wired in
- *  LiveMatch), so the operator never needs a separate "End turn" tap. */
+/**
+ * Linear-grade violation controls: Foul, Miss, Solve.
+ */
 export function ViolationPanel({
   mode,
   onFoul,
@@ -23,19 +22,19 @@ export function ViolationPanel({
   const missValue = mode === "points" ? "−2" : "−1";
 
   return (
-    <div className="grid grid-cols-3 gap-2">
+    <div className="grid grid-cols-3 gap-1.5 md:gap-2">
       {/* Foul — red, most serious penalty */}
       <ActionButton
         tone="danger"
         onClick={onFoul}
         aria-label={`Foul penalty ${foulValue}`}
-        className="flex-col gap-0.5"
+        className="flex-col gap-1 py-1.5 h-auto min-h-12"
       >
-        <span className="text-base leading-none">🚫</span>
-        <span className="text-[11px] font-bold leading-none uppercase tracking-wide">Foul</span>
-        <span className="mt-0.5 rounded-full bg-black/30 px-1.5 py-0 text-[10px] font-bold tabular-nums leading-snug">
-          {foulValue}
-        </span>
+        <AlertTriangle size={15} className="text-rose-400" />
+        <div className="flex items-center gap-1">
+          <span className="text-[11px] font-bold uppercase tracking-wider">Foul</span>
+          <span className="font-mono text-[10px] opacity-80">{foulValue}</span>
+        </div>
       </ActionButton>
 
       {/* Snooker miss — amber, shoot the snook but miss */}
@@ -43,27 +42,27 @@ export function ViolationPanel({
         tone="violation"
         onClick={onMiss}
         aria-label={`Snooker miss ${missValue}`}
-        className="flex-col gap-0.5"
+        className="flex-col gap-1 py-1.5 h-auto min-h-12"
       >
-        <span className="text-base leading-none">❌</span>
-        <span className="text-[11px] font-bold leading-none uppercase tracking-wide">Miss</span>
-        <span className="mt-0.5 rounded-full bg-black/30 px-1.5 py-0 text-[10px] font-bold tabular-nums leading-snug">
-          {missValue}
-        </span>
+        <CircleSlash size={15} className="text-amber-400" />
+        <div className="flex items-center gap-1">
+          <span className="text-[11px] font-bold uppercase tracking-wider">Miss</span>
+          <span className="font-mono text-[10px] opacity-80">{missValue}</span>
+        </div>
       </ActionButton>
 
-      {/* Solve — gold, successfully escapes a snooker */}
+      {/* Solve — gold/green, successfully escapes a snooker */}
       <ActionButton
         tone="gold"
         onClick={onSolve}
         aria-label="Solve snooker +1"
-        className="flex-col gap-0.5"
+        className="flex-col gap-1 py-1.5 h-auto min-h-12"
       >
-        <span className="text-base leading-none">✅</span>
-        <span className="text-[11px] font-bold leading-none uppercase tracking-wide">Solve</span>
-        <span className="mt-0.5 rounded-full bg-black/30 px-1.5 py-0 text-[10px] font-bold tabular-nums leading-snug">
-          +1
-        </span>
+        <CheckCircle2 size={15} className="text-zinc-950" />
+        <div className="flex items-center gap-1">
+          <span className="text-[11px] font-bold uppercase tracking-wider">Solve</span>
+          <span className="font-mono text-[10px] font-bold">+1</span>
+        </div>
       </ActionButton>
     </div>
   );

@@ -3,6 +3,7 @@
 import type { BallColor } from "@/types";
 import { BALL_HEX, BALL_NAME, COLOUR_ORDER } from "@/lib/rules";
 import { SnookerBall } from "@/components/ui/snooker-ball";
+import { cn } from "@/lib/utils";
 
 /** Live ball pad: shows ONLY the legally pottable balls for the current break phase. */
 export function BallPad({
@@ -28,35 +29,29 @@ export function BallPad({
   }
   const legalSet = new Set(legal);
   return (
-    <div className="relative mx-auto w-full max-w-xl rounded-[26px] border border-black/50 bg-black/30 p-3 shadow-[0_18px_44px_rgba(0,0,0,0.62)]">
-      {/* cushion rail + tungsten-lit green baize */}
-      <div className="baize rounded-[20px] p-4">
-        {/* spotlight pool hovering over the felt */}
-        <div className="felt-spot" />
-        {/* chalk rail ticks along the top cushion */}
-        <div className="pointer-events-none absolute inset-x-5 top-1.5 flex items-center justify-center gap-1.5">
-          {[0, 1, 2, 3, 4].map((i) => <span key={i} className="felt-tick" />)}
-        </div>
-
+    <div className="relative mx-auto w-full max-w-xl rounded-2xl border border-white/[0.08] bg-[#0c0d11] p-4 md:p-5 shadow-lg">
       {clearingColours ? (
-        /* When clearing, show the official colour rack with only the next
-           ball active — proves the order is locked (yellow→…→black). */
-        <div className="relative mb-3 flex items-center justify-center gap-2">
+        /* Linear-style clear rack tracker */
+        <div className="relative mb-4 flex items-center justify-center gap-2 border-b border-white/[0.06] pb-3">
           {COLOUR_ORDER.map((c, i) => {
             const onNow = legalSet.has(c);
             const done = showCount ? showCount(c) === 0 : false;
             return (
               <div key={c} className="flex flex-col items-center gap-1">
                 <span
-                  className="flex h-4 w-4 items-center justify-center rounded-full text-[8px] font-bold text-black/60"
-                  style={{ background: BALL_HEX[c] }}
+                  className={cn(
+                    "flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-mono font-bold transition-all",
+                    onNow ? "ring-2 ring-primary ring-offset-1 ring-offset-[#0c0d11] scale-110" : "opacity-40"
+                  )}
+                  style={{ background: BALL_HEX[c], color: c === "yellow" ? "#000" : "#fff" }}
                 >
                   {i + 1}
                 </span>
                 <span
-                  className={`text-[10px] leading-none ${
-                    onNow ? "font-semibold text-white" : done ? "text-white/60 line-through" : "text-white/75"
-                  }`}
+                  className={cn(
+                    "text-[10px] font-mono leading-none",
+                    onNow ? "font-bold text-white" : done ? "text-zinc-600 line-through" : "text-zinc-400"
+                  )}
                 >
                   {BALL_NAME[c]}
                 </span>
@@ -66,37 +61,38 @@ export function BallPad({
         </div>
       ) : null}
 
-      <div className="relative flex flex-wrap items-center justify-center gap-3">
+      <div className="relative flex flex-wrap items-center justify-center gap-4 md:gap-5 py-2">
         {legal.map((c) => {
           const value = ballValues[c];
           const left = showCount ? showCount(c) : 0;
           return (
-            <div key={c} className="relative flex flex-col items-center gap-1">
+            <div key={c} className="relative flex flex-col items-center gap-1.5">
               <SnookerBall
                 color={c}
-                size={72}
+                size={70}
                 value={value}
                 disabled={left <= 0}
                 selected
                 onClick={() => onPot(c)}
               />
-              <span className="rounded-[5px] bg-black/50 px-1 text-[10px] text-white/90 leading-none">
-                {BALL_NAME[c]}
+              <div className="flex items-center gap-1 rounded-md bg-white/[0.06] px-2 py-0.5 border border-white/[0.06]">
+                <span className="text-[11px] font-medium text-zinc-300 leading-tight">
+                  {BALL_NAME[c]}
+                </span>
                 {left > 0 ? (
-                  <span className="ml-1 rounded-full bg-black/60 px-1.5 text-[10px] text-white">×{left}</span>
+                  <span className="font-mono text-[10px] text-zinc-400">×{left}</span>
                 ) : (
-                  <span className="ml-1 rounded-full bg-destructive/30 px-1.5 text-[10px] text-destructive"> —</span>
+                  <span className="font-mono text-[10px] text-rose-400">0</span>
                 )}
-              </span>
-              {left > 0 ? (
-                <span className="absolute -right-1 -top-1 z-10 flex h-5 min-w-5 items-center justify-center rounded-full bg-black/70 px-1 text-[9px] text-white shadow">
+              </div>
+              {left > 0 && left > 1 ? (
+                <span className="absolute -right-1 -top-1 z-10 flex h-5 min-w-5 items-center justify-center rounded-full bg-zinc-900 border border-white/20 px-1 font-mono text-[10px] font-bold text-white shadow-md">
                   {left}
                 </span>
               ) : null}
             </div>
           );
         })}
-        </div>
       </div>
     </div>
   );

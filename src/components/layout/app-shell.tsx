@@ -66,18 +66,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           type="button"
           onClick={() => store.setLocale(store.locale === "th" ? "en" : "th")}
           aria-label="Switch Language TH/EN"
-          className="flex items-center gap-1 rounded-full border border-white/10 bg-black/60 px-2.5 py-1.5 text-[11px] font-bold tracking-wider backdrop-blur-md transition-all hover:bg-white/10 hover:border-gold/40 active:scale-95 shadow-lg"
+          className="flex items-center gap-1 rounded-lg border border-white/10 bg-[#121317] px-2.5 py-1.5 text-[11px] font-mono font-medium backdrop-blur-md transition-all hover:bg-white/10 active:scale-95 shadow-sm"
         >
-          <span className={store.locale === "th" ? "text-primary font-black" : "text-muted-foreground opacity-60"}>TH</span>
+          <span className={store.locale === "th" ? "text-primary font-bold" : "text-zinc-500"}>TH</span>
           <span className="text-white/20 text-[10px]">/</span>
-          <span className={store.locale === "en" ? "text-primary font-black" : "text-muted-foreground opacity-60"}>EN</span>
+          <span className={store.locale === "en" ? "text-primary font-bold" : "text-zinc-500"}>EN</span>
         </button>
         <button
           type="button"
           onClick={() => store.openSettings()}
           aria-label="Settings"
           aria-haspopup="dialog"
-          className="rounded-full border border-white/10 bg-black/60 p-2 text-muted-foreground backdrop-blur-md transition-all hover:bg-white/10 hover:text-foreground active:scale-95 shadow-lg"
+          className="rounded-lg border border-white/10 bg-[#121317] p-2 text-zinc-400 backdrop-blur-md transition-all hover:bg-white/10 hover:text-white active:scale-95 shadow-sm"
         >
           <SettingsIcon size={17} />
         </button>

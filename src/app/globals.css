@@ -15,29 +15,28 @@
    ═══════════════════════════════════════════════════════════════════ */
 
 @theme {
-  --color-background: #07080a;          /* pure onyx / pitch black (OLED zero-glare) */
-  --color-surface: #101216;             /* dark titanium slate */
-  --color-card: rgba(16, 18, 22, 0.82); /* smoked crystal glass fill */
-  --color-card-solid: #111317;          /* opaque titanium cards */
-  --color-primary: #ffd166;             /* champagne gold: main actions + winning money */
-  --color-secondary: #94a3b8;           /* brushed platinum for metallic dividers/rims */
-  --color-gold: #ffd166;                /* champagne gold highlights */
-  --color-danger: #e11d48;              /* ruby carmine: fouls and negative stake */
-  --color-info: #38bdf8;                /* cold ice blue */
-  --color-muted: #8b929e;               /* muted slate text */
-  --color-foreground: #f1f5f9;          /* oyster white text */
-  --color-line: rgba(241, 245, 249, 0.08); /* 1px hairline platinum divider */
+  --color-background: #08090b;          /* Linear deepest dark canvas */
+  --color-surface: #0f1012;             /* Linear surface-1 */
+  --color-card: #131418;                /* Linear card surface */
+  --color-card-solid: #131418;          /* Linear solid surface */
+  --color-primary: #5e6ad2;             /* Linear signature indigo */
+  --color-secondary: #272832;           /* Linear subtle surface */
+  --color-gold: #ffd166;                /* Pure clean gold for money */
+  --color-danger: #eb5757;              /* Linear red */
+  --color-info: #57c1ff;                /* Linear blue */
+  --color-muted: #8a8f98;               /* Linear ink-subtle */
+  --color-foreground: #f7f8f8;          /* Linear crisp ink text */
+  --color-line: rgba(255, 255, 255, 0.08); /* Linear hairline */
 
-  /* Match-page tokens — Monaco Deep Emerald Velvet */
-  --color-violation: #f59e0b;           /* amber-orange: snooker miss / solve */
-  --color-destructive: #e11d48;
-  --color-destructive-foreground: #07080a;
-  --color-felt-hi: #04522c;             /* emerald baize highlight */
-  --color-felt-mid: #034323;            /* deep emerald velvet mid */
-  --color-felt-deep: #012313;           /* deep shade border */
-  --color-pos-soft: rgba(16, 185, 129, 0.16); /* emerald ice positive */
-  --color-neg-soft: rgba(225, 29, 72, 0.16);  /* ruby carmine negative */
-  --color-rail: rgba(16, 18, 22, 0.85);
+  --color-violation: #f59e0b;
+  --color-destructive: #eb5757;
+  --color-destructive-foreground: #ffffff;
+  --color-felt-hi: #12141a;             /* Linear slate workspace */
+  --color-felt-mid: #0e1014;
+  --color-felt-deep: #08090b;
+  --color-pos-soft: rgba(46, 204, 113, 0.15);
+  --color-neg-soft: rgba(235, 87, 87, 0.15);
+  --color-rail: #131418;
 
   --font-sans: "Inter Variable", "Inter", -apple-system, BlinkMacSystemFont,
     "SF Pro Display", "SF Pro Text", system-ui, sans-serif;
@@ -45,30 +44,30 @@
 
 :root {
   color-scheme: dark;
-  --background: #07080a;
-  --foreground: #f1f5f9;
-  --card: #111317;
-  --card-foreground: #f1f5f9;
-  --popover: #101216;
-  --popover-foreground: #f1f5f9;
-  --primary: #ffd166;
-  --primary-foreground: #07080a;
-  --secondary: #94a3b8;
-  --secondary-foreground: #f1f5f9;
-  --muted: #101216;
-  --muted-foreground: #8b929e;
-  --accent: #94a3b8;
-  --accent-foreground: #f1f5f9;
-  --destructive: #e11d48;
-  --destructive-foreground: #fff;
-  --border: rgba(241, 245, 249, 0.08);
-  --input: rgba(241, 245, 249, 0.10);
-  --ring: #ffd166;
-  --radius: 0.85rem;
+  --background: #08090b;
+  --foreground: #f7f8f8;
+  --card: #131418;
+  --card-foreground: #f7f8f8;
+  --popover: #0f1012;
+  --popover-foreground: #f7f8f8;
+  --primary: #5e6ad2;
+  --primary-foreground: #ffffff;
+  --secondary: #1a1b22;
+  --secondary-foreground: #f7f8f8;
+  --muted: #0f1012;
+  --muted-foreground: #8a8f98;
+  --accent: #5e6ad2;
+  --accent-foreground: #ffffff;
+  --destructive: #eb5757;
+  --destructive-foreground: #ffffff;
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.08);
+  --ring: #5e6ad2;
+  --radius: 0.75rem;
   --gold: #ffd166;
   --violation: #f59e0b;
-  --pos-soft: rgba(16, 185, 129, 0.16);
-  --neg-soft: rgba(225, 29, 72, 0.16);
+  --pos-soft: rgba(46, 204, 113, 0.15);
+  --neg-soft: rgba(235, 87, 87, 0.15);
 }
 
 /* ───────── Themes — applied via <html data-theme="…"> ─────────
@@ -215,8 +214,8 @@ html {
 body {
   background-color: var(--background);
   background-image:
-    radial-gradient(80% 50% at 50% -10%, rgba(148, 163, 184, 0.05), transparent 70%),
-    linear-gradient(180deg, #07080a 0%, #0a0c10 100%);
+    radial-gradient(80% 50% at 50% -10%, rgba(94, 106, 210, 0.04), transparent 70%),
+    linear-gradient(180deg, #08090b 0%, #0c0d10 100%);
   background-attachment: fixed;
   color: var(--foreground);
   font-family: var(--font-sans);
@@ -233,137 +232,72 @@ body {
   .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
 }
 
-/* Layered glass surface — Monaco Smoked Titanium Glass with crisp 1px platinum hairline edge */
+/* Linear-style Clean Panels */
 .glass {
   position: relative;
-  background: linear-gradient(180deg, rgba(241, 245, 249, 0.035), rgba(241, 245, 249, 0.01)),
-    var(--card);
-  backdrop-filter: blur(24px) saturate(140%);
-  -webkit-backdrop-filter: blur(24px) saturate(140%);
-  border: 1px solid rgba(241, 245, 249, 0.09);
-  box-shadow:
-    inset 0 1px 0 rgba(241, 245, 249, 0.12),
-    inset 0 0 0 0.5px rgba(241, 245, 249, 0.02),
-    0 12px 34px rgba(0, 0, 0, 0.7);
-  border-radius: 22px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  border-radius: 14px;
 }
 
 .glass-strong {
   position: relative;
-  background: linear-gradient(180deg, rgba(241, 245, 249, 0.045), rgba(241, 245, 249, 0.015)),
-    rgba(16, 18, 22, 0.95);
-  backdrop-filter: blur(32px) saturate(150%);
-  -webkit-backdrop-filter: blur(32px) saturate(150%);
-  border: 1px solid rgba(241, 245, 249, 0.12);
-  box-shadow:
-    inset 0 1px 0 rgba(241, 245, 249, 0.16),
-    inset 0 0 0 0.5px rgba(241, 245, 249, 0.03),
-    0 22px 55px rgba(0, 0, 0, 0.75);
-  border-radius: 24px;
+  background: #16171d;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
+  border-radius: 16px;
 }
 
-/* Precision glows — Swiss Chronograph & Monaco VIP */
+/* Precision status accents */
 .glow-emerald {
-  box-shadow:
-    0 0 0 1px rgba(16, 185, 129, 0.25),
-    0 0 24px rgba(16, 185, 129, 0.18),
-    0 18px 44px rgba(0, 0, 0, 0.7);
+  box-shadow: 0 0 0 1px rgba(94, 106, 210, 0.3), 0 4px 16px rgba(0, 0, 0, 0.5);
 }
 .glow-gold {
-  box-shadow:
-    0 0 0 1px rgba(255, 209, 102, 0.28),
-    0 0 24px rgba(255, 209, 102, 0.22),
-    0 18px 44px rgba(0, 0, 0, 0.7);
+  box-shadow: 0 0 0 1px rgba(255, 209, 102, 0.3), 0 4px 16px rgba(0, 0, 0, 0.5);
 }
 
-/* Ball — 3D specular billiard sphere with tactile depth */
+/* Ball — Flat Modern Geometry (No fake 3D skeuomorphism) */
 .snooker-ball {
   border-radius: 9999px;
-  box-shadow:
-    inset 0 -8px 0 rgba(0, 0, 0, 0.55),
-    inset 4px 5px 8px rgba(255, 255, 255, 0.45),
-    inset -4px -4px 9px rgba(0, 0, 0, 0.35),
-    0 8px 18px rgba(0, 0, 0, 0.7),
-    0 2px 5px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  transition: transform 120ms cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 120ms ease;
 }
 
 .ball-rim {
   border-radius: 9999px;
-  box-shadow:
-    inset 0 0 0 1.5px rgba(241, 245, 249, 0.35),
-    inset 0 -8px 0 rgba(0, 0, 0, 0.55),
-    inset 4px 5px 8px rgba(255, 255, 255, 0.45),
-    inset -4px -4px 9px rgba(0, 0, 0, 0.35),
-    0 0 12px rgba(255, 209, 102, 0.18),
-    0 8px 18px rgba(0, 0, 0, 0.7),
-    0 2px 5px rgba(0, 0, 0, 0.5);
 }
 
-/* ───────── Ball pad surface ─────────
- * .baize        — Monaco Deep Emerald Velvet felt (rich radial depth)
- * .baize-rail   — brushed titanium cushion rail
- * .felt-spot    — focused tungsten spotlight pool
- * .felt-tick    — platinum hairline scoreboard ticks */
+/* ───────── Clean Tactical Ball Rack ───────── */
 .baize {
   position: relative;
-  border-radius: 22px;
-  background:
-    radial-gradient(120% 120% at 50% 0%, var(--color-felt-hi) 0%, var(--color-felt-mid) 52%, var(--color-felt-deep) 100%);
-  box-shadow:
-    inset 0 0 38px rgba(0, 0, 0, 0.65),
-    inset 0 -10px 0 rgba(1, 35, 19, 0.75),
-    0 0 20px rgba(16, 185, 129, 0.08),
-    0 16px 38px rgba(0, 0, 0, 0.7);
+  border-radius: 14px;
+  background: #0b0c10;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.6);
 }
 .felt-spot {
-  position: absolute;
-  inset: 0;
-  border-radius: 22px;
-  pointer-events: none;
-  background:
-    radial-gradient(60% 50% at 50% 14%, rgba(255, 255, 255, 0.10), transparent 60%),
-    radial-gradient(90% 70% at 50% 100%, rgba(1, 35, 19, 0.65), transparent 65%);
+  display: none !important;
 }
 .felt-tick {
-  position: relative;
-  width: 2px;
-  height: 7px;
-  border-radius: 2px;
-  background: rgba(241, 245, 249, 0.35);
-  box-shadow: 0 3px 0 rgba(1, 35, 19, 0.7);
+  display: none !important;
 }
 .cushion {
-  box-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.65),
-    0 12px 26px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 }
 
-/* ───────── Match table stage ─────────
- * .table-stage   — Brushed Titanium / Dark Platinum cushion rail
- * .scoreboard-head — header strip on the table rail */
+/* ───────── Match Table Stage ───────── */
 .table-stage {
   position: relative;
-  border-radius: 26px;
-  background: linear-gradient(180deg, rgba(241, 245, 249, 0.03), rgba(241, 245, 249, 0.008)),
-    rgba(16, 18, 22, 0.92);
-  backdrop-filter: blur(28px) saturate(150%);
-  -webkit-backdrop-filter: blur(28px) saturate(150%);
-  border: 1px solid rgba(148, 163, 184, 0.22);   /* brushed titanium rail */
-  box-shadow:
-    inset 0 1px 0 rgba(241, 245, 249, 0.14),
-    0 0 16px rgba(148, 163, 184, 0.08),
-    0 18px 45px rgba(0, 0, 0, 0.75);
-  padding: 0.75rem 1rem;
+  border-radius: 16px;
+  background: #101115;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+  padding: 1rem 1.25rem;
 }
 .table-stage::before {
-  content: "";
-  position: absolute;
-  inset-inline: 0;
-  top: 0;
-  height: 30%;
-  border-radius: 26px;
-  pointer-events: none;
-  background: radial-gradient(70% 60% at 50% 0%, rgba(241, 245, 249, 0.04), transparent 65%);
+  content: none;
 }
 .scoreboard-head {
   display: flex;
@@ -372,9 +306,7 @@ body {
   margin-bottom: 0.75rem;
 }
 
-/* ───────── Control dock (table-side deck) ─────────
- * Mobile (<lg): thumb-reach dock fixed to bottom viewport
- * Desktop (≥lg): static deck in-flow directly under baize */
+/* ───────── Linear-grade Control Dock ───────── */
 .control-dock {
   position: fixed;
   left: 0;
@@ -385,16 +317,12 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  background: linear-gradient(180deg, rgba(16, 18, 22, 0.96), rgba(7, 8, 10, 0.98));
-  backdrop-filter: blur(26px) saturate(150%);
-  -webkit-backdrop-filter: blur(26px) saturate(150%);
-  border: 1px solid rgba(148, 163, 184, 0.20);
-  border-radius: 24px;
-  box-shadow:
-    inset 0 1px 0 rgba(241, 245, 249, 0.12),
-    0 0 14px rgba(148, 163, 184, 0.06),
-    0 20px 48px rgba(0, 0, 0, 0.75);
+  padding: 0.65rem 1rem;
+  background: rgba(11, 12, 16, 0.94);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.5);
 }
 @media (min-width: 1024px) {
   .control-dock {
@@ -430,50 +358,35 @@ body {
 
 /* Subtle hairline utility for grouped rows */
 .hairline {
-  border-top: 1px solid rgba(241, 245, 249, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-/* Tactile Chrono-Pusher button — raised keycap with mechanical spring feel */
+/* Linear-style Tactical Command Button (No bulky 3D bevels) */
 .action-key {
   position: relative;
-  border-radius: 16px;
-  border: 1px solid rgba(148, 163, 184, 0.32);
-  background-image: linear-gradient(180deg, rgba(241, 245, 249, 0.14), rgba(241, 245, 249, 0.03) 55%, rgba(0, 0, 0, 0.15));
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.35),
-    inset 0 -2px 0 rgba(0, 0, 0, 0.4),
-    0 0 8px rgba(148, 163, 184, 0.12),
-    0 5px 0 -1px rgba(0, 0, 0, 0.65),
-    0 10px 22px rgba(0, 0, 0, 0.6);
-  transform: translateY(0);
-  transition:
-    transform 80ms cubic-bezier(0.2, 0.8, 0.2, 1),
-    box-shadow 80ms cubic-bezier(0.2, 0.8, 0.2, 1),
-    filter 80ms ease;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #16171d;
+  color: #f7f8f8;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  transition: all 120ms cubic-bezier(0.2, 0.8, 0.2, 1);
   -webkit-tap-highlight-color: transparent;
 }
 .action-key:hover {
-  filter: brightness(1.08);
+  background: #1f2029;
+  border-color: rgba(255, 255, 255, 0.2);
 }
 .action-key:active {
-  transform: translateY(3px);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.35),
-    0 2px 0 -1px rgba(0, 0, 0, 0.5),
-    0 0 4px rgba(148, 163, 184, 0.08),
-    0 4px 8px rgba(0, 0, 0, 0.45);
+  transform: scale(0.97);
+  background: #14151a;
 }
 .action-key:focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: 2px;
 }
 .action-key:disabled {
-  transform: none;
-  filter: saturate(0.3) brightness(0.75);
-  box-shadow:
-    inset 0 1px 0 rgba(244, 239, 230, 0.1),
-    0 2px 0 -1px rgba(0, 0, 0, 0.35);
+  opacity: 0.35;
+  pointer-events: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

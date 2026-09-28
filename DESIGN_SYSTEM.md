@@ -1,14 +1,13 @@
-# Design System — Snooker Money Tracker Pro ("Monaco Gentleman VIP")
+# Design System — Snooker Money Tracker Pro ("Linear Craft Pro")
 
-The visual identity is *Monaco Gentleman VIP*: a private high-stakes salon
-read as a refined, zero-glare luxury lounge. Pure Onyx Black room (`#07080a`),
-**Champagne Gold** (`#ffd166`) action color and positive money highlights,
-**Brushed Platinum / Titanium** (`#94a3b8`) metallic accents and hairline dividers,
-**Ruby Carmine** (`#e11d48`) fouls and negative stakes, and a deep emerald velvet
-felt pad (`#04522c` → `#034323` → `#012313`) under a focused spotlight.
-Zero screen glare on OLED screens, Swiss Chronograph precision tabular numerals,
-and tactile chrono-pusher keycaps. Lightweight, mobile-first, tuned for both the
-desktop dashboard and the one-handed table-side match screen.
+The visual identity is *Linear Craft Pro*: distilled directly from **Linear.app**
+in `brand-design-md`. A dense, technical, quietly luxurious software-craft interface
+built on deepest charcoal canvas (`#08090b`), signature indigo accent (`#5e6ad2`),
+crisp white ink (`#f7f8f8`), and 1px hairline dividers (`rgba(255,255,255,0.08)`).
+**Zero fake 3D skeuomorphism**: all cheesy radial gloss, fake spotlight pools,
+chalk marks, and bulky 3D beveled keycaps have been eradicated in favor of pure
+minimalist billiard geometry, clean tabular monospace numbers, and high-performance
+command-style interaction buttons.
 
 All tokens live in `src/app/globals.css`. There are two parallel token banks:
 

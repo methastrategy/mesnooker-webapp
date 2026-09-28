@@ -1,9 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Timer, Hourglass, ArrowRight, Zap } from "lucide-react";
+import { Timer, Hourglass, ArrowRight } from "lucide-react";
 import type { Player } from "@/types";
-import { AnimatedNumber, Badge } from "@/components/ui";
+import { AnimatedNumber } from "@/components/ui";
 import { AvatarBubble } from "@/components/game/AvatarPicker";
 import { cn } from "@/lib/utils";
 
@@ -58,36 +58,40 @@ export function TurnHeader({
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, y: 8 }}
+      initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      className="glass glow-emerald flex flex-col gap-0 overflow-hidden"
+      className="flex flex-col gap-0 overflow-hidden rounded-xl border border-white/[0.08] bg-[#111216] shadow-md"
     >
       {/* Main shooter row */}
       <div className="flex items-center gap-3 p-3 md:p-4">
-        {/* Avatar with active glow ring */}
+        {/* Avatar with clean status */}
         <div className="relative shrink-0">
-          <div className="absolute -inset-1 rounded-full bg-primary/30 blur-sm" />
-          <AvatarBubble avatar={shooter.avatar} size={44} />
+          <AvatarBubble avatar={shooter.avatar} size={42} />
           {/* Active shooter pulse dot */}
-          <span className="absolute -bottom-0.5 -right-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full border-2 border-black bg-primary">
+          <span className="absolute -bottom-0.5 -right-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full border-2 border-[#111216] bg-primary">
             <span className="h-1.5 w-1.5 rounded-full bg-white" />
           </span>
         </div>
 
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <span className="truncate font-bold text-base md:text-lg leading-tight">
+            <span className="truncate font-semibold text-base md:text-lg leading-tight tracking-tight text-white">
               {shooter.nickname}
             </span>
-            <Badge variant={isClearing ? "gold" : "default"} className="shrink-0">
-              {isClearing ? `🎯 CLEAR: ${clearingLabel ?? "..."}` : "🎱 ON BREAK"}
-            </Badge>
+            <span className={cn(
+              "px-2 py-0.5 rounded-full text-[10px] font-mono font-medium tracking-wide uppercase",
+              isClearing
+                ? "bg-amber-400/15 text-amber-300 border border-amber-400/30"
+                : "bg-primary/15 text-primary-hover border border-primary/30"
+            )}>
+              {isClearing ? `🎯 CLEAR: ${clearingLabel ?? "..."}` : "● ON BREAK"}
+            </span>
           </div>
-          <div className="text-[11px] text-muted-foreground mt-0.5">
+          <div className="text-[11px] text-muted-foreground mt-0.5 font-sans">
             {targetName ? (
               <span>
                 vs{" "}
-                <span className="font-semibold text-foreground/70">{targetName}</span>
+                <span className="font-medium text-zinc-300">{targetName}</span>
               </span>
             ) : (
               t("match.currentShooter", locale)
@@ -99,18 +103,18 @@ export function TurnHeader({
         <div className="flex items-center gap-3">
           {/* Running money */}
           <div className="text-right leading-tight">
-            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">฿ Money</div>
-            <div className={cn("text-xl md:text-2xl font-bold tabular-nums", moneyColor)}>
+            <div className="text-[10px] uppercase font-mono tracking-wider text-muted-foreground">Money</div>
+            <div className={cn("text-xl md:text-2xl font-bold font-mono tabular-nums tracking-tight", moneyColor)}>
               {runningMoney > 0 ? "+" : ""}
               <AnimatedNumber value={runningMoney} prefix="฿" decimals={0} />
             </div>
           </div>
           {/* Break count */}
-          <div className="text-right leading-tight pl-2 border-l border-white/10">
-            <div className="text-[10px] uppercase tracking-wider text-muted-foreground flex items-center gap-1 justify-end">
-              <Zap size={9} className="text-gold" />Break
+          <div className="text-right leading-tight pl-3 border-l border-white/10">
+            <div className="text-[10px] uppercase font-mono tracking-wider text-muted-foreground flex items-center gap-1 justify-end">
+              Break
             </div>
-            <div className="text-xl md:text-2xl font-bold tabular-nums text-gold">
+            <div className="text-xl md:text-2xl font-bold font-mono tabular-nums text-white tracking-tight">
               <AnimatedNumber value={breakCount} />
             </div>
           </div>

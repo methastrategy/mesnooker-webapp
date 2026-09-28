@@ -5,7 +5,7 @@ import type { BallColor } from "@/types";
 import { BALL_HEX, BALL_NAME } from "@/lib/rules";
 import { cn } from "@/lib/utils";
 
-/** Styled snooker ball with gloss */
+/** Linear-grade minimalist snooker ball */
 export function SnookerBall({
   color,
   size = 52,
@@ -22,22 +22,27 @@ export function SnookerBall({
   selected?: boolean;
 }) {
   const hex = BALL_HEX[color];
+  const isLight = color === "yellow";
+
   return (
     <motion.button
       onClick={onClick}
       disabled={disabled}
-      whileTap={disabled ? undefined : { scale: 0.92, y: 2 }}
-      whileHover={disabled ? undefined : { scale: 1.04 }}
-      transition={{ type: "spring", stiffness: 480, damping: 20 }}
+      whileTap={disabled ? undefined : { scale: 0.93 }}
+      whileHover={disabled ? undefined : { scale: 1.05 }}
+      transition={{ type: "spring", stiffness: 500, damping: 25 }}
       className={cn(
-        "snooker-ball ball-rim relative flex items-center justify-center font-bold text-black/85 select-none",
+        "relative flex items-center justify-center font-bold font-mono select-none rounded-full transition-all",
+        isLight ? "text-zinc-950" : "text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]",
         disabled && "opacity-15 pointer-events-none",
-        selected && "ring-2 ring-primary ring-offset-2 ring-offset-[#07080a] shadow-[0_0_14px_rgba(255,209,102,0.3)]"
+        selected
+          ? "ring-2 ring-primary ring-offset-2 ring-offset-[#08090b] shadow-[0_0_16px_rgba(94,106,210,0.35)]"
+          : "border border-white/20 shadow-sm"
       )}
       style={{
         width: size,
         height: size,
-        background: `radial-gradient(circle at 32% 24%, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.25) 18%, ${hex} 52%, color-mix(in srgb, ${hex} 65%, #000 35%) 82%, #000 100%)`,
+        backgroundColor: hex,
         fontSize: size * 0.4,
       }}
       aria-label={`${BALL_NAME[color]} ball${value !== undefined ? ` $${value}` : ""}`}
