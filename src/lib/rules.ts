@@ -77,13 +77,13 @@ export const BALL_NAME: Record<BallColor, string> = {
 };
 
 export const BALL_HEX: Record<BallColor, string> = {
-  red: "#ef4444",
-  yellow: "#facc15",
-  green: "#22c55e",
-  brown: "#a16207",
-  blue: "#3b82f6",
-  pink: "#ec4899",
-  black: "#1f2937",
+  red: "#da2c38",
+  yellow: "#ffbe0b",
+  green: "#238e55",
+  brown: "#7e523b",
+  blue: "#2b59c3",
+  pink: "#f383a2",
+  black: "#242728",
 };
 
 /** point value of a ball in a given mode */

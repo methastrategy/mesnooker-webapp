@@ -75,7 +75,7 @@ export function TurnHeader({
       layout
       initial={{ opacity: 0, y: -4 }}
       animate={{ opacity: 1, y: 0 }}
-      className="flex flex-col gap-2"
+      className="sticky top-0 z-30 flex flex-col gap-2 bg-background/95 backdrop-blur-sm pt-safe pb-2"
     >
       {/* ═════════════ 1. LIVE SCOREBOARD CARDS (TOPMOST) ═════════════ */}
       <div
@@ -105,10 +105,10 @@ export function TurnHeader({
             <div
               key={p.id}
               className={cn(
-                "relative flex flex-col justify-between rounded-xl p-2.5 sm:p-3 transition-all duration-200 border",
+                "relative flex flex-col justify-between rounded-lg p-2.5 sm:p-3 transition-all duration-200 border",
                 isShooting
-                  ? "border-[#3ecf8e] bg-[#16231d] ring-1 ring-[#3ecf8e]/40 shadow-[0_0_16px_rgba(62,207,142,0.18)]"
-                  : "border-white/[0.08] bg-[#171717] opacity-85 hover:opacity-100"
+                  ? "border-primary bg-primary/10 ring-1 ring-primary/40"
+                  : "border-border bg-card opacity-85 hover:opacity-100"
               )}
             >
               {/* Player Top Line: Avatar + Name + Badges */}
@@ -117,7 +117,7 @@ export function TurnHeader({
                   <div className="relative shrink-0">
                     <AvatarBubble avatar={p.avatar} size={22} />
                     {isShooting && (
-                      <span className="absolute -bottom-0.5 -right-0.5 flex h-2 w-2 items-center justify-center rounded-full bg-[#3ecf8e]">
+                      <span className="absolute -bottom-0.5 -right-0.5 flex h-2 w-2 items-center justify-center rounded-full bg-primary">
                         <span className="h-1 w-1 rounded-full bg-black" />
                       </span>
                     )}
@@ -125,7 +125,7 @@ export function TurnHeader({
                   <span
                     className={cn(
                       "truncate text-xs sm:text-sm font-semibold tracking-tight leading-tight",
-                      isShooting ? "text-white" : "text-zinc-400"
+                      isShooting ? "text-foreground" : "text-muted-foreground"
                     )}
                   >
                     {p.nickname}
@@ -135,14 +135,14 @@ export function TurnHeader({
                 {/* Status Badges */}
                 <div className="flex items-center gap-1 shrink-0">
                   {isLeading && (
-                    <span className="flex items-center gap-0.5 rounded px-1 py-0.2 bg-amber-400/10 border border-amber-400/25 text-[9px] font-mono font-medium text-amber-300 uppercase">
+                    <span className="flex items-center gap-0.5 rounded px-1 py-0.2 bg-gold/10 border border-gold/25 text-[9px] font-mono font-medium text-gold uppercase">
                       <Trophy size={9} />
                       Lead
                     </span>
                   )}
                   {isShooting && (
-                    <span className="flex items-center gap-0.5 rounded px-1 py-0.2 bg-[#3ecf8e]/20 border border-[#3ecf8e]/35 text-[9px] font-mono font-bold text-[#3ecf8e] uppercase">
-                      <Zap size={9} className="text-[#3ecf8e]" />
+                    <span className="flex items-center gap-0.5 rounded px-1 py-0.2 bg-primary/20 border border-primary/35 text-[9px] font-mono font-bold text-primary uppercase">
+                      <Zap size={9} className="text-primary" />
                       Turn
                     </span>
                   )}
@@ -151,11 +151,11 @@ export function TurnHeader({
 
               {/* Main Score Display */}
               <div className="my-1 flex items-baseline justify-between gap-2">
-                <div className="font-mono text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-white tabular-nums leading-none">
+                <div className="font-mono text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-foreground tabular-nums leading-none">
                   <AnimatedNumber value={score} />
                 </div>
                 <div className="text-right">
-                  <span className="text-[9px] uppercase tracking-wider font-mono text-zinc-500 block leading-tight">
+                  <span className="text-[9px] uppercase tracking-wider font-mono text-muted-foreground block leading-tight">
                     Money
                   </span>
                   <span className={cn("text-xs sm:text-sm font-mono font-medium tabular-nums leading-none", balColor)}>
@@ -168,8 +168,8 @@ export function TurnHeader({
               {/* Active Shooter Break Subtext */}
               {isShooting && breakCount > 0 && (
                 <div className="mt-0.5 flex items-center justify-between border-t border-white/[0.06] pt-1 text-[10px] font-mono">
-                  <span className="text-zinc-400">Current Break</span>
-                  <span className="font-bold text-amber-300">+{breakCount}</span>
+                  <span className="text-muted-foreground">Current Break</span>
+                  <span className="font-bold text-gold">+{breakCount}</span>
                 </div>
               )}
             </div>
@@ -178,16 +178,16 @@ export function TurnHeader({
       </div>
 
       {/* ═════════════ 2. SHOOTER & UP-NEXT QUEUE BAR (BELOW SCOREBOARD) ═════════════ */}
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-white/[0.08] bg-[#171717] px-3 py-2 text-xs">
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs">
         {/* Active Shooter Identity & Ball State */}
         <div className="flex items-center gap-2 min-w-0">
-          <span className="text-zinc-500 text-[11px] font-medium shrink-0">
+          <span className="text-muted-foreground text-[11px] font-medium shrink-0">
             {locale === "th" ? "คิวแทง:" : "Turn:"}
           </span>
-          <span className="font-semibold text-white tracking-tight truncate">
+          <span className="font-semibold text-foreground tracking-tight truncate">
             {shooter.nickname}
             {targetName && (
-              <span className="text-zinc-500 font-normal text-[10px] ml-1">
+              <span className="text-muted-foreground font-normal text-[10px] ml-1">
                 vs {targetName}
               </span>
             )}
@@ -196,10 +196,10 @@ export function TurnHeader({
             className={cn(
               "px-2 py-0.5 rounded-full text-[10px] font-mono font-medium tracking-wide uppercase shrink-0",
               isClearing
-                ? "bg-amber-400/15 text-amber-300 border border-amber-400/30"
+                ? "bg-gold/15 text-gold border border-gold/30"
                 : canStartBreak
-                  ? "bg-[#3ecf8e]/15 text-[#3ecf8e] border border-[#3ecf8e]/35"
-                  : "bg-rose-500/15 text-rose-300 border border-rose-500/35"
+                  ? "bg-primary/15 text-primary border border-primary/35"
+                  : "bg-destructive/15 text-destructive border border-destructive/35"
             )}
           >
             {isClearing
@@ -211,15 +211,15 @@ export function TurnHeader({
         </div>
 
         {/* Up-Next Queue & Live Clocks */}
-        <div className="flex items-center gap-3 ml-auto text-[11px] font-mono text-zinc-400">
+        <div className="flex items-center gap-3 ml-auto text-[11px] font-mono text-muted-foreground">
           {queue.length > 0 && (
             <div className="flex items-center gap-1.5">
-              <span className="text-zinc-500">{locale === "th" ? "คิวถัดไป:" : "Next:"}</span>
+              <span className="text-muted-foreground">{locale === "th" ? "คิวถัดไป:" : "Next:"}</span>
               <div className="flex items-center gap-1">
                 {queue.map((p, i) => (
                   <div key={p.id} className="flex items-center gap-1">
-                    {i > 0 && <ArrowRight size={10} className="text-zinc-600" />}
-                    <div className="flex items-center gap-1 rounded bg-white/[0.04] border border-white/[0.07] px-1.5 py-0.5 text-zinc-300">
+                    {i > 0 && <ArrowRight size={10} className="text-muted-foreground" />}
+                    <div className="flex items-center gap-1 rounded bg-white/[0.04] border border-white/[0.07] px-1.5 py-0.5 text-foreground">
                       <AvatarBubble avatar={p.avatar} size={13} />
                       <span className="text-[10px] font-medium">{p.nickname}</span>
                     </div>
@@ -227,7 +227,7 @@ export function TurnHeader({
                 ))}
               </div>
               {reverse && (
-                <span className="text-[10px] text-amber-400/80" title="Reversed rotation">
+                <span className="text-[10px] text-gold/80" title="Reversed rotation">
                   ↩
                 </span>
               )}
@@ -235,11 +235,11 @@ export function TurnHeader({
           )}
 
           {frameClock && (
-            <div className="hidden sm:flex items-center gap-1 pl-2 border-l border-white/[0.08] text-zinc-400">
-              <Timer size={12} className="text-[#3ecf8e]" />
+            <div className="hidden sm:flex items-center gap-1 pl-2 border-l border-border text-muted-foreground">
+              <Timer size={12} className="text-primary" />
               <span>
                 F{frameNumber}: {frameClock}
-                {sessionClock && <span className="text-zinc-500 ml-1">· {sessionClock}</span>}
+                {sessionClock && <span className="text-muted-foreground ml-1">· {sessionClock}</span>}
               </span>
             </div>
           )}

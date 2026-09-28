@@ -5,14 +5,15 @@ import type { BallColor } from "@/types";
 import { BALL_HEX, BALL_NAME } from "@/lib/rules";
 import { cn } from "@/lib/utils";
 
-/** Linear-grade minimalist snooker ball */
+/** Raycast Keycap style snooker ball */
 export function SnookerBall({
   color,
-  size = 52,
+  size,
   disabled,
   onClick,
   value,
   selected,
+  className,
 }: {
   color: BallColor;
   size?: number;
@@ -20,30 +21,33 @@ export function SnookerBall({
   onClick?: () => void;
   value?: string | number;
   selected?: boolean;
+  className?: string;
 }) {
   const hex = BALL_HEX[color];
-  const isLight = color === "yellow";
+  const isLight = color === "yellow" || color === "pink";
 
   return (
     <motion.button
       onClick={onClick}
       disabled={disabled}
-      whileTap={disabled ? undefined : { scale: 0.93 }}
-      whileHover={disabled ? undefined : { scale: 1.05 }}
-      transition={{ type: "spring", stiffness: 500, damping: 25 }}
+      whileTap={disabled ? undefined : { scale: 0.95 }}
+      whileHover={disabled ? undefined : { filter: "brightness(1.1)" }}
+      transition={{ type: "spring", stiffness: 400, damping: 30 }}
       className={cn(
-        "relative flex items-center justify-center font-bold font-mono select-none rounded-full transition-all",
-        isLight ? "text-zinc-950" : "text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]",
-        disabled && "opacity-15 pointer-events-none",
-        selected
-          ? "ring-2 ring-primary ring-offset-2 ring-offset-[#121212] shadow-[0_0_16px_rgba(62,207,142,0.35)]"
-          : "border border-white/20 shadow-sm"
+        "relative flex shrink-0 items-center justify-center font-bold font-mono select-none rounded-full transition-all",
+        "border border-white/10 shadow-sm",
+        isLight ? "text-zinc-900" : "text-white",
+        disabled && "opacity-20 pointer-events-none grayscale-[50%]",
+        selected && "ring-2 ring-primary ring-offset-2 ring-offset-[#07080a]",
+        !size && "w-11 h-11 sm:w-14 sm:h-14 md:w-16 md:h-16 text-[16px] sm:text-[20px] md:text-[24px]", // fluid sizes if no explicit size
+        className
       )}
       style={{
         width: size,
         height: size,
-        backgroundColor: hex,
-        fontSize: size * 0.4,
+        // Raycast keycap subtle top-down gradient
+        background: `linear-gradient(180deg, ${hex} 0%, color-mix(in srgb, ${hex} 80%, black) 100%)`,
+        fontSize: size ? size * 0.4 : undefined,
       }}
       aria-label={`${BALL_NAME[color]} ball${value !== undefined ? ` $${value}` : ""}`}
     >
@@ -56,7 +60,7 @@ export function SnookerBall({
 export function BallDot({ color, size = 10 }: { color: BallColor; size?: number }) {
   return (
     <span
-      className="snooker-ball inline-block"
+      className="inline-block rounded-full border border-white/10"
       style={{ width: size, height: size, background: BALL_HEX[color] }}
     />
   );

@@ -6,20 +6,20 @@ import { motion, type HTMLMotionProps } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl font-medium transition-all select-none disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3ecf8e]/60 active:scale-[0.97] cursor-pointer",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[8px] font-medium transition-all select-none disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 cursor-pointer border border-transparent",
   {
     variants: {
       variant: {
         default:
-          "bg-[#3ecf8e] text-zinc-950 font-bold border border-[#3ecf8e]/50 shadow-sm hover:bg-[#4ade80] active:bg-[#24b47e]",
-        gold: "bg-amber-400 text-zinc-950 font-bold border border-amber-400/50 shadow-sm hover:bg-amber-300",
+          "bg-primary text-primary-foreground font-bold border-primary/50 hover:bg-primary-hover",
+        gold: "bg-gold text-primary-foreground font-bold border-gold/50 hover:opacity-90",
         violation:
-          "bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30",
-        secondary: "bg-[#242424] text-zinc-200 border border-white/10 hover:bg-[#2e2e2e]",
-        outline: "border border-white/10 bg-white/[0.04] text-zinc-200 hover:bg-white/[0.08] hover:border-white/20",
-        ghost: "border border-white/10 text-zinc-300 hover:bg-white/[0.05]",
-        danger: "bg-rose-500/20 text-rose-300 border border-rose-500/40 hover:bg-rose-500/30",
-        glass: "bg-[#171717] text-zinc-200 border border-white/10 hover:bg-[#222222]",
+          "bg-violation/20 text-violation border-violation/40 hover:bg-violation/30",
+        secondary: "bg-secondary text-secondary-foreground border-border hover:bg-[#1a1b1d]",
+        outline: "border-border bg-transparent text-foreground hover:bg-white/[0.05]",
+        ghost: "text-muted-foreground hover:text-foreground hover:bg-white/[0.05]",
+        danger: "bg-destructive/20 text-destructive border-destructive/40 hover:bg-destructive/30",
+        glass: "bg-card text-card-foreground border-border hover:bg-surface",
       },
       size: {
         default: "h-11 px-5 text-sm",

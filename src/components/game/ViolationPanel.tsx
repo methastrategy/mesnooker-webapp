@@ -30,7 +30,7 @@ export function ViolationPanel({
         aria-label={`Foul penalty ${foulValue}`}
         className="flex-col gap-1 py-1.5 h-auto min-h-12"
       >
-        <AlertTriangle size={15} className="text-rose-400" />
+        <AlertTriangle size={15} className="text-destructive" />
         <div className="flex items-center gap-1">
           <span className="text-[11px] font-bold uppercase tracking-wider">Foul</span>
           <span className="font-mono text-[10px] opacity-80">{foulValue}</span>
@@ -44,7 +44,7 @@ export function ViolationPanel({
         aria-label={`Snooker miss ${missValue}`}
         className="flex-col gap-1 py-1.5 h-auto min-h-12"
       >
-        <CircleSlash size={15} className="text-amber-400" />
+        <CircleSlash size={15} className="text-violation" />
         <div className="flex items-center gap-1">
           <span className="text-[11px] font-bold uppercase tracking-wider">Miss</span>
           <span className="font-mono text-[10px] opacity-80">{missValue}</span>
@@ -58,7 +58,7 @@ export function ViolationPanel({
         aria-label="Solve snooker +1"
         className="flex-col gap-1 py-1.5 h-auto min-h-12"
       >
-        <CheckCircle2 size={15} className="text-zinc-950" />
+        <CheckCircle2 size={15} className="text-primary-foreground" />
         <div className="flex items-center gap-1">
           <span className="text-[11px] font-bold uppercase tracking-wider">Solve</span>
           <span className="font-mono text-[10px] font-bold">+1</span>

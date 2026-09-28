@@ -61,35 +61,30 @@ export function BallPad({
         </div>
       ) : null}
 
-      <div className="relative flex flex-wrap items-center justify-center gap-4 md:gap-5 py-2">
-        {legal.map((c) => {
+      <div className="relative flex w-full flex-row items-center justify-center gap-1.5 sm:gap-3 py-2 flex-nowrap overflow-x-auto no-scrollbar">
+        {BALL_ORDER.map((c) => {
+          const isLegal = legalSet.has(c);
           const value = ballValues[c];
           const left = showCount ? showCount(c) : 0;
           return (
-            <div key={c} className="relative flex flex-col items-center gap-1.5">
+            <div key={c} className="relative flex flex-col items-center gap-1.5 shrink-0">
               <SnookerBall
                 color={c}
-                size={70}
                 value={value}
-                disabled={left <= 0}
-                selected
+                disabled={!isLegal || left <= 0}
+                selected={isLegal}
                 onClick={() => onPot(c)}
               />
-              <div className="flex items-center gap-1 rounded-md bg-white/[0.06] px-2 py-0.5 border border-white/[0.06]">
-                <span className="text-[11px] font-medium text-zinc-300 leading-tight">
+              <div className="flex items-center gap-1 rounded bg-white/[0.04] px-1.5 py-0.5 border border-white/[0.06]">
+                <span className="text-[9px] sm:text-[10px] font-medium text-zinc-300 leading-tight">
                   {BALL_NAME[c]}
                 </span>
                 {left > 0 ? (
-                  <span className="font-mono text-[10px] text-zinc-400">×{left}</span>
+                  <span className="font-mono text-[9px] text-zinc-400">×{left}</span>
                 ) : (
-                  <span className="font-mono text-[10px] text-rose-400">0</span>
+                  <span className="font-mono text-[9px] text-rose-400">0</span>
                 )}
               </div>
-              {left > 0 && left > 1 ? (
-                <span className="absolute -right-1 -top-1 z-10 flex h-5 min-w-5 items-center justify-center rounded-full bg-zinc-900 border border-white/20 px-1 font-mono text-[10px] font-bold text-white shadow-md">
-                  {left}
-                </span>
-              ) : null}
             </div>
           );
         })}
