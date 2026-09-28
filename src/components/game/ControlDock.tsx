@@ -9,17 +9,19 @@ import type { GameMode } from "@/types";
 /**
  * ControlDock — Raycast Ergonomic Command Deck:
  * 1. Penalties Group: Foul (−4/−2) & Miss (−2/−1) grouped side-by-side in capsule.
- * 2. Solve (+1): Active & bright ONLY when on red, dimmed when on color.
- * 3. Next Turn: Dominant primary action button (full 48px height, high-contrast green).
- * 4. More (⋯): Undo/Redo quick sheet.
- * 5. End Frame: Ergonomically separated below the deck with distinct compact footprint (28px height, muted) to prevent accidental mis-taps.
+ * 2. Solve (+1): Always enabled for escaping snookers.
+ * 3. Red Pot (+1): Active & bright ONLY when on red, dimmed when on colour.
+ * 4. Next Turn: Dominant primary action button (full 48px height, high-contrast green).
+ * 5. More (⋯): Undo/Redo quick sheet.
+ * 6. End Frame: Ergonomically separated below the deck with distinct compact footprint (28px height, muted) to prevent accidental mis-taps.
  */
 export function ControlDock({
   mode,
   onFoul,
   onMiss,
   onSolve,
-  canSolve = true,
+  onPotRed,
+  canPotRed = true,
   onEndTurn,
   moreOpen,
   onMoreOpen,
@@ -34,7 +36,8 @@ export function ControlDock({
   onFoul: () => void;
   onMiss: () => void;
   onSolve: () => void;
-  canSolve?: boolean;
+  onPotRed?: () => void;
+  canPotRed?: boolean;
   onEndTurn: () => void;
   moreOpen: boolean;
   onMoreOpen: () => void;
@@ -49,13 +52,14 @@ export function ControlDock({
     <div className="control-dock">
       {/* Primary Dock Bar */}
       <div className="flex w-full max-w-lg items-center justify-between gap-1 sm:gap-1.5">
-        {/* Penalties Group + Solve Button */}
+        {/* Penalties Group + Solve + Red Pot */}
         <ViolationPanel
           mode={mode}
           onFoul={onFoul}
           onMiss={onMiss}
           onSolve={onSolve}
-          canSolve={canSolve}
+          onPotRed={onPotRed}
+          canPotRed={canPotRed}
         />
 
         <div className="mx-0.5 sm:mx-1 h-8 w-px shrink-0 bg-border/80" />
@@ -65,7 +69,7 @@ export function ControlDock({
           <ActionButton
             tone="primary"
             onClick={onEndTurn}
-            className="h-12 min-w-[72px] sm:min-w-[88px] px-3 sm:px-4 gap-1.5 shadow-xs"
+            className="h-12 min-w-[68px] sm:min-w-[84px] px-2.5 sm:px-3.5 gap-1.5 shadow-xs"
             aria-label="End turn"
           >
             <span className="text-xs font-bold uppercase tracking-wider">Turn</span>
