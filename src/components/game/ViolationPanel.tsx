@@ -34,15 +34,15 @@ export function ViolationPanel({
   return (
     <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap sm:flex-nowrap">
       {/* ─── 1. Penalties Capsule: Foul + Miss (− points) ─── */}
-      <div className="flex items-center gap-1 rounded-[8px] border border-border/80 bg-surface/60 p-0.5">
+      <div className="flex items-center gap-1 rounded-2xl sm:rounded-full border border-border/80 bg-surface/85 p-1 shadow-sm backdrop-blur-md">
         {/* Foul — red penalty */}
         <ActionButton
           tone="danger"
           onClick={onFoul}
           aria-label={`Foul penalty ${foulValue}`}
-          className="flex-col gap-0.5 px-2 sm:px-2.5 py-1 h-12 min-w-[44px] sm:min-w-[52px]"
+          className="flex-col gap-0.5 px-2 sm:px-2.5 py-1 h-12 min-w-[46px] sm:min-w-[54px] rounded-xl sm:rounded-full"
         >
-          <AlertTriangle size={14} className="text-destructive shrink-0" />
+          <AlertTriangle size={15} className="text-destructive shrink-0" />
           <div className="flex items-center gap-0.5">
             <span className="text-[10px] font-bold uppercase tracking-wider">Foul</span>
             <span className="font-mono text-[9px] opacity-80">{foulValue}</span>
@@ -54,9 +54,9 @@ export function ViolationPanel({
           tone="violation"
           onClick={onMiss}
           aria-label={`Snooker miss ${missValue}`}
-          className="flex-col gap-0.5 px-2 sm:px-2.5 py-1 h-12 min-w-[44px] sm:min-w-[52px]"
+          className="flex-col gap-0.5 px-2 sm:px-2.5 py-1 h-12 min-w-[46px] sm:min-w-[54px] rounded-xl sm:rounded-full"
         >
-          <CircleSlash size={14} className="text-violation shrink-0" />
+          <CircleSlash size={15} className="text-violation shrink-0" />
           <div className="flex items-center gap-0.5">
             <span className="text-[10px] font-bold uppercase tracking-wider">Miss</span>
             <span className="font-mono text-[9px] opacity-80">{missValue}</span>
@@ -65,15 +65,15 @@ export function ViolationPanel({
       </div>
 
       {/* ─── 2. Positive Scoring Group (+ points): Solve & Red Pot ─── */}
-      <div className="flex items-center gap-1 rounded-[8px] border border-border/80 bg-surface/60 p-0.5">
+      <div className="flex items-center gap-1 rounded-2xl sm:rounded-full border border-border/80 bg-surface/85 p-1 shadow-sm backdrop-blur-md">
         {/* Solve (+1 pt) — Always enabled for snooker escape at any turn */}
         <ActionButton
           tone="gold"
           onClick={onSolve}
           aria-label="Solve snooker escape +1"
-          className="flex-col gap-0.5 px-2 sm:px-2.5 py-1 h-12 min-w-[46px] sm:min-w-[54px] bg-gold/15 text-gold border-gold/40 border-t-white/20 hover:bg-gold/25"
+          className="flex-col gap-0.5 px-2 sm:px-2.5 py-1 h-12 min-w-[48px] sm:min-w-[56px] rounded-xl sm:rounded-full bg-gold/15 text-gold border-gold/40 border-t-white/20 hover:bg-gold/25"
         >
-          <CheckCircle2 size={14} className="text-gold shrink-0" />
+          <CheckCircle2 size={15} className="text-gold shrink-0" />
           <div className="flex items-center gap-0.5">
             <span className="text-[10px] font-bold uppercase tracking-wider">Solve</span>
             <span className="font-mono text-[10px] font-bold">+1</span>
@@ -87,16 +87,16 @@ export function ViolationPanel({
           onClick={onPotRed}
           aria-label="Pot red ball +1"
           className={cn(
-            "flex-col gap-0.5 px-2 sm:px-2.5 py-1 h-12 min-w-[48px] sm:min-w-[56px] transition-all",
+            "flex-col gap-0.5 px-2 sm:px-2.5 py-1 h-12 min-w-[48px] sm:min-w-[56px] rounded-xl sm:rounded-full transition-all",
             canPotRed
-              ? "bg-[#da2c38]/20 text-[#ff5c6a] border border-[#da2c38]/50 border-t-white/30 hover:bg-[#da2c38]/30 cursor-pointer shadow-xs"
+              ? "bg-red-500/20 text-red-400 border border-red-500/50 border-t-white/30 hover:bg-red-500/30 cursor-pointer shadow-xs"
               : "opacity-25 grayscale border-border/30 bg-surface/20 text-muted-foreground pointer-events-none cursor-not-allowed"
           )}
         >
           <span
             className={cn(
               "h-3 w-3 rounded-full shrink-0 transition-all",
-              canPotRed ? "bg-[#da2c38] shadow-xs border border-white/30" : "bg-muted-foreground/40"
+              canPotRed ? "bg-red-500 shadow-xs border border-white/30" : "bg-muted-foreground/40"
             )}
           />
           <div className="flex items-center gap-0.5">

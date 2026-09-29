@@ -53,13 +53,13 @@ export function SettlementPanel({
         {players.map((p) => {
           const bal = runningBalance[p.id] ?? 0;
           return (
-            <div key={p.id} className="rounded-[8px] border border-border bg-card p-3">
+            <div key={p.id} className="rounded-[18px] border border-border/80 bg-surface/85 backdrop-blur-md p-3.5 shadow-sm">
               <div className="flex items-center gap-2 min-w-0">
                 <BallDot color={p.color as any} />
-                <span className="truncate text-xs sm:text-sm font-medium">{p.nickname}</span>
+                <span className="truncate text-xs sm:text-sm font-semibold">{p.nickname}</span>
               </div>
               <div
-                className={`mt-1 text-base sm:text-lg font-bold font-mono tabular-nums truncate ${
+                className={`mt-1.5 text-base sm:text-lg font-black font-mono tabular-nums truncate ${
                   bal > 0 ? "text-primary" : bal < 0 ? "text-destructive" : "text-muted-foreground"
                 }`}
               >
@@ -74,7 +74,7 @@ export function SettlementPanel({
       {/* Transfers */}
       <div>
         <div className="mb-2 flex items-center justify-between">
-          <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+          <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground">
             Who pays whom
           </h3>
           <Badge variant={totalOutstanding > 0 ? "gold" : "success"}>
@@ -83,8 +83,8 @@ export function SettlementPanel({
         </div>
 
         {transfers.length === 0 ? (
-          <div className="glass p-6 text-center text-sm text-muted-foreground">
-            Everything balanced. No payments needed 🎉
+          <div className="rounded-[18px] border border-border/80 bg-surface/70 p-6 text-center text-sm text-muted-foreground backdrop-blur-md">
+            Everything balanced. No outstanding transfers.
           </div>
         ) : (
           <div className="flex flex-col gap-2">
@@ -97,7 +97,7 @@ export function SettlementPanel({
                   initial={{ opacity: 0, x: -8 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.04 }}
-                  className={`glass flex items-center gap-3 p-3 ${paid ? "opacity-50" : ""}`}
+                  className={`rounded-2xl border border-border/80 bg-surface/85 backdrop-blur-md flex items-center gap-3 p-3.5 shadow-sm ${paid ? "opacity-50" : ""}`}
                 >
                   <div className="flex-1">
                     <div className="flex items-center gap-1.5 text-sm">

@@ -89,24 +89,24 @@ export function AvatarPicker({
       <AnimatePresence>
         {open && (
           <motion.div
-            className="absolute z-50 w-64 rounded-2xl border border-white/10 bg-black/90 p-3 backdrop-blur-md"
+            className="absolute z-50 w-64 rounded-[20px] border border-primary/20 bg-surface/95 p-3.5 backdrop-blur-xl shadow-2xl"
             initial={{ opacity: 0, scale: 0.9, y: -6 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9 }}
             transition={{ type: "spring", stiffness: 320, damping: 26 }}
           >
-            <div className="mb-1 text-[10px] uppercase tracking-widest text-muted-foreground">Quick</div>
+            <div className="mb-1 text-[10px] uppercase font-mono tracking-widest text-muted-foreground">Quick</div>
             <div className="mb-2 flex flex-wrap gap-2">
               {PRE.map((a) => (
-                <button key={a} type="button" onClick={() => { onChange(a); setOpen(false); }} className="text-xl" aria-label={`avatar ${a}`}>
+                <button key={a} type="button" onClick={() => { onChange(a); setOpen(false); }} className="text-xl hover:scale-110 active:scale-95 transition-transform" aria-label={`avatar ${a}`}>
                   {a}
                 </button>
               ))}
             </div>
-            <div className="mb-1 text-[10px] uppercase tracking-widest text-muted-foreground">Gallery</div>
+            <div className="mb-1 text-[10px] uppercase font-mono tracking-widest text-muted-foreground">Gallery</div>
             <div className="mb-2 flex flex-wrap gap-1.5">
               {GAL.map((a) => (
-                <button key={a} type="button" onClick={() => { onChange(a); setOpen(false); }} className="text-lg" aria-label={`avatar ${a}`}>
+                <button key={a} type="button" onClick={() => { onChange(a); setOpen(false); }} className="text-lg hover:scale-110 active:scale-95 transition-transform" aria-label={`avatar ${a}`}>
                   {a}
                 </button>
               ))}
@@ -115,22 +115,22 @@ export function AvatarPicker({
               <button
                 type="button"
                 onClick={() => fileRef.current?.click()}
-                className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-white/5 px-2 py-1.5 text-[11px]"
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-white/[0.06] hover:bg-white/[0.1] active:translate-y-0.5 border border-border px-2.5 py-1.5 text-[11px] font-medium transition-all"
               >
-                <Camera size={14} /> Camera / Upload
+                <Camera size={13} /> Upload
               </button>
               <button
                 type="button"
                 onClick={() => { onChange(GAL[Math.floor(Math.random() * GAL.length)]); setOpen(false); }}
-                className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-white/5 px-2 py-1.5 text-[11px]"
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-white/[0.06] hover:bg-white/[0.1] active:translate-y-0.5 border border-border px-2.5 py-1.5 text-[11px] font-medium transition-all"
               >
-                <Images size={14} /> Shuffle
+                <Images size={13} /> Shuffle
               </button>
             </div>
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="mt-1 w-full rounded-lg bg-primary/15 py-1 text-[11px] text-primary"
+              className="mt-2 w-full rounded-full bg-primary/20 hover:bg-primary/30 active:scale-[0.98] py-1.5 text-[12px] font-semibold text-primary transition-all"
             >
               Done
             </button>

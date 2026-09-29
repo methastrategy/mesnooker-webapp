@@ -30,12 +30,12 @@ import { t } from "@/lib/i18n";
 import type { Player } from "@/types";
 
 const COLORS = {
-  emerald: "#57c1ff",
-  gold: "#ffc533",
-  red: "#ff6161",
-  blue: "#57c1ff",
+  emerald: "#cc785c", // terracotta primary voltage
+  gold: "#f59e0b",
+  red: "#ef4444",
+  blue: "#3b82f6",
   pink: "#ec4899",
-  grey: "#9c9c9d",
+  grey: "#a8a29e",
 };
 
 interface AggRow {

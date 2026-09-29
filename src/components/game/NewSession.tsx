@@ -98,7 +98,7 @@ export function NewSession({
         {STEPS.map((s, i) => (
           <div
             key={s.id}
-            className={`flex flex-1 items-center gap-1.5 rounded-[8px] border px-2 py-1.5 text-[11px] font-semibold ${
+            className={`flex flex-1 items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-semibold ${
               i === step
                 ? "border-primary/50 bg-primary/15 text-primary"
                 : i < step
@@ -106,7 +106,7 @@ export function NewSession({
                   : "border-border bg-surface text-muted-foreground"
             }`}
           >
-            <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-[5px] text-[10px] font-bold tabular-nums ${
+            <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold tabular-nums ${
               i < step ? "bg-gold text-black" : i === step ? "bg-primary text-primary-foreground" : "bg-card border border-border text-muted-foreground"
             }`}>
               {i < step ? "✓" : i + 1}
@@ -121,7 +121,7 @@ export function NewSession({
         <>
           {/* Mini baize preview — the table you're about to set, live.
               Shows redCount reds + one of each colour to clear. */}
-          <div className="baize relative rounded-[10px] p-3">
+          <div className="baize relative rounded-[20px] p-3.5 shadow-md">
             <div className="mb-2 flex items-center justify-between">
               <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Table</span>
               <span className="text-[10px] font-mono text-muted-foreground">{redCount} reds · 6 colours</span>
@@ -130,14 +130,14 @@ export function NewSession({
               {Array.from({ length: Math.min(redCount, 15) }, (_, i) => (
                 <span
                   key={`r${i}`}
-                  className="flex h-5 w-5 items-center justify-center rounded-full border border-white/15 text-[8px] font-bold text-white"
+                  className="flex h-5 w-5 items-center justify-center rounded-full border border-white/15 text-[8px] font-bold text-white shadow-xs"
                   style={{ background: BALL_HEX.red }}
                 />
               ))}
               {BALL_ORDER.filter((c) => c !== "red").map((c) => (
                 <span
                   key={c}
-                  className="flex h-5 w-5 items-center justify-center rounded-full border border-white/15 text-[8px] font-bold text-black/80 opacity-80"
+                  className="flex h-5 w-5 items-center justify-center rounded-full border border-white/15 text-[8px] font-bold text-black/80 opacity-80 shadow-xs"
                   style={{ background: BALL_HEX[c] }}
                 >
                   {c === "black" ? "7" : c === "brown" ? "4" : ""}
@@ -194,7 +194,7 @@ export function NewSession({
               <Button variant="glass" size="icon" onClick={() => setMoneyRate(Math.max(0.5, moneyRate - 0.5))} aria-label="Decrease rate">
                 <Minus size={18} />
               </Button>
-              <div className="flex h-11 min-w-24 items-center justify-center rounded-[8px] border border-gold/40 bg-surface px-3 text-center text-lg sm:text-xl font-bold font-mono text-gold tabular-nums">
+              <div className="flex h-11 min-w-24 items-center justify-center rounded-full border border-gold/40 bg-surface px-4 text-center text-lg sm:text-xl font-bold font-mono text-gold tabular-nums shadow-xs">
                 ฿{moneyRate.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 1 })}
                 <span className="text-[10px] text-gold/70 ml-0.5">/{moneyPer}</span>
               </div>
@@ -211,7 +211,7 @@ export function NewSession({
           <div>
             <div className="mb-2 flex items-center justify-between">
               <span className="text-sm font-medium">Players</span>
-              <div className="flex items-center gap-1 rounded-[8px] border border-border bg-surface p-1">
+              <div className="flex items-center gap-1 rounded-full border border-border bg-surface p-1 shadow-xs">
                 <Button variant="glass" size="iconSm" onClick={() => bump(-1)} aria-label="Remove player">
                   <Minus size={15} />
                 </Button>
@@ -223,7 +223,7 @@ export function NewSession({
             </div>
             <div className="flex flex-col gap-2.5">
               {shown.map((n, i) => (
-                <div key={i} className="flex items-center gap-2.5 rounded-[8px] border border-border bg-surface p-2">
+                <div key={i} className="flex items-center gap-2.5 rounded-2xl border border-border bg-surface/90 p-2 shadow-xs">
                   <AvatarPicker value={avatars[i] ?? ""} onChange={(v) => setAvatar(i, v)} />
                   <input
                     value={n}
@@ -233,7 +233,7 @@ export function NewSession({
                       setNames(next);
                     }}
                     placeholder={`Player ${i + 1}`}
-                    className="h-10 min-w-0 flex-1 rounded-[6px] border border-border bg-card px-3 text-sm outline-none focus:ring-2 focus:ring-primary/60"
+                    className="h-10 min-w-0 flex-1 rounded-xl border border-border bg-card px-3 text-sm outline-none focus:ring-2 focus:ring-primary/60 font-medium"
                   />
                   {i > 0 && (
                     <Button

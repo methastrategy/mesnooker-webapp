@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { Sidebar, BottomNav } from "./nav";
+import { TopDockNav, BottomNav } from "./nav";
 import { SettingsSheet } from "./settings-sheet";
 import { useGameStore } from "@/store/gameStore";
 
@@ -18,8 +18,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }, [theme]);
 
   // A sheet left open (e.g. Settings) must never follow the user to another
-  // page: its full-screen backdrop blocks every tap on the new screen and the
-  // nav z-order makes it look like "the buttons are dead". Close on route change.
+  // page: its full-screen backdrop blocks every tap on the new screen.
   useEffect(() => {
     store.closeSettings();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -37,30 +36,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     return (
       <div className="relative flex min-h-screen bg-background text-foreground">
         <main className="relative z-10 w-full min-w-0 flex-1 px-4 py-8">
-          <div className="mx-auto w-full max-w-6xl">{children}</div>
+          <div className="mx-auto w-full max-w-5xl">{children}</div>
         </main>
       </div>
     );
   }
 
   return (
-    <div className="relative flex min-h-screen bg-background text-foreground">
-      <div className="fixed right-4 top-4 z-30 flex items-center gap-2">
-        <button
-          type="button"
-          onClick={() => store.setLocale(store.locale === "th" ? "en" : "th")}
-          aria-label="Switch Language TH/EN"
-          className="flex items-center gap-1 rounded-[8px] border border-border border-t-white/15 bg-card px-2.5 py-1.5 text-[11px] font-mono font-medium transition-all hover:bg-surface active:translate-y-[2px] active:brightness-90 cursor-pointer"
-        >
-          <span className={store.locale === "th" ? "text-primary font-bold" : "text-muted-foreground"}>TH</span>
-          <span className="text-border text-[10px]">/</span>
-          <span className={store.locale === "en" ? "text-primary font-bold" : "text-muted-foreground"}>EN</span>
-        </button>
-      </div>
+    <div className="relative flex min-h-screen flex-col bg-background text-foreground antialiased selection:bg-primary/20">
       <SettingsSheet />
-      <Sidebar />
-      <main className="relative z-10 w-full min-w-0 flex-1 px-3.5 sm:px-4 pb-36 pt-16 md:px-8 md:pb-12 md:pt-8">
-        <div className="mx-auto w-full max-w-6xl">{children}</div>
+      <TopDockNav />
+      <main className="relative z-10 w-full min-w-0 flex-1 px-3 sm:px-6 pt-3 sm:pt-4 pb-28 md:pb-12">
+        <div className="mx-auto w-full max-w-5xl md:max-w-6xl">{children}</div>
       </main>
       <BottomNav />
     </div>

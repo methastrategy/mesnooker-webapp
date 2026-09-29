@@ -24,27 +24,27 @@ export function ClearRack({
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-[10px] border border-gold/30 bg-card p-3 sm:p-4 flex flex-col gap-3"
+      className="rounded-[22px] border border-gold/40 bg-card/85 backdrop-blur-xl p-4 sm:p-5 flex flex-col gap-3.5 shadow-xl ring-1 ring-white/5"
       role="region"
       aria-label="Clear the table — colours must be potted in order"
     >
       <div className="flex flex-wrap items-center justify-between gap-1.5">
         <Badge variant="gold">Clear the table</Badge>
-        <span className="text-[11px] font-mono text-muted-foreground">
+        <span className="text-[11px] font-mono text-muted-foreground uppercase tracking-wider">
           Colours in order — no skipping
         </span>
       </div>
 
       {/* official order rack — safe single row with scroll containment */}
-      <div className="flex items-center justify-start sm:justify-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar py-1 px-0.5">
+      <div className="flex items-center justify-start sm:justify-center gap-2 overflow-x-auto no-scrollbar py-2 px-1">
         {COLOUR_ORDER.map((c, i) => {
           const isDone = done[c];
           const onNow = c === nextColour;
           return (
             <div key={c} className="flex flex-col items-center gap-1 shrink-0">
               <span
-                className={`flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold ${
-                  onNow ? "ring-2 ring-gold text-black/80 font-bold" : isDone ? "text-white/50" : "text-black/70"
+                className={`flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-bold shadow-xs ${
+                  onNow ? "ring-2 ring-gold text-black/80 font-black scale-110" : isDone ? "text-white/50" : "text-black/70"
                 }`}
                 style={{ background: BALL_HEX[c], opacity: isDone ? 0.35 : 1 }}
               >
@@ -69,13 +69,13 @@ export function ClearRack({
               selected
               onClick={() => onPot(nextColour)}
             />
-            <span className="text-xs font-mono font-medium text-gold animate-pulse">
+            <span className="text-xs font-mono font-bold text-gold tracking-wide animate-pulse">
               ● Tap {BALL_NAME[nextColour]} to pot (+{ballValues[nextColour]})
             </span>
           </>
         ) : (
-          <div className="rounded-[8px] bg-primary/10 border border-primary/30 p-3 text-center text-xs font-semibold text-primary">
-            🎉 All colours cleared! Frame complete.
+          <div className="rounded-full bg-primary/15 border border-primary/40 px-5 py-2.5 text-center text-xs font-mono font-bold text-primary shadow-xs">
+            All colours cleared · Frame complete
           </div>
         )}
       </div>

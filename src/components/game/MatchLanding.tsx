@@ -64,14 +64,14 @@ export function MatchLanding({
         </p>
       </div>
 
-      {/* Segmented Control Tabs — Raycast Hairline Precision */}
-      <div className="flex items-center gap-1 rounded-[8px] border border-border bg-surface p-1">
+      {/* Segmented Control Tabs — Pro Glass Full-Pill */}
+      <div className="flex items-center gap-1 rounded-full border border-border/80 bg-surface/85 p-1 shadow-md backdrop-blur-md">
         <button
           type="button"
           onClick={() => setTab("new")}
-          className={`flex flex-1 items-center justify-center gap-2 rounded-[6px] py-2 text-xs font-semibold transition-all cursor-pointer ${
+          className={`flex flex-1 items-center justify-center gap-2 rounded-full py-2.5 text-xs font-bold transition-all cursor-pointer ${
             tab === "new"
-              ? "bg-card text-primary border border-border shadow-xs"
+              ? "bg-card text-primary border border-primary/40 shadow-xs"
               : "text-muted-foreground hover:bg-card/40 hover:text-foreground"
           }`}
         >
@@ -82,16 +82,16 @@ export function MatchLanding({
         <button
           type="button"
           onClick={() => setTab("history")}
-          className={`flex flex-1 items-center justify-center gap-2 rounded-[6px] py-2 text-xs font-semibold transition-all cursor-pointer ${
+          className={`flex flex-1 items-center justify-center gap-2 rounded-full py-2.5 text-xs font-bold transition-all cursor-pointer ${
             tab === "history"
-              ? "bg-card text-primary border border-border shadow-xs"
+              ? "bg-card text-primary border border-primary/40 shadow-xs"
               : "text-muted-foreground hover:bg-card/40 hover:text-foreground"
           }`}
         >
           <History size={14} />
           <span>{t("nav.history", locale)}</span>
           <span
-            className={`rounded-[4px] px-1.5 py-0.2 text-[10px] font-mono font-bold ${
+            className={`rounded-full px-2 py-0.5 text-[10px] font-mono font-bold ${
               tab === "history"
                 ? "bg-primary/20 text-primary"
                 : "bg-surface border border-border text-muted-foreground"

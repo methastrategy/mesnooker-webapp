@@ -8,6 +8,7 @@ import {
   Target,
   Plus,
   Compass,
+  Lightbulb,
 } from "lucide-react";
 import { useCoachStore } from "@/store/coachStore";
 import { useGameStore } from "@/store/gameStore";
@@ -258,14 +259,14 @@ export default function SolvePage() {
           </div>
 
           {/* Interactive Cue Tip Spin & English Control */}
-          <div className="rounded-xl border border-white/10 bg-white/5 p-3.5 flex flex-col items-center">
-            <div className="mb-2 flex w-full items-center justify-between">
-              <span className="flex items-center gap-1.5 text-xs font-bold text-foreground">
+          <div className="rounded-[20px] border border-border/80 bg-surface/85 backdrop-blur-xl p-4 flex flex-col items-center shadow-sm">
+            <div className="mb-2.5 flex w-full items-center justify-between">
+              <span className="flex items-center gap-1.5 text-xs font-mono font-bold uppercase tracking-wider text-foreground">
                 <Compass size={14} className="text-primary" />
                 {t("solve.spin.title", locale)}
               </span>
               {brief?.recommendedTip && (
-                <span className="rounded bg-gold/20 px-2 py-0.5 text-[10px] font-bold text-gold">
+                <span className="rounded-full bg-gold/20 border border-gold/40 px-2 py-0.5 text-[10px] font-mono font-bold text-gold">
                   {t("solve.spin.recommended", locale)}: {brief.recommendedTip}
                 </span>
               )}
@@ -274,8 +275,9 @@ export default function SolvePage() {
             <CueTipPicker recommendedId={brief?.recommendedTip} />
 
             {brief?.recommendedTipNote && (
-              <div className="mt-3 w-full rounded-lg bg-primary/10 p-2.5 text-center text-xs font-medium text-primary border border-primary/20">
-                💡 {brief.recommendedTipNote}
+              <div className="mt-3 flex items-center justify-center gap-1.5 w-full rounded-xl bg-primary/10 p-2.5 text-center text-xs font-medium text-primary border border-primary/20">
+                <Lightbulb size={13} className="shrink-0 text-primary" />
+                <span>{brief.recommendedTipNote}</span>
               </div>
             )}
           </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { TrendingUp, TrendingDown, Minus as FlatIcon } from "lucide-react";
+import { TrendingUp, TrendingDown, Minus as FlatIcon, Coins } from "lucide-react";
 import type { Player } from "@/types";
 import { AnimatedNumber } from "@/components/ui";
 import { AvatarBubble } from "@/components/game/AvatarPicker";
@@ -22,11 +22,12 @@ export function MoneyStrip({
 }) {
   if (variant === "rail") {
     return (
-      <div className="flex flex-col gap-2">
-        <div className="text-[11px] uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-          💰 Money tonight
+      <div className="flex flex-col gap-2 rounded-[22px] border border-border/80 bg-card/85 p-3.5 sm:p-4 shadow-md backdrop-blur-md">
+        <div className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+          <Coins size={14} className="text-gold" />
+          <span>Money tonight</span>
         </div>
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1.5">
           {players.map((p) => {
             const v = balances[p.id] ?? 0;
             const color =
@@ -44,14 +45,14 @@ export function MoneyStrip({
               <div
                 key={p.id}
                 className={cn(
-                  "flex items-center gap-2 rounded-xl px-2.5 py-2 transition-colors",
+                  "flex items-center gap-2.5 rounded-full px-3 py-2 transition-all border",
                   p.id === activeId
-                    ? "bg-primary/[0.08] ring-1 ring-primary/30"
-                    : "bg-white/[0.03]"
+                    ? "bg-primary/10 border-primary/40 ring-1 ring-primary/30"
+                    : "bg-surface/80 border-border/70"
                 )}
               >
                 <AvatarBubble avatar={p.avatar} size={22} />
-                <span className="min-w-0 flex-1 truncate text-[12px] font-medium">
+                <span className="min-w-0 flex-1 truncate text-xs font-semibold text-foreground/90">
                   {p.nickname}
                 </span>
                 <TrendIcon
@@ -59,7 +60,7 @@ export function MoneyStrip({
                   className={cn("shrink-0", trendColor)}
                   aria-hidden
                 />
-                <span className={cn("text-[13px] font-bold tabular-nums", color)}>
+                <span className={cn("text-xs sm:text-sm font-mono font-bold tabular-nums", color)}>
                   {v > 0 ? "+" : ""}
                   <AnimatedNumber value={v} prefix="฿" decimals={0} />
                 </span>
@@ -74,7 +75,9 @@ export function MoneyStrip({
   // inline pill strip (mobile) — one compact scrollable row
   return (
     <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
-      <span className="shrink-0 text-[12px]">💰</span>
+      <span className="shrink-0 flex items-center justify-center h-6 w-6 rounded-full bg-gold/15 border border-gold/30 text-gold">
+        <Coins size={12} />
+      </span>
       {players.map((p) => {
         const v = balances[p.id] ?? 0;
         const color =
@@ -90,14 +93,14 @@ export function MoneyStrip({
           <span
             key={p.id}
             className={cn(
-              "inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] tabular-nums",
+              "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-mono tabular-nums shadow-xs",
               p.id === activeId
-                ? "border-primary/40 bg-white/8 text-foreground"
-                : "border-white/10 bg-white/[0.03] text-muted-foreground"
+                ? "border-primary/50 bg-primary/15 text-foreground ring-1 ring-primary/30"
+                : "border-border/80 bg-card/80 text-muted-foreground"
             )}
           >
             <TrendIcon
-              size={10}
+              size={11}
               className={
                 v > 0
                   ? "text-primary"
@@ -107,7 +110,7 @@ export function MoneyStrip({
               }
               aria-hidden
             />
-            <span className="font-medium">{p.nickname}</span>
+            <span className="font-semibold text-foreground/90">{p.nickname}</span>
             <span className={cn("font-bold", color)}>
               {v > 0 ? "+" : ""}
               <AnimatedNumber value={v} prefix="฿" decimals={0} />

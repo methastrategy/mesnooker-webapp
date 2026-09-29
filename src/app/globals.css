@@ -15,60 +15,61 @@
    ═══════════════════════════════════════════════════════════════════ */
 
 @theme {
-  --color-background: #07080a;
-  --color-surface: #0d0d0d;
-  --color-card: #121212;
-  --color-card-solid: #101111;
-  --color-primary: #57c1ff;
-  --color-primary-hover: #3ca2de;
-  --color-secondary: #121212;
-  --color-gold: #ffc533;
-  --color-danger: #ff6161;
-  --color-info: #57c1ff;
-  --color-muted: #9c9c9d;
-  --color-foreground: #f4f4f6;
-  --color-line: #242728;
+  --color-background: #0c0a09;
+  --color-surface: #141210;
+  --color-card: #1c1917;
+  --color-card-solid: #24201d;
+  --color-primary: #cc785c;
+  --color-primary-hover: #b8674d;
+  --color-secondary: #1f1c19;
+  --color-gold: #f59e0b;
+  --color-danger: #ef4444;
+  --color-info: #cc785c;
+  --color-muted: #a8a29e;
+  --color-foreground: #f5f5f4;
+  --color-line: rgba(204, 120, 92, 0.16);
 
-  --color-violation: #ffc533;
-  --color-destructive: #ff6161;
+  --color-violation: #f59e0b;
+  --color-destructive: #ef4444;
   --color-destructive-foreground: #ffffff;
-  --color-felt-hi: #101111;
-  --color-felt-mid: #0d0d0d;
-  --color-felt-deep: #07080a;
-  --color-pos-soft: rgba(87,193,255,0.15);
-  --color-neg-soft: rgba(255,97,97,0.15);
-  --color-rail: #0d0d0d;
+  --color-felt-hi: #1f1c19;
+  --color-felt-mid: #141210;
+  --color-felt-deep: #0c0a09;
+  --color-pos-soft: rgba(204, 120, 92, 0.15);
+  --color-neg-soft: rgba(239, 68, 68, 0.15);
+  --color-rail: #141210;
 
-  --font-sans: "Inter Variable", "Inter", -apple-system, BlinkMacSystemFont,
+  --font-sans: "Plus Jakarta Sans", "Inter Variable", "Inter", -apple-system, BlinkMacSystemFont,
     "SF Pro Display", "SF Pro Text", system-ui, sans-serif;
+  --font-mono: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
 }
 
 :root {
   color-scheme: dark;
-  --background: #07080a;
-  --foreground: #f4f4f6;
-  --card: #121212;
-  --card-foreground: #f4f4f6;
-  --popover: #0d0d0d;
-  --popover-foreground: #f4f4f6;
-  --primary: #57c1ff;
-  --primary-foreground: #000000;
-  --secondary: #121212;
-  --secondary-foreground: #f4f4f6;
-  --muted: #0d0d0d;
-  --muted-foreground: #9c9c9d;
-  --accent: #57c1ff;
-  --accent-foreground: #000000;
-  --destructive: #ff6161;
+  --background: #0c0a09;
+  --foreground: #f5f5f4;
+  --card: #1c1917;
+  --card-foreground: #f5f5f4;
+  --popover: #141210;
+  --popover-foreground: #f5f5f4;
+  --primary: #cc785c;
+  --primary-foreground: #ffffff;
+  --secondary: #1f1c19;
+  --secondary-foreground: #f5f5f4;
+  --muted: #141210;
+  --muted-foreground: #a8a29e;
+  --accent: #cc785c;
+  --accent-foreground: #ffffff;
+  --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: #242728;
-  --input: #242728;
-  --ring: #57c1ff;
-  --radius: 0.5rem; /* 8px */
-  --gold: #ffc533;
-  --violation: #ffc533;
-  --pos-soft: rgba(87,193,255,0.15);
-  --neg-soft: rgba(255,97,97,0.15);
+  --border: rgba(204, 120, 92, 0.16);
+  --input: rgba(204, 120, 92, 0.18);
+  --ring: #cc785c;
+  --radius: 1rem; /* 16px */
+  --gold: #f59e0b;
+  --violation: #f59e0b;
+  --pos-soft: rgba(204, 120, 92, 0.15);
+  --neg-soft: rgba(239, 68, 68, 0.15);
 }
 
 /* ───────── Themes — applied via <html data-theme="…"> ─────────
@@ -179,31 +180,31 @@
   --gold: #f59e0b;
 }
 
-/* `mono` maps to the Raycast Design System (default identity). */
+/* `mono` maps to the Calibrated Warm Terracotta Pro Glass (default DNA). */
 [data-theme="mono"] {
-  --color-background: #07080a;
-  --color-surface: #0d0d0d;
-  --color-card: #121212;
-  --color-card-solid: #101111;
-  --color-primary: #57c1ff;
-  --color-primary-hover: #3ca2de;
-  --color-secondary: #121212;
-  --color-gold: #ffc533;
-  --color-danger: #ff6161;
-  --color-info: #57c1ff;
-  --color-muted: #9c9c9d;
-  --color-foreground: #f4f4f6;
-  --color-line: #242728;
-  --color-violation: #ffc533;
-  --background: #07080a;
-  --foreground: #f4f4f6;
-  --card: #121212;
-  --primary: #57c1ff;
-  --primary-foreground: #000000;
-  --muted-foreground: #9c9c9d;
-  --border: #242728;
-  --ring: #57c1ff;
-  --gold: #ffc533;
+  --color-background: #0c0a09;
+  --color-surface: #141210;
+  --color-card: #1c1917;
+  --color-card-solid: #24201d;
+  --color-primary: #cc785c;
+  --color-primary-hover: #b8674d;
+  --color-secondary: #1f1c19;
+  --color-gold: #f59e0b;
+  --color-danger: #ef4444;
+  --color-info: #cc785c;
+  --color-muted: #a8a29e;
+  --color-foreground: #f5f5f4;
+  --color-line: rgba(204, 120, 92, 0.16);
+  --color-violation: #f59e0b;
+  --background: #0c0a09;
+  --foreground: #f5f5f4;
+  --card: #1c1917;
+  --primary: #cc785c;
+  --primary-foreground: #ffffff;
+  --muted-foreground: #a8a29e;
+  --border: rgba(204, 120, 92, 0.16);
+  --ring: #cc785c;
+  --gold: #f59e0b;
 }
 
 * {
@@ -233,46 +234,53 @@ body {
   .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
 }
 
-/* Raycast-style Clean Panels (Flat, 1px border) */
+/* Pro Command HUD Squircle Panels (18px–24px, Frosted Hairline) */
 .glass {
   position: relative;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
+  background: rgba(28, 25, 23, 0.82);
+  border: 1px solid rgba(204, 120, 92, 0.16);
+  border-radius: 20px;
+  backdrop-filter: blur(20px) saturate(170%);
+  -webkit-backdrop-filter: blur(20px) saturate(170%);
+  box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .glass-strong {
   position: relative;
-  background: #101111;
-  border: 1px solid var(--border);
-  border-radius: 10px;
+  background: rgba(36, 32, 29, 0.90);
+  border: 1px solid rgba(204, 120, 92, 0.24);
+  border-radius: 22px;
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
-/* ───────── Force Raycast Flat Style Site-Wide ───────── */
-.shadow-sm,
-.shadow-md,
-.shadow-lg,
-.shadow-xl,
-.shadow-2xl,
-.shadow-inner,
-.drop-shadow,
-[class*="shadow-["] {
-  box-shadow: none !important;
+/* ───────── Ambient Precision Depth ───────── */
+.shadow-xs {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+.shadow-md {
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.35);
+}
+.shadow-xl {
+  box-shadow: 0 10px 30px -4px rgba(0, 0, 0, 0.45);
 }
 
-/* Precision status accents (No glow, just solid colored border) */
+/* Precision status accents (Terracotta / Amber voltage highlight) */
 .glow-emerald {
-  border: 1px solid #57c1ff !important;
+  border: 1px solid #cc785c !important;
+  box-shadow: 0 0 16px rgba(204, 120, 92, 0.25) !important;
 }
 .glow-gold {
-  border: 1px solid #ffc533 !important;
+  border: 1px solid #f59e0b !important;
+  box-shadow: 0 0 16px rgba(245, 158, 11, 0.25) !important;
 }
 
-/* Ball — Flat Modern Geometry (No fake 3D skeuomorphism) */
+/* Ball — Flat Modern Geometry with Specular Sheen */
 .snooker-ball {
   border-radius: 9999px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  transition: transform 120ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  transition: transform 100ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .ball-rim {
@@ -282,9 +290,10 @@ body {
 /* ───────── Clean Tactical Ball Rack ───────── */
 .baize {
   position: relative;
-  border-radius: 10px;
-  background: #0d0d0d;
-  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: #141210;
+  border: 1px solid rgba(204, 120, 92, 0.18);
+  box-shadow: inset 0 2px 16px rgba(0, 0, 0, 0.6);
 }
 .felt-spot {
   display: none !important;
@@ -299,10 +308,10 @@ body {
 /* ───────── Match Table Stage ───────── */
 .table-stage {
   position: relative;
-  border-radius: 10px;
-  background: #121212;
-  border: 1px solid var(--border);
-  padding: 1rem 1.25rem;
+  border-radius: 20px;
+  background: #1c1917;
+  border: 1px solid rgba(204, 120, 92, 0.18);
+  padding: 1.25rem 1.5rem;
 }
 .table-stage::before {
   content: none;
@@ -314,22 +323,28 @@ body {
   margin-bottom: 0.75rem;
 }
 
-/* ───────── Raycast-grade Control Dock ───────── */
+/* ───────── Ergonomic Tactical Control Dock ───────── */
 .control-dock {
   position: fixed;
   left: 0;
   right: 0;
-  bottom: max(5rem, calc(5rem + env(safe-area-inset-bottom, 0px)));
+  bottom: calc(3.5rem + env(safe-area-inset-bottom, 0px));
   z-index: 40;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.65rem 1rem;
-  background: rgba(13, 13, 13, 0.95); /* Raycast surface */
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-top: 1px solid var(--border);
+  padding: 0.625rem 1rem;
+  background: rgba(20, 18, 16, 0.95);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-top: 1px solid rgba(204, 120, 92, 0.18);
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.45);
+}
+@media (min-width: 768px) {
+  .control-dock {
+    bottom: env(safe-area-inset-bottom, 0px);
+  }
 }
 @media (min-width: 1024px) {
   .control-dock {
@@ -342,11 +357,12 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.9rem 1rem;
+    padding: 0.75rem 0;
     background: transparent;
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
     border: none;
+    box-shadow: none;
   }
 }
 
@@ -367,24 +383,25 @@ body {
   border-top: 1px solid var(--border);
 }
 
-/* Raycast Tactical Keycap Command Button */
+/* Tactile Keycap Command Button */
 .action-key {
   position: relative;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  border-top-color: rgba(255, 255, 255, 0.14);
-  background: #121212;
-  color: #f4f4f6;
-  transition: transform 80ms cubic-bezier(0.2, 0.8, 0.2, 1), filter 80ms ease, background-color 120ms ease;
+  border-radius: 12px;
+  border: 1px solid rgba(204, 120, 92, 0.18);
+  border-top-color: rgba(255, 255, 255, 0.16);
+  background: #1c1917;
+  color: #f5f5f4;
+  transition: transform 100ms cubic-bezier(0.2, 0.8, 0.2, 1), filter 100ms ease, background-color 140ms ease;
   -webkit-tap-highlight-color: transparent;
 }
 .action-key:hover {
-  background: #1a1b1d;
+  background: #24201d;
+  border-color: rgba(204, 120, 92, 0.3);
 }
 .action-key:active {
-  transform: translateY(2px);
-  filter: brightness(0.88);
-  background: #0d0d0d;
+  transform: translateY(2px) scale(0.98);
+  filter: brightness(0.9);
+  background: #141210;
 }
 .action-key:focus-visible {
   outline: 2px solid var(--ring);

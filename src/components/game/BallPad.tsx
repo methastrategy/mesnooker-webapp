@@ -44,17 +44,17 @@ export function BallPad({
 
   if (!legal.length) {
     return (
-      <div className="rounded-[10px] border border-dashed border-border bg-surface py-6 text-center text-sm text-muted-foreground">
+      <div className="rounded-2xl border border-dashed border-border/80 bg-surface/60 py-6 text-center text-sm text-muted-foreground shadow-sm">
         No legal shots right now.
       </div>
     );
   }
   const legalSet = new Set(legal);
   return (
-    <div className="relative mx-auto w-full max-w-xl rounded-[10px] border border-border bg-surface p-3 sm:p-4 md:p-5">
+    <div className="relative mx-auto w-full max-w-3xl rounded-[22px] border border-primary/20 bg-surface/85 backdrop-blur-xl shadow-xl p-3 sm:p-5 ring-1 ring-white/5">
       {clearingColours ? (
-        /* Raycast-style clear rack tracker */
-        <div className="relative mb-3 flex items-center justify-center gap-2 border-b border-border pb-3">
+        /* Pro HUD Clear Rack Tracker */
+        <div className="relative mb-3 flex items-center justify-center gap-2 sm:gap-3 rounded-full bg-card/70 border border-border/60 p-2 shadow-inner">
           {COLOUR_ORDER.map((c, i) => {
             const onNow = legalSet.has(c);
             const done = showCount ? showCount(c) === 0 : false;
@@ -104,7 +104,7 @@ export function BallPad({
         <div
           ref={scrollRef}
           onScroll={updateScrollHints}
-          className="w-full overflow-x-auto no-scrollbar py-1.5"
+          className="w-full overflow-x-auto no-scrollbar py-1"
         >
           <div className="mx-auto flex w-max flex-row flex-nowrap items-center gap-1.5 min-[380px]:gap-2 sm:gap-3 px-1">
             {BALL_ORDER.map((c) => {
@@ -120,14 +120,14 @@ export function BallPad({
                     selected={isLegal}
                     onClick={() => onPot(c)}
                   />
-                  <div className="flex items-center gap-1 rounded-[6px] bg-card px-1.5 py-0.5 border border-border">
-                    <span className="text-[9px] sm:text-[10px] font-medium text-foreground/85 leading-tight">
+                  <div className="flex items-center gap-1 rounded-full bg-card/90 px-2 py-0.5 border border-border/80 shadow-xs">
+                    <span className="text-[9px] sm:text-[10px] font-semibold text-foreground/85 leading-tight">
                       {BALL_NAME[c]}
                     </span>
                     {left > 0 ? (
-                      <span className="font-mono text-[9px] text-muted-foreground">×{left}</span>
+                      <span className="font-mono text-[9px] font-bold text-muted-foreground">×{left}</span>
                     ) : (
-                      <span className="font-mono text-[9px] text-destructive">0</span>
+                      <span className="font-mono text-[9px] font-bold text-destructive">0</span>
                     )}
                   </div>
                 </div>

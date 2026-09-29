@@ -73,14 +73,14 @@ export function HistorySessionSheet({
       </div>
 
       {/* who owed whom, settled from the session total */}
-      <div className="mb-3 rounded-[8px] border border-border bg-surface px-3 py-2.5">
+      <div className="mb-3 rounded-2xl border border-border/80 bg-surface/85 backdrop-blur-md px-3.5 py-3 shadow-sm">
         <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Settlement</div>
         {optimizeTransfers(game.balances, game.players).slice(0, 4).map((t, i) => (
-          <span key={i} className="mt-0.5 flex items-center gap-1.5 text-[11px] text-muted-foreground">
-            <span className="truncate">{t.fromName}</span>
+          <span key={i} className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
+            <span className="truncate font-semibold text-foreground/90">{t.fromName}</span>
             <ArrowRight size={11} className="text-gold shrink-0" />
-            <span className="truncate">{t.toName}</span>
-            <span className="font-mono font-semibold text-gold shrink-0">{formatMoney(t.amount)}</span>
+            <span className="truncate font-semibold text-foreground/90">{t.toName}</span>
+            <span className="font-mono font-bold text-gold shrink-0">{formatMoney(t.amount)}</span>
           </span>
         ))}
       </div>
@@ -98,11 +98,11 @@ export function HistorySessionSheet({
           ))}
         </div>
       ) : (
-        <div className="glass p-6 text-center text-muted-foreground">
-          <span className="mx-auto mb-2 flex h-11 w-11 items-center justify-center rounded-full border border-border bg-surface text-muted-foreground">
+        <div className="rounded-2xl border border-border/80 bg-surface/70 p-6 text-center text-muted-foreground backdrop-blur-md">
+          <span className="mx-auto mb-2 flex h-11 w-11 items-center justify-center rounded-full border border-border/80 bg-card text-muted-foreground">
             <Clock3 size={20} />
           </span>
-          <p className="text-sm font-medium">Per-frame details unavailable</p>
+          <p className="text-sm font-semibold text-foreground/80">Per-frame details unavailable</p>
           <p className="mt-1 text-xs">
             This game was finished before frame-level details were recorded.
             Newer sessions store every frame separately.
@@ -111,15 +111,15 @@ export function HistorySessionSheet({
       )}
 
       {/* per-player session total recap */}
-      <div className="mt-5 border-t border-border px-1 pt-3">
+      <div className="mt-5 border-t border-border/80 px-1 pt-3">
         <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Session results</div>
         {game.players.map((p) => {
           const net = game.balances[p.id] ?? 0;
           return (
-            <div key={p.id} className="mt-1.5 flex items-center gap-2 rounded-[8px] border border-border bg-surface px-3 py-2">
+            <div key={p.id} className="mt-1.5 flex items-center gap-2 rounded-full border border-border/80 bg-surface/85 px-3.5 py-2 shadow-xs">
               {p.avatar ? <AvatarBubble avatar={p.avatar} size={24} /> : <BallDot color={p.color} size={10} />}
-              <span className="flex-1 min-w-0 truncate text-sm font-medium">{p.nickname}</span>
-              <span className={cn("text-sm font-mono font-semibold tabular-nums shrink-0", net > 0 ? "text-primary" : net < 0 ? "text-destructive" : "text-muted-foreground")}>
+              <span className="flex-1 min-w-0 truncate text-xs sm:text-sm font-semibold">{p.nickname}</span>
+              <span className={cn("text-xs sm:text-sm font-mono font-bold tabular-nums shrink-0", net > 0 ? "text-primary" : net < 0 ? "text-destructive" : "text-muted-foreground")}>
                 {net > 0 ? "+" : ""}
                 {formatMoney(net)}
               </span>

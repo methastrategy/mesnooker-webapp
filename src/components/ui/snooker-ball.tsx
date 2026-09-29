@@ -31,23 +31,22 @@ export function SnookerBall({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      whileTap={disabled ? undefined : { y: 2, filter: "brightness(0.82)" }}
-      whileHover={disabled ? undefined : { filter: "brightness(1.08)" }}
+      whileTap={disabled ? undefined : { y: 2, scale: 0.94, filter: "brightness(0.85)" }}
+      whileHover={disabled ? undefined : { scale: 1.04, filter: "brightness(1.08)" }}
       transition={{ type: "spring", stiffness: 600, damping: 28 }}
       className={cn(
-        "relative flex shrink-0 items-center justify-center font-bold font-mono select-none rounded-full transition-colors cursor-pointer",
-        "border border-white/15 border-t-white/35 border-b-black/45",
-        isLight ? "text-zinc-950" : "text-white",
-        disabled && "opacity-20 pointer-events-none grayscale-[50%]",
-        selected && "ring-2 ring-primary ring-offset-2 ring-offset-background",
-        !size && "w-10 h-10 min-[380px]:w-11 min-[380px]:h-11 sm:w-14 sm:h-14 md:w-16 md:h-16 text-[14px] min-[380px]:text-[16px] sm:text-[20px] md:text-[24px]",
+        "relative flex shrink-0 items-center justify-center font-bold font-mono select-none rounded-full transition-all cursor-pointer",
+        "border border-white/20 border-t-white/45 border-b-black/60 shadow-md",
+        isLight ? "text-zinc-950 font-black" : "text-white font-black",
+        disabled && "opacity-20 pointer-events-none grayscale-[60%]",
+        selected && "ring-2 ring-primary ring-offset-2 ring-offset-background shadow-[0_0_14px_rgba(204,120,92,0.4)]",
+        !size && "w-11 h-11 min-[380px]:w-12 min-[380px]:h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 text-[15px] min-[380px]:text-[17px] sm:text-[20px] md:text-[24px]",
         className
       )}
       style={{
         width: size,
         height: size,
-        // Raycast keycap top-down gradient
-        background: `linear-gradient(180deg, ${hex} 0%, color-mix(in srgb, ${hex} 78%, black) 100%)`,
+        background: `radial-gradient(circle at 35% 30%, color-mix(in srgb, ${hex} 80%, white) 0%, ${hex} 55%, color-mix(in srgb, ${hex} 65%, black) 100%)`,
         fontSize: size ? size * 0.4 : undefined,
       }}
       aria-label={`${BALL_NAME[color]} ball${value !== undefined ? ` $${value}` : ""}`}

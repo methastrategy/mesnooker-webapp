@@ -88,12 +88,12 @@ export function MatchHistoryView() {
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Search and Filters Bar — Raycast Precision Card */}
-      <div className="rounded-[10px] border border-border bg-card p-3 sm:p-4 flex flex-col gap-3">
+      {/* Search and Filters Bar — Pro Glass Card */}
+      <div className="rounded-[20px] border border-border/80 bg-surface/85 backdrop-blur-xl p-4 flex flex-col gap-3 shadow-md">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
           {/* Player Filter */}
-          <div className="flex items-center gap-2 rounded-[8px] border border-border bg-surface px-2.5 py-1.5 text-xs">
-            <Users size={14} className="text-muted-foreground shrink-0" />
+          <div className="flex items-center gap-2 rounded-full border border-border/80 bg-card/80 px-3 py-1.5 text-xs shadow-xs">
+            <Users size={14} className="text-primary shrink-0" />
             <select
               value={playerId}
               onChange={(e) => setPlayerId(e.target.value)}
@@ -109,8 +109,8 @@ export function MatchHistoryView() {
           </div>
 
           {/* Mode Filter */}
-          <div className="flex items-center gap-2 rounded-[8px] border border-border bg-surface px-2.5 py-1.5 text-xs">
-            <Filter size={14} className="text-muted-foreground shrink-0" />
+          <div className="flex items-center gap-2 rounded-full border border-border/80 bg-card/80 px-3 py-1.5 text-xs shadow-xs">
+            <Filter size={14} className="text-primary shrink-0" />
             <select
               value={mode}
               onChange={(e) => setMode(e.target.value as "all" | GameMode)}
@@ -123,7 +123,7 @@ export function MatchHistoryView() {
           </div>
 
           {/* Date Picker */}
-          <div className="flex items-center gap-2 rounded-[8px] border border-border bg-surface px-2.5 py-1.5 text-xs">
+          <div className="flex items-center gap-2 rounded-full border border-border/80 bg-card/80 px-3 py-1.5 text-xs shadow-xs">
             <input
               type="date"
               value={date}
@@ -136,18 +136,18 @@ export function MatchHistoryView() {
         {/* Search Input & Reset Button */}
         <div className="flex items-center gap-2">
           <div className="relative flex-1">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={t("history.filter.search", locale)}
-              className="h-9 w-full rounded-[8px] border border-border bg-surface pl-9 pr-3 text-xs text-foreground outline-none placeholder:text-muted-foreground focus:border-primary/60"
+              className="h-9 w-full rounded-full border border-border/80 bg-card/80 pl-9 pr-3 text-xs text-foreground outline-none placeholder:text-muted-foreground focus:border-primary/60 shadow-xs"
             />
           </div>
           {hasActiveFilters && (
             <button
               onClick={handleReset}
-              className="flex h-9 items-center gap-1.5 rounded-[8px] border border-border bg-surface px-3 text-xs font-medium text-muted-foreground hover:bg-card hover:text-foreground transition-colors cursor-pointer"
+              className="flex h-9 items-center gap-1.5 rounded-full border border-border/80 bg-card/80 px-3.5 text-xs font-semibold text-muted-foreground hover:bg-surface hover:text-foreground transition-all cursor-pointer shadow-xs active:scale-95"
             >
               <RotateCcw size={13} />
               <span className="hidden sm:inline">Reset</span>

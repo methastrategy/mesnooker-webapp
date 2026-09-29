@@ -6,20 +6,20 @@ import { motion, type HTMLMotionProps } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[8px] font-medium transition-colors select-none disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 cursor-pointer border border-transparent",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-all select-none disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 cursor-pointer border border-transparent active:scale-[0.98]",
   {
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground font-bold border-primary/50 border-t-white/25 hover:bg-primary-hover",
-        gold: "bg-gold text-primary-foreground font-bold border-gold/50 border-t-white/25 hover:opacity-90",
+          "bg-primary text-primary-foreground font-bold border-primary/50 border-t-white/25 hover:bg-primary-hover shadow-sm",
+        gold: "bg-gold text-primary-foreground font-bold border-gold/50 border-t-white/25 hover:opacity-90 shadow-sm",
         violation:
           "bg-violation/15 text-violation border-violation/35 border-t-violation/50 hover:bg-violation/25",
-        secondary: "bg-secondary text-secondary-foreground border-border border-t-white/12 hover:bg-[#1a1b1d]",
-        outline: "border-border border-t-white/12 bg-card text-foreground hover:bg-[#1a1b1d]",
+        secondary: "bg-secondary text-secondary-foreground border-border border-t-white/12 hover:bg-[#24201d]",
+        outline: "border-border border-t-white/12 bg-card text-foreground hover:bg-[#24201d]",
         ghost: "text-muted-foreground hover:text-foreground hover:bg-white/[0.05]",
         danger: "bg-destructive/15 text-destructive border-destructive/35 border-t-destructive/50 hover:bg-destructive/25",
-        glass: "bg-card text-card-foreground border-border border-t-white/12 hover:bg-surface",
+        glass: "bg-card/85 text-card-foreground border-border border-t-white/12 hover:bg-surface backdrop-blur-md",
       },
       size: {
         default: "h-11 px-5 text-sm",

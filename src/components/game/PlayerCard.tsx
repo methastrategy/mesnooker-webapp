@@ -31,8 +31,8 @@ export function PlayerCard({
     <motion.div
       layout
       className={cn(
-        "glass p-3.5 transition-all",
-        isShooter && "ring-2 ring-primary glow-emerald bg-white/[0.07]"
+        "glass rounded-[18px] p-3.5 transition-all",
+        isShooter && "ring-2 ring-primary glow-emerald bg-primary/[0.06] shadow-[0_0_24px_rgba(204,120,92,0.2)]"
       )}
     >
       <div className="flex items-center gap-3">

@@ -56,7 +56,7 @@ export function FramePauseSummary({
       initial={{ opacity: 0, y: 14, scale: 0.98 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ type: "spring", stiffness: 240, damping: 24 }}
-      className="rounded-[10px] border border-border bg-card p-4 sm:p-6 flex flex-col gap-5"
+      className="rounded-[22px] border border-border bg-card/90 shadow-xl backdrop-blur-xl p-4 sm:p-6 flex flex-col gap-5"
     >
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -79,7 +79,7 @@ export function FramePauseSummary({
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.15 }}
-          className="flex items-center gap-3 rounded-[8px] bg-primary/10 border border-primary/30 px-3.5 py-3"
+          className="flex items-center gap-3 rounded-2xl bg-primary/10 border border-primary/30 px-3.5 py-3 shadow-xs"
         >
           <Target size={20} className="text-primary shrink-0" />
           <div className="min-w-0 flex-1">
@@ -93,15 +93,15 @@ export function FramePauseSummary({
               </span>
             </div>
           </div>
-          <span className="rounded-[6px] bg-primary/20 border border-primary/40 px-2 py-0.5 text-[10px] font-mono text-primary uppercase font-bold shrink-0">
+          <span className="rounded-full bg-primary/20 border border-primary/40 px-2.5 py-0.5 text-[10px] font-mono text-primary uppercase font-bold shrink-0">
             Opener
           </span>
         </motion.div>
       )}
 
       {/* Per-frame result */}
-      <div className="rounded-[8px] border border-border bg-surface overflow-hidden">
-        <div className="px-3 pt-3 pb-2 text-xs font-mono uppercase tracking-wider text-muted-foreground flex items-center justify-between">
+      <div className="rounded-2xl border border-border bg-surface/90 overflow-hidden shadow-sm">
+        <div className="px-3.5 pt-3 pb-2 text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
           <span>This frame result</span>
           <span>{frameTotal} pts</span>
         </div>
@@ -113,11 +113,11 @@ export function FramePauseSummary({
             return (
               <div
                 key={p.id}
-                className="flex items-center gap-2.5 sm:gap-3 border-b border-border last:border-0 px-3 py-2.5"
+                className="flex items-center gap-2.5 sm:gap-3 border-b border-border/70 last:border-0 px-3.5 py-2.5"
               >
                 {/* rank */}
                 <span
-                  className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-[6px] font-mono text-[11px] font-bold ${
+                  className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full font-mono text-[11px] font-bold ${
                     i === 0 && score > 0
                       ? "bg-gold text-primary-foreground"
                       : "bg-card border border-border text-muted-foreground"
@@ -126,7 +126,7 @@ export function FramePauseSummary({
                   #{i + 1}
                 </span>
                 <AvatarBubble avatar={p.avatar} size={26} />
-                <span className="flex-1 min-w-0 truncate font-medium text-sm text-foreground">
+                <span className="flex-1 min-w-0 truncate font-semibold text-sm text-foreground">
                   {p.nickname}{" "}
                   {isWinner ? (
                     <Trophy size={13} className="inline text-gold ml-1" />
@@ -154,7 +154,7 @@ export function FramePauseSummary({
       </div>
 
       {/* Running session total */}
-      <div className="rounded-[8px] border border-border bg-surface p-3">
+      <div className="rounded-2xl border border-border bg-surface/90 p-3.5 shadow-sm">
         <div className="mb-2 flex items-center justify-between">
           <h3 className="text-xs font-mono uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
             <Coins size={13} className="text-gold" /> Session Net Balance

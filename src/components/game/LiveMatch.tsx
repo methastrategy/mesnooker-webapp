@@ -6,13 +6,12 @@ import { motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import { useGameStore, useActiveFrame, useRunningBalance } from "@/store/gameStore";
 import { BallPad } from "@/components/game/BallPad";
-import { TurnHeader, ClockStrip } from "@/components/game/TurnHeader";
+import { TurnHeader } from "@/components/game/TurnHeader";
 import { MoneyStrip } from "@/components/game/MoneyStrip";
 import { ClearRack } from "@/components/game/ClearRack";
 import { ControlDock } from "@/components/game/ControlDock";
 import { FrameDetailsPanel } from "@/components/game/FrameDetailsPanel";
 import { ActionToast } from "@/components/game/ActionToast";
-import { Stat } from "@/components/ui";
 import {
   BALL_NAME,
   BALL_ORDER,
@@ -23,7 +22,6 @@ import {
   legalBalls,
 } from "@/lib/rules";
 import type { ArchivedGame, BallColor, Player } from "@/types";
-import { cn } from "@/lib/utils";
 
 import { useElapsed, useElapsedSum } from "@/hooks/useElapsed";
 import { playPotSound, playPenaltySound } from "@/lib/sound";
@@ -244,47 +242,28 @@ export function LiveMatch({ onPause }: {
         frameNumber={store.frames.length}
       />
 
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
-        {/* ══════════ ZONE A — THE TABLE (baize hero + deck; thumb-reach) ══════════ */}
-        <div className="flex flex-col gap-3">
-          <ClockStrip frameNumber={store.frames.length} frameClock={frameClock} sessionClock={sessionClock} />
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
+        {/* ══════════ ZONE A — THE TABLE ARENA & COMMAND COCKPIT ══════════ */}
+        <div className="flex flex-col gap-3.5">
+          {/* THE TABLE / BALL RACK ARENA */}
+          {clearOrderLocked ? (
+            <ClearRack done={clearDone} nextColour={nextColour} ballValues={ballValues} onPot={onPot} />
+          ) : (
+            <BallPad
+              legal={legal}
+              ballValues={ballValues}
+              onPot={onPot}
+              showCount={(c) => store.ballCounts[c]}
+              clearingColours={clearOrderLocked}
+            />
+          )}
 
-          {/* THE TABLE / BALL RACK — Raycast Technical Workspace */}
-          <div className="rounded-[10px] border border-border bg-card p-2.5 sm:p-3 md:p-4">
-            <div className="mb-2.5 flex items-center justify-between px-1">
-              <span className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground">
-                Shot selection
-              </span>
-              <span className={cn(
-                "px-2.5 py-0.5 rounded-[6px] text-[10px] font-mono font-medium tracking-wide uppercase",
-                canStartBreak
-                  ? "bg-primary/15 text-primary border border-primary/35"
-                  : "bg-destructive/15 text-destructive border border-destructive/35"
-              )}>
-                {canStartBreak ? "● Any Colour" : "● Red First"}
-              </span>
-            </div>
-            {clearOrderLocked ? (
-              <ClearRack done={clearDone} nextColour={nextColour} ballValues={ballValues} onPot={onPot} />
-            ) : (
-              <BallPad
-                legal={legal}
-                ballValues={ballValues}
-                onPot={onPot}
-                showCount={(c) => store.ballCounts[c]}
-                clearingColours={clearOrderLocked}
-              />
-            )}
-          </div>
-
-          {/* quick money peek — always visible on mobile, above the deck */}
+          {/* Quick money peek — visible on mobile, directly above the deck */}
           <div className="lg:hidden">
             <MoneyStrip players={players} balances={running} activeId={shooter?.id} />
           </div>
 
-          {/* The control deck — three round-ending keys, End turn, ⋯ More and
-              staged End frame. Fixed bottom rail on mobile, in-flow under the
-              baize on desktop. */}
+          {/* The control deck — penalties, solve, red pot, End turn, ⋯ More, and End frame */}
           <ControlDock
             mode={mode}
             canPotRed={legal.includes("red")}
@@ -303,19 +282,13 @@ export function LiveMatch({ onPause }: {
             onEndFrame={() => { setMoreOpen(false); handleEndFrame(); }}
           />
 
-          <div className="text-center text-[11px] text-muted-foreground">
+          <div className="text-center text-[11px] font-mono text-muted-foreground">
             Foul · Miss · Solve pass to the next player automatically.
           </div>
         </div>
 
-        {/* ══════════ ZONE B — ANALYTICS (dashboard table on lg; expand below on mobile) ══════════ */}
-        <aside className="flex flex-col gap-4">
-          <div className="hidden lg:block">
-            <MoneyStrip variant="rail" players={players} balances={running} activeId={shooter?.id} />
-          </div>
-
-          {/* One modern frame-details dashboard (scoreboard table + potted + events).
-              Stat / PlayerCard / EventLog render below the fold on mobile. */}
+        {/* ══════════ ZONE B — TELEMETRY & FRAME INTELLIGENCE ══════════ */}
+        <aside className="hidden lg:flex flex-col gap-4">
           <FrameDetailsPanel
             players={players}
             scores={frame.scores}
@@ -331,28 +304,35 @@ export function LiveMatch({ onPause }: {
         </aside>
       </div>
 
-      {/* Mobile-only more-details drawer */}
+      {/* Mobile-only Frame Intelligence accordion drawer */}
       <button
         type="button"
         onClick={() => setDetailsOpen((v) => !v)}
-        className="glass flex w-full items-center justify-between rounded-2xl px-4 py-3 text-left lg:hidden"
+        className="glass flex w-full items-center justify-between rounded-full px-5 py-3 text-left lg:hidden cursor-pointer shadow-md"
         aria-expanded={detailsOpen}
       >
-        <span className="text-sm font-semibold text-foreground/80">More details</span>
+        <span className="text-xs sm:text-sm font-mono font-bold uppercase tracking-wider text-foreground/90">
+          Match Telemetry & Scorecard
+        </span>
         <motion.span animate={{ rotate: detailsOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
-          <ChevronDown size={18} className="text-foreground/60" />
+          <ChevronDown size={18} className="text-foreground/70" />
         </motion.span>
       </button>
+
       {detailsOpen && !isDesktop ? (
-        <div className="flex flex-col gap-3 pt-2 pb-1">
-          <div className="glass p-3">
-            <h3 className="mb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Money tonight</h3>
-            <div className="flex flex-wrap gap-4">
-              {players.map((p) => (
-                <Stat key={p.id} label={p.nickname} value={running[p.id] ?? 0} variant="money" />
-              ))}
-            </div>
-          </div>
+        <div className="flex flex-col gap-3 pt-1 pb-2">
+          <FrameDetailsPanel
+            players={players}
+            scores={frame.scores}
+            balances={running}
+            activeId={shooter?.id}
+            potted={potted}
+            events={events}
+            mode={mode}
+            totalPoints={totalPoints}
+            setsPot={setsPot}
+            redsPot={redsPot}
+          />
         </div>
       ) : null}
 
@@ -366,9 +346,8 @@ export function LiveMatch({ onPause }: {
         />
       ) : null}
 
-      {/* Bottom clearance on mobile so the fixed control deck never covers
-          the details accordion (desktop deck is in-flow, no spacer needed). */}
-      <div className="h-40 lg:hidden" aria-hidden />
+      {/* Bottom clearance on mobile so fixed dock never occludes content */}
+      <div className="h-28 lg:hidden" aria-hidden />
     </LiveShell>
   );
 }

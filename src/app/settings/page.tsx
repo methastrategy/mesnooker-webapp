@@ -174,8 +174,8 @@ function SettingsContent() {
 
   return (
     <div className="space-y-6">
-      {/* Mobile Top Tabs (Visible on mobile/tablet where sidebar is hidden) */}
-      <div className="flex md:hidden overflow-x-auto no-scrollbar gap-1.5 p-1 rounded-[10px] border border-border bg-card">
+      {/* Top Category Tabs (Sleek Horizontal Squircle Ribbon) */}
+      <div className="flex overflow-x-auto no-scrollbar gap-1.5 p-1.5 rounded-2xl border border-border/80 bg-card/85 shadow-md backdrop-blur-md">
         {tabs.map((tab) => {
           const active = activeTab === tab.id;
           const Icon = tab.icon;
@@ -184,12 +184,21 @@ function SettingsContent() {
               key={tab.id}
               href={`/settings?tab=${tab.id}`}
               className={cn(
-                "flex items-center gap-1.5 px-3 py-2 rounded-[8px] text-xs font-semibold whitespace-nowrap transition-colors",
-                active ? "bg-primary/15 text-primary border border-primary/30" : "text-muted-foreground hover:text-foreground"
+                "relative flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all select-none",
+                active
+                  ? "text-primary font-bold shadow-xs"
+                  : "text-muted-foreground hover:text-foreground hover:bg-surface/60"
               )}
             >
-              <Icon size={14} />
-              <span>{locale === "th" ? tab.labelTh : tab.labelEn}</span>
+              {active && (
+                <motion.span
+                  layoutId="settings-tab-active-pill"
+                  className="absolute inset-0 -z-0 rounded-xl bg-primary/15 border border-primary/30"
+                  transition={{ type: "spring", stiffness: 450, damping: 32 }}
+                />
+              )}
+              <Icon size={15} className={cn("relative z-10", active ? "text-primary" : "text-muted-foreground")} />
+              <span className="relative z-10">{locale === "th" ? tab.labelTh : tab.labelEn}</span>
             </Link>
           );
         })}
@@ -202,7 +211,7 @@ function SettingsContent() {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="fixed top-5 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 rounded-[8px] border border-primary/40 bg-card/95 px-4 py-2 text-xs font-semibold text-primary shadow-xl backdrop-blur-md"
+            className="fixed top-5 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 rounded-full border border-primary/40 bg-surface/95 px-5 py-2.5 text-xs font-semibold text-primary shadow-2xl backdrop-blur-xl"
           >
             <Check size={14} className="text-primary" />
             <span>{savedNotice}</span>

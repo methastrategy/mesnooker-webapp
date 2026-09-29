@@ -38,7 +38,7 @@ export function FrameCompleteSummary({
       initial={{ opacity: 0, y: 16, scale: 0.96 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ type: "spring", stiffness: 220, damping: 22 }}
-      className="glass-strong glow-emerald flex flex-col gap-5 p-4 sm:p-6"
+      className="glass-strong glow-emerald rounded-[22px] border border-primary/25 shadow-2xl flex flex-col gap-5 p-4 sm:p-6"
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
@@ -63,9 +63,9 @@ export function FrameCompleteSummary({
               <div
                 key={p.id}
                 className={cn(
-                  "flex items-center gap-3 rounded-[8px] px-3 py-2 transition-all border",
+                  "flex items-center gap-3 rounded-xl px-3.5 py-2.5 transition-all border",
                   isWinner
-                    ? "bg-primary/10 border-primary/40"
+                    ? "bg-primary/10 border-primary/40 shadow-sm"
                     : "bg-surface border-border"
                 )}
               >
@@ -93,7 +93,7 @@ export function FrameCompleteSummary({
         ) : (
           <div className="flex flex-col gap-1.5">
             {transfers.map((t, i) => (
-              <div key={i} className="flex items-center gap-2 rounded-[8px] bg-surface border border-border px-3 py-2 text-sm">
+              <div key={i} className="flex items-center gap-2 rounded-xl bg-surface border border-border px-3.5 py-2.5 text-sm">
                 <span className="font-semibold truncate">{t.fromName}</span>
                 <ArrowDown size={14} className="text-gold shrink-0" />
                 <span className="font-semibold truncate">{t.toName}</span>

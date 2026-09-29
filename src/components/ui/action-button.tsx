@@ -8,20 +8,20 @@ type Tone = "primary" | "danger" | "violation" | "gold" | "outline";
 
 const TONE_CLASS: Record<Tone, string> = {
   primary:
-    "bg-primary text-primary-foreground font-bold hover:bg-primary-hover border border-primary/50 border-t-white/30",
+    "bg-primary text-primary-foreground font-bold hover:bg-primary-hover border border-primary/50 border-t-white/30 shadow-[0_2px_14px_rgba(204,120,92,0.28)]",
   danger:
     "bg-destructive/15 text-destructive hover:bg-destructive/25 border border-destructive/35 border-t-destructive/50",
   violation:
     "bg-violation/15 text-violation hover:bg-violation/25 border border-violation/35 border-t-violation/50",
   gold:
-    "bg-gold text-primary-foreground font-bold hover:opacity-90 border border-gold/50 border-t-white/30",
+    "bg-gold text-primary-foreground font-bold hover:opacity-90 border border-gold/50 border-t-white/30 shadow-[0_2px_14px_rgba(245,158,11,0.25)]",
   outline:
-    "bg-card text-foreground border border-border border-t-white/12 hover:bg-[#1a1b1d]",
+    "bg-card/85 text-foreground border border-border border-t-white/12 hover:bg-[#24201d]",
 };
 
 /**
- * Raycast-grade tactile command keycap button.
- * Flat surface elevation, 8px radius, physical Y-axis keycap depression.
+ * Pro Command HUD tactile keycap button.
+ * Squircle/pill contours, micro-chamfer highlights, and Y-axis depression.
  */
 export function ActionButton({
   tone = "primary",
@@ -36,10 +36,10 @@ export function ActionButton({
     <motion.button
       type="button"
       disabled={disabled}
-      whileTap={disabled ? undefined : { y: 2, filter: "brightness(0.86)" }}
+      whileTap={disabled ? undefined : { y: 2, scale: 0.98, filter: "brightness(0.88)" }}
       transition={{ type: "spring", stiffness: 600, damping: 28 }}
       className={cn(
-        "inline-flex h-12 select-none items-center justify-center gap-1.5 rounded-[8px] px-4 text-center text-sm font-semibold tracking-wide transition-colors disabled:opacity-35 disabled:pointer-events-none cursor-pointer",
+        "inline-flex h-12 select-none items-center justify-center gap-1.5 rounded-xl sm:rounded-2xl px-4 text-center text-sm font-bold tracking-wide transition-all shadow-xs disabled:opacity-35 disabled:pointer-events-none cursor-pointer",
         TONE_CLASS[tone],
         className
       )}

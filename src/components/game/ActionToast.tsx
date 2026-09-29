@@ -41,11 +41,11 @@ export function ActionToast({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 12 }}
           transition={{ type: "spring", stiffness: 420, damping: 28 }}
-          className={`pointer-events-none fixed bottom-24 left-1/2 z-50 -translate-x-1/2 flex max-w-[calc(100vw-2rem)] items-center gap-2 rounded-[8px] px-3.5 py-2 text-xs sm:text-sm font-semibold truncate ${TONE_CLS[tone]}`}
+          className={`pointer-events-none fixed bottom-24 left-1/2 z-50 -translate-x-1/2 flex max-w-[calc(100vw-2rem)] items-center gap-2.5 rounded-full px-4 py-2 text-xs sm:text-sm font-semibold truncate shadow-xl backdrop-blur-md ${TONE_CLS[tone]}`}
           role="status"
           aria-live="polite"
         >
-          <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-[6px] bg-surface border border-border text-[11px] font-bold">
+          <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-surface/90 border border-border text-[11px] font-bold">
             {TONE_ICON[tone]}
           </span>
           <span className="truncate">{message}</span>

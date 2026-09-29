@@ -49,7 +49,7 @@ function Row({
   const Icon = icon;
   return (
     <div className="flex items-center gap-3 px-2 py-2.5">
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[8px] border border-border bg-surface text-primary">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-border/80 bg-surface/80 text-primary">
         <Icon size={18} />
       </span>
       <div className="min-w-0 flex-1">
@@ -106,9 +106,9 @@ export function SettingsSheet() {
       </div>
 
       {/* Language Selector */}
-      <div className="flex items-center justify-between rounded-[10px] border border-border bg-surface p-3 mb-2">
+      <div className="flex items-center justify-between rounded-2xl border border-border/80 bg-surface/85 backdrop-blur-md p-3 mb-2 shadow-xs">
         <div className="flex items-center gap-2.5">
-          <span className="flex h-8 w-8 items-center justify-center rounded-[8px] bg-primary/10 text-primary border border-primary/25">
+          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/25">
             <Globe size={16} />
           </span>
           <div>
@@ -120,14 +120,14 @@ export function SettingsSheet() {
             </div>
           </div>
         </div>
-        <div className="flex items-center rounded-[8px] bg-background p-1 border border-border">
+        <div className="flex items-center rounded-full bg-background/90 p-1 border border-border/80">
           <button
             type="button"
             onClick={() => store.setLocale("th")}
             className={cn(
-              "rounded-[6px] px-2.5 py-1 text-xs font-bold transition-colors cursor-pointer",
+              "rounded-full px-3 py-1 text-xs font-bold transition-all cursor-pointer",
               store.locale === "th"
-                ? "bg-primary text-primary-foreground"
+                ? "bg-primary text-primary-foreground shadow-xs"
                 : "text-muted-foreground hover:text-foreground"
             )}
           >
@@ -137,9 +137,9 @@ export function SettingsSheet() {
             type="button"
             onClick={() => store.setLocale("en")}
             className={cn(
-              "rounded-[6px] px-2.5 py-1 text-xs font-bold transition-colors cursor-pointer",
+              "rounded-full px-3 py-1 text-xs font-bold transition-all cursor-pointer",
               store.locale === "en"
-                ? "bg-primary text-primary-foreground"
+                ? "bg-primary text-primary-foreground shadow-xs"
                 : "text-muted-foreground hover:text-foreground"
             )}
           >
