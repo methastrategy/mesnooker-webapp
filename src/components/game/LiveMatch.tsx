@@ -58,7 +58,6 @@ export function LiveMatch({ onPause }: {
     endTurn,
     undo,
     redo,
-    reverse,
   } = store;
 
   useEffect(() => {
@@ -160,10 +159,10 @@ export function LiveMatch({ onPause }: {
     setToast({ id: Date.now(), msg: `${BALL_NAME[ball]} potted`, tone: "info" });
   }
 
-  /** Next shooter the store will rotate to (matches endTurn's reverse-aware math). */
+  /** Next shooter the store will rotate to. */
   function nextShooter(): Player | undefined {
     const n = players.length;
-    const idx = reverse ? (shooterIndex - 1 + n) % n : (shooterIndex + 1) % n;
+    const idx = (shooterIndex + 1) % n;
     return players[idx];
   }
 
@@ -233,7 +232,6 @@ export function LiveMatch({ onPause }: {
         clearingLabel={nextColour ? BALL_NAME[nextColour] : undefined}
         players={players}
         shooterIndex={shooterIndex}
-        reverse={reverse}
         scores={frame.scores}
         runningBalances={running}
         canStartBreak={canStartBreak}

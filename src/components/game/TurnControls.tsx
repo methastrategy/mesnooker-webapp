@@ -5,28 +5,23 @@ import {
   ArrowLeft,
   ArrowRight,
   ChevronsLeft,
-  RotateCcw,
   SkipForward,
   Undo2,
 } from "lucide-react";
 import { Button } from "@/components/ui";
 
-/** Turn controls: prev/next shooter, reverse order, skip, undo */
+/** Turn controls: prev/next shooter, skip, undo */
 export function TurnControls({
   onEndTurn,
   onPrev,
-  onReverse,
   onSkip,
   onUndo,
-  reverse,
   canUndo,
 }: {
   onEndTurn: () => void;
   onPrev: () => void;
-  onReverse: () => void;
   onSkip: () => void;
   onUndo: () => void;
-  reverse: boolean;
   canUndo: boolean;
 }) {
   return (
@@ -36,9 +31,6 @@ export function TurnControls({
       </Button>
       <Button onClick={onEndTurn} className="flex-1 sm:flex-none">
         <ArrowRight size={16} /> End turn
-      </Button>
-      <Button variant={reverse ? "gold" : "glass"} size="sm" onClick={onReverse} aria-label="Reverse order">
-        <RotateCcw size={16} />
       </Button>
       <Button variant="ghost" size="sm" onClick={onSkip} aria-label="Skip player">
         <SkipForward size={16} />

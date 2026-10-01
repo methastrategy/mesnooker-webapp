@@ -49,23 +49,16 @@ export function computeFrameMoney(args: {
   moneyPer: MoneyRateUnit;
   moneyRate: number;
 }): MoneyResult {
-  const { players, scores, targetCycle, moneyPer, moneyRate } = args;
+  const { players, scores, targetCycle, moneyRate } = args;
   const net: Record<string, number> = {};
   const flows: MoneyResult["flows"] = [];
 
   for (const p of players) {
     const id = p.id;
-    let value: number;
-    if (moneyPer === "ball") {
-      // ballCounts here = per-player potted-ball counts (sum of all colours)
-      const counts = args.ballCounts?.[id];
-      const pottedTotal = counts
-        ? Object.values(counts).reduce((a, b) => a + b, 0)
-        : (scores[id] ?? 0);
-      value = pottedTotal * moneyRate;
-    } else {
-      value = (scores[id] ?? 0) * moneyRate;
-    }
+    // In both "points" (Point Count) and "balls" (Ball Count) modes, scores[id]
+    // represents the net points or net balls won by player (including Brown/Black=2 balls,
+    // Foul=-2 balls, Miss=-1, Hit=+1 in ball mode).
+    const value = (scores[id] ?? 0) * moneyRate;
 
     if (Math.abs(value) < 1e-9) continue;
 
@@ -150,9 +143,8 @@ export function optimizeTransfers(
 export function potMoney(
   ball: BallColor,
   mode: GameMode,
-  moneyPer: MoneyRateUnit,
+  _moneyPer: MoneyRateUnit,
   moneyRate: number
 ): number {
-  if (moneyPer === "ball") return moneyRate;
   return ballValue(ball, mode) * moneyRate;
 }

@@ -18,7 +18,6 @@ export interface TurnHeaderProps {
   clearingLabel?: string;
   players?: Player[];
   shooterIndex?: number;
-  reverse?: boolean;
   /** Live frame scores per player */
   scores?: Record<string, number>;
   /** Net running money per player */
@@ -46,7 +45,6 @@ export function TurnHeader({
   clearingLabel,
   players = [],
   shooterIndex,
-  reverse,
   scores = {},
   runningBalances = {},
   canStartBreak,
@@ -64,9 +62,7 @@ export function TurnHeader({
   if (players.length > 1 && shooterIndex !== undefined) {
     const n = players.length;
     for (let step = 1; step <= Math.min(3, n - 1); step++) {
-      const idx = reverse
-        ? (shooterIndex - step + n) % n
-        : (shooterIndex + step) % n;
+      const idx = (shooterIndex + step) % n;
       queue.push(players[idx]);
     }
   }
@@ -281,11 +277,6 @@ export function TurnHeader({
               </div>
             ))}
           </div>
-          {reverse && (
-            <span className="text-[10px] text-gold font-bold shrink-0 ml-0.5" title="Reversed rotation">
-              ↩
-            </span>
-          )}
         </div>
 
         {/* Live Frame and Session Clocks */}

@@ -440,7 +440,7 @@ export const useGameStore = create<GameStore>()(
           f.endedAt = Date.now();
           const best = Math.max(...st.players.map((p) => f.scores[p.id] ?? 0));
           const winners = st.players.filter((p) => (f.scores[p.id] ?? 0) === best && best >= 0);
-          f.winnerId = winners.length ? winners[0].id : undefined;
+          f.winnerId = winners.length === 1 ? winners[0].id : undefined;
           f.highestBreak = Math.max(0, ...st.players.map((p) => f.breaks[p.id] ?? 0));
           const running = mergeRunning(st.session.runningBalance, money.net);
           set({
@@ -581,7 +581,7 @@ export const useGameStore = create<GameStore>()(
           f.endedAt = Date.now();
           const best = Math.max(...st.players.map((p) => f.scores[p.id] ?? 0));
           const winners = st.players.filter((p) => (f.scores[p.id] ?? 0) === best && best >= 0);
-          f.winnerId = winners.length ? winners[0].id : undefined;
+          f.winnerId = winners.length === 1 ? winners[0].id : undefined;
           f.highestBreak = Math.max(0, ...st.players.map((p) => f.breaks[p.id] ?? 0));
           const running = mergeRunning(st.session.runningBalance, money.net);
           set({
@@ -602,7 +602,7 @@ export const useGameStore = create<GameStore>()(
         };
         f.eventIds.push(passEvt.id);
 
-        const nextShooter = st.reverse ? (st.shooterIndex - 1 + n) % n : (st.shooterIndex + 1) % n;
+        const nextShooter = (st.shooterIndex + 1) % n;
         set({
           frames: [...st.frames],
           events: [...st.events, evt, passEvt],
@@ -636,7 +636,7 @@ export const useGameStore = create<GameStore>()(
           f.eventIds.push(evt.id);
           nextEvents = [...st.events, evt];
         }
-        const idx = st.reverse ? (st.shooterIndex - 1 + n) % n : (st.shooterIndex + 1) % n;
+        const idx = (st.shooterIndex + 1) % n;
         set({
           frames: [...st.frames],
           events: nextEvents,
@@ -717,7 +717,7 @@ export const useGameStore = create<GameStore>()(
         }
         // winner = player(s) tied at best AND > 0
         const winners = st.players.filter((p) => (f.scores[p.id] ?? 0) === best && best >= 0);
-        f.winnerId = winners.length ? winners[0].id : undefined;
+        f.winnerId = winners.length === 1 ? winners[0].id : undefined;
         f.highestBreak = Math.max(0, ...st.players.map((p) => f.breaks[p.id] ?? 0));
 
         const running = mergeRunning(st.session.runningBalance, money.net);
@@ -748,7 +748,7 @@ export const useGameStore = create<GameStore>()(
         f.endedAt = Date.now();
         const best = Math.max(0, ...st.players.map((p) => f.scores[p.id] ?? 0));
         const winners = st.players.filter((p) => (f.scores[p.id] ?? 0) === best && best >= 0);
-        f.winnerId = winners.length ? winners[0].id : undefined;
+        f.winnerId = winners.length === 1 ? winners[0].id : undefined;
         f.highestBreak = Math.max(0, ...st.players.map((p) => f.breaks[p.id] ?? 0));
         const running = mergeRunning(st.session.runningBalance, money.net);
         set({
