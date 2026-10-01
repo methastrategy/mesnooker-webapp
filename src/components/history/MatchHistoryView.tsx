@@ -161,13 +161,13 @@ export function MatchHistoryView() {
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-[10px] border border-border bg-card flex flex-col items-center justify-center gap-3 p-10 text-center"
+          className="rounded-[22px] border border-border/80 bg-card/85 flex flex-col items-center justify-center gap-3 p-10 text-center shadow-sm"
         >
-          <span className="flex h-12 w-12 items-center justify-center rounded-[8px] bg-primary/15 text-primary border border-primary/25">
-            <HistoryIcon size={22} />
+          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/15 text-primary border border-primary/25 shadow-xs">
+            <HistoryIcon size={24} />
           </span>
           <div className="flex flex-col gap-1">
-            <div className="text-sm font-semibold text-foreground">
+            <div className="text-base font-bold text-foreground">
               {history.length === 0 ? "No matches recorded yet" : "No matches match your filter"}
             </div>
             <p className="text-xs text-muted-foreground max-w-sm">
@@ -177,7 +177,7 @@ export function MatchHistoryView() {
             </p>
           </div>
           {hasActiveFilters && (
-            <Button variant="ghost" size="sm" onClick={handleReset} className="border border-border">
+            <Button variant="ghost" size="sm" onClick={handleReset} className="border border-border rounded-full">
               <RotateCcw size={14} /> Clear all filters
             </Button>
           )}
@@ -186,7 +186,7 @@ export function MatchHistoryView() {
         groups.map((group) => (
           <div key={group.day} className="flex flex-col gap-2.5">
             <div className="flex items-center justify-between px-1">
-              <h3 className="text-xs font-mono uppercase tracking-wider text-gold font-semibold">
+              <h3 className="text-xs font-mono uppercase tracking-wider text-gold font-bold">
                 {new Date(group.day).toLocaleDateString("en", {
                   weekday: "short",
                   month: "short",
@@ -220,7 +220,7 @@ export function MatchHistoryView() {
                   }}
                   role="button"
                   tabIndex={0}
-                  className="rounded-[10px] border border-border bg-card p-3.5 sm:p-4 transition-all hover:border-primary/40 hover:bg-card/90 cursor-pointer flex flex-col gap-3 group text-left"
+                  className="rounded-[20px] border border-border/80 bg-card/90 backdrop-blur-xl p-4 sm:p-4.5 transition-all hover:border-primary/50 hover:bg-card cursor-pointer flex flex-col gap-3 group text-left shadow-md select-none"
                 >
                   {/* Top row: tags & timestamp */}
                   <div className="flex flex-wrap items-center justify-between gap-2">
@@ -245,14 +245,14 @@ export function MatchHistoryView() {
                       return (
                         <div
                           key={p.id}
-                          className="flex items-center justify-between rounded-[8px] bg-surface border border-border/60 px-2.5 py-1.5"
+                          className="flex items-center justify-between rounded-[14px] bg-surface/90 border border-border/70 px-3 py-2 shadow-xs"
                         >
                           <div className="flex items-center gap-2 min-w-0">
-                            <AvatarBubble avatar={p.avatar} size={20} />
-                            <span className="text-xs font-medium text-foreground truncate">{p.nickname}</span>
+                            <AvatarBubble avatar={p.avatar} size={22} />
+                            <span className="text-xs font-semibold text-foreground truncate">{p.nickname}</span>
                           </div>
                           <span
-                            className={`text-xs font-mono font-semibold tabular-nums shrink-0 ${
+                            className={`text-xs font-mono font-bold tabular-nums shrink-0 ${
                               net > 0 ? "text-primary" : net < 0 ? "text-destructive" : "text-muted-foreground"
                             }`}
                           >
@@ -263,6 +263,7 @@ export function MatchHistoryView() {
                       );
                     })}
                   </div>
+
 
                   {/* Bottom row: Settlement summary + details cue */}
                   <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border pt-2 text-[11px]">

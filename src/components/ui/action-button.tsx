@@ -8,16 +8,17 @@ type Tone = "primary" | "danger" | "violation" | "gold" | "outline";
 
 const TONE_CLASS: Record<Tone, string> = {
   primary:
-    "bg-primary text-primary-foreground font-bold hover:bg-primary-hover border border-primary/50 border-t-white/30 shadow-[0_2px_14px_rgba(204,120,92,0.28)]",
+    "bg-primary text-primary-foreground font-bold hover:bg-primary-hover border border-primary/50 border-t-white/30 shadow-md shadow-primary/25",
   danger:
     "bg-destructive/15 text-destructive hover:bg-destructive/25 border border-destructive/35 border-t-destructive/50",
   violation:
     "bg-violation/15 text-violation hover:bg-violation/25 border border-violation/35 border-t-violation/50",
   gold:
-    "bg-gold text-primary-foreground font-bold hover:opacity-90 border border-gold/50 border-t-white/30 shadow-[0_2px_14px_rgba(245,158,11,0.25)]",
+    "bg-gold text-primary-foreground font-bold hover:opacity-90 border border-gold/50 border-t-white/30 shadow-md shadow-gold/25",
   outline:
-    "bg-card/85 text-foreground border border-border border-t-white/12 hover:bg-[#24201d]",
+    "bg-card/85 text-foreground border border-border border-t-white/12 hover:bg-card-solid",
 };
+
 
 /**
  * Pro Command HUD tactile keycap button.

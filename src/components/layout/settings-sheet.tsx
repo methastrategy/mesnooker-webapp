@@ -175,48 +175,48 @@ export function SettingsSheet() {
             onClick={() => setTheme(t.id)}
             aria-pressed={theme === t.id}
             className={cn(
-              "flex flex-col items-center gap-2 rounded-[8px] border px-2 py-2.5 text-center leading-tight cursor-pointer transition-colors",
+              "flex flex-col items-center gap-2 rounded-2xl border px-2 py-3 text-center leading-tight cursor-pointer transition-all shadow-xs active:scale-95",
               theme === t.id
-                ? "border-primary bg-primary/15"
-                : "border-border bg-surface hover:bg-card"
+                ? "border-primary bg-primary/20 ring-1 ring-primary/40 shadow-xs"
+                : "border-border/80 bg-surface/90 hover:bg-card hover:border-primary/30"
             )}
           >
             <span className="flex items-center gap-1">
               {t.swatch.map((c) => (
-                <span key={c} className="h-3 w-3 rounded-full border border-white/15" style={{ background: c }} />
+                <span key={c} className="h-3 w-3 rounded-full border border-white/15 shadow-xs" style={{ background: c }} />
               ))}
             </span>
-            <span className="text-[11px] font-medium">{t.name}</span>
+            <span className="text-xs font-semibold text-foreground/90">{t.name}</span>
           </button>
         ))}
       </div>
 
       {/* Account */}
       <div className="mt-4">
-        <div className="mb-1 px-2 pt-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        <div className="mb-2 px-2 pt-1 text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground">
           Account
         </div>
-        <div className="flex items-center gap-3 px-2 py-1.5">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[8px] border border-border bg-surface text-primary">
+        <div className="flex items-center gap-3 p-3 rounded-2xl border border-border/80 bg-surface/85 shadow-xs">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-border bg-surface text-primary">
             <UserRound size={18} />
           </span>
           <div className="min-w-0 flex-1">
-            <div className="truncate text-sm font-medium">{accountEmail ?? "…"}</div>
-            <div className="text-xs text-muted-foreground">Signed in</div>
+            <div className="truncate text-sm font-semibold text-foreground">{accountEmail ?? "Anonymous"}</div>
+            <div className="text-xs font-mono text-muted-foreground">Authenticated Session</div>
           </div>
-          <ActionButton tone="outline" onClick={signOut} className="px-3 py-1.5 text-xs">
-            <LogOut size={14} /> Sign out
+          <ActionButton tone="outline" onClick={signOut} className="px-3.5 py-1.5 text-xs rounded-full">
+            <LogOut size={13} /> <span>Sign out</span>
           </ActionButton>
         </div>
       </div>
 
       {/* Danger zone */}
       <div className="mt-4">
-        <div className="mb-1 px-2 pt-1 text-xs font-semibold uppercase tracking-wider text-destructive">
-          Danger zone
+        <div className="mb-2 px-2 pt-1 text-xs font-mono font-bold uppercase tracking-wider text-destructive">
+          Danger Zone
         </div>
-        <ActionButton tone="outline" onClick={resetApp} className="w-full text-destructive">
-          <Trash2 size={16} /> Reset app
+        <ActionButton tone="danger" onClick={resetApp} className="w-full text-destructive rounded-full h-11 text-xs font-bold gap-2">
+          <Trash2 size={15} /> <span>Factory Reset All App Data</span>
         </ActionButton>
       </div>
     </Sheet>

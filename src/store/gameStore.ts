@@ -139,6 +139,10 @@ interface GameStore extends PersistShape {
   endFrame: () => void;
   /** End the frame AND record who should open next frame (auto-end on black ball). */
   endFrameWithOpener: (openerIndex: number) => void;
+  /** Choose or change who opens the next frame */
+  setNextFrameOpener: (openerIndex: number) => void;
+  /** Re-open a paused frame if ended by mistake, restoring live state and rolling back net frame money */
+  resumeFrame: () => void;
   newFrame: () => void;
   renamePlayer: (id: string, nickname: string) => void;
   toggleSound: () => void;
@@ -717,8 +721,9 @@ export const useGameStore = create<GameStore>()(
         f.highestBreak = Math.max(0, ...st.players.map((p) => f.breaks[p.id] ?? 0));
 
         const running = mergeRunning(st.session.runningBalance, money.net);
+        const nextOpener = (st.shooterIndex + 1) % Math.max(1, st.players.length);
         set({
-          session: { ...st.session, runningBalance: running },
+          session: { ...st.session, runningBalance: running, nextFrameFirstShooter: nextOpener },
           frames: [...st.frames],
         });
       },
@@ -748,6 +753,33 @@ export const useGameStore = create<GameStore>()(
         const running = mergeRunning(st.session.runningBalance, money.net);
         set({
           session: { ...st.session, runningBalance: running, nextFrameFirstShooter: openerIdx },
+          frames: [...st.frames],
+        });
+      },
+
+      setNextFrameOpener: (openerIdx: number) => {
+        const st = get();
+        if (!st.session) return;
+        set({
+          session: { ...st.session, nextFrameFirstShooter: openerIdx },
+        });
+      },
+
+      resumeFrame: () => {
+        const st = get();
+        const f = st.frames[st.frames.length - 1];
+        if (!f || !st.session || !f.endedAt) return;
+        const prevRunning = { ...st.session.runningBalance };
+        if (f.money) {
+          for (const [pid, amt] of Object.entries(f.money)) {
+            prevRunning[pid] = (prevRunning[pid] ?? 0) - amt;
+          }
+        }
+        f.endedAt = undefined;
+        f.winnerId = undefined;
+        f.money = {};
+        set({
+          session: { ...st.session, runningBalance: prevRunning },
           frames: [...st.frames],
         });
       },

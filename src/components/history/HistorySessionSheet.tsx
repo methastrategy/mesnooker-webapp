@@ -154,86 +154,98 @@ function FrameDetailCard({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ type: "spring", stiffness: 260, damping: 26, delay: Math.min(frame.index * 0.06, 0.3) }}
-      className="glass relative overflow-hidden rounded-[10px]"
+      className="glass relative overflow-hidden rounded-[18px] border border-border/80 shadow-xs"
     >
       {/* frame header — tap to collapse/expand */}
       <button
         type="button"
         onClick={onToggle}
         aria-expanded={open}
-        className="flex w-full flex-wrap items-center justify-between gap-2 px-3 py-2.5 text-left cursor-pointer"
+        className="flex w-full flex-wrap items-center justify-between gap-2 px-3.5 py-3 text-left cursor-pointer hover:bg-white/[0.02] transition-colors"
       >
         <span className="flex items-center gap-2 min-w-0">
-          <Badge variant="default">Frame {frame.index + 1}</Badge>
+          <Badge variant="default" className="font-mono text-xs">Frame {frame.index + 1}</Badge>
           {winner && (
-            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-gold truncate">
-              <Trophy size={12} className="shrink-0" /> {winner.nickname}
+            <span className="inline-flex items-center gap-1 text-xs font-bold text-gold truncate">
+              <Trophy size={13} className="shrink-0 fill-gold/20" /> {winner.nickname}
             </span>
           )}
         </span>
-        <span className="flex items-center gap-2 text-[11px] font-mono text-muted-foreground ml-auto">
+        <span className="flex items-center gap-2 text-xs font-mono text-muted-foreground ml-auto">
           <span className="hidden min-[360px]:inline-flex items-center gap-1">
-            <Clock3 size={11} /> {formatTime(frame.startedAt)}
+            <Clock3 size={12} /> {formatTime(frame.startedAt)}
           </span>
           {frame.endedAt && (
             <span className="inline-flex items-center gap-1">
-              <TimerReset size={11} /> {durLabel}
+              <TimerReset size={12} /> {durLabel}
             </span>
           )}
           <motion.span animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.2 }}>
-            <ChevronDown size={14} />
+            <ChevronDown size={15} />
           </motion.span>
         </span>
       </button>
 
       {open && (
-        <div className="flex flex-col gap-1.5 px-3 pt-1 pb-3 border-t border-border">
+        <div className="flex flex-col gap-2 px-3.5 pt-2 pb-3.5 border-t border-border/70 bg-card/40">
           {/* per-player scoreboard */}
-          {game.players.map((p) => {
-            const pts = frame.scores[p.id] ?? 0;
-            const money = frame.money[p.id] ?? 0;
-            const brk = frame.breaks[p.id] ?? 0;
-            const fouls = frame.fouls[p.id] ?? 0;
-            const misses = frame.snookerMisses[p.id] ?? 0;
-            const hits = frame.snookerHits[p.id] ?? 0;
-            return (
-              <div key={p.id} className="flex items-center gap-1.5 sm:gap-2 rounded-[8px] border border-border bg-surface px-2.5 py-2">
-                {p.avatar ? <AvatarBubble avatar={p.avatar} size={22} /> : <BallDot color={p.color} size={10} />}
-                <span className={cn("min-w-0 flex-1 truncate text-xs sm:text-sm font-medium", frame.winnerId === p.id ? "text-gold" : "text-foreground")}>
-                  {p.nickname}
-                  {frame.winnerId === p.id && <Trophy size={11} className="ml-1 inline text-gold" />}
-                </span>
-                <span className="text-[10px] font-mono text-muted-foreground shrink-0">♥{brk}</span>
-                {(fouls > 0 || misses > 0 || hits > 0) && (
-                  <span className="hidden min-[360px]:inline text-[10px] font-mono text-muted-foreground shrink-0">
-                    F{fouls}·M{misses}·S{hits}
+          <div className="flex flex-col gap-1.5">
+            {game.players.map((p) => {
+              const pts = frame.scores[p.id] ?? 0;
+              const money = frame.money[p.id] ?? 0;
+              const brk = frame.breaks[p.id] ?? 0;
+              const fouls = frame.fouls[p.id] ?? 0;
+              const misses = frame.snookerMisses[p.id] ?? 0;
+              const hits = frame.snookerHits[p.id] ?? 0;
+              const isWinner = frame.winnerId === p.id;
+
+              return (
+                <div
+                  key={p.id}
+                  className={cn(
+                    "flex items-center gap-2 rounded-[14px] border px-3 py-2 transition-all",
+                    isWinner
+                      ? "bg-gold/10 border-gold/35"
+                      : "bg-surface/85 border-border/70"
+                  )}
+                >
+                  {p.avatar ? <AvatarBubble avatar={p.avatar} size={22} /> : <BallDot color={p.color} size={10} />}
+                  <span className={cn("min-w-0 flex-1 truncate text-xs sm:text-sm font-semibold", isWinner ? "text-gold font-bold" : "text-foreground")}>
+                    {p.nickname}
+                    {isWinner && <Trophy size={11} className="ml-1 inline text-gold" />}
                   </span>
-                )}
-                <span className="text-right text-xs sm:text-sm font-mono font-semibold tabular-nums shrink-0">{pts} pts</span>
-                <span className={cn("min-w-[54px] sm:min-w-[64px] text-right text-xs sm:text-sm font-mono font-bold tabular-nums shrink-0", money > 0 ? "text-primary" : money < 0 ? "text-destructive" : "text-muted-foreground")}>
-                  {money > 0 ? "+" : ""}
-                  {formatMoney(money)}
-                </span>
-              </div>
-            );
-          })}
+                  {brk > 0 && <span className="text-[10px] font-mono text-gold font-semibold shrink-0">♥{brk}</span>}
+                  {(fouls > 0 || misses > 0 || hits > 0) && (
+                    <span className="hidden min-[360px]:inline text-[10px] font-mono text-muted-foreground shrink-0">
+                      F{fouls}·M{misses}·S{hits}
+                    </span>
+                  )}
+                  <span className="text-right text-xs sm:text-sm font-mono font-bold tabular-nums shrink-0">{pts} pts</span>
+                  <span className={cn("min-w-[56px] text-right text-xs sm:text-sm font-mono font-bold tabular-nums shrink-0", money > 0 ? "text-primary" : money < 0 ? "text-destructive" : "text-muted-foreground")}>
+                    {money > 0 ? "+" : ""}
+                    {formatMoney(money)}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
 
           {/* potted rack — balls actually removed from the table this frame */}
-          <div className="flex flex-wrap items-center gap-1.5 px-1 pt-1">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Potted</span>
+          <div className="flex flex-wrap items-center gap-1.5 pt-1.5 border-t border-border/50">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">Potted:</span>
             {BALL_ORDER.map((c) => {
               const n = frame.totalPotted[c] ?? 0;
               if (n <= 0) return null;
               return (
-                <span key={c} title={`${BALL_NAME[c]} ×${n}`} className="flex items-center gap-0.5 rounded-[5px] border border-border bg-surface px-1.5 py-0.5">
+                <span key={c} title={`${BALL_NAME[c]} ×${n}`} className="flex items-center gap-1 rounded-full border border-border/70 bg-surface/90 px-2 py-0.5 shadow-xs">
                   <BallDot color={c} size={11} />
-                  <span className="text-[10px] font-mono font-semibold tabular-nums text-muted-foreground">×{n}</span>
+                  <span className="text-[10px] font-mono font-bold tabular-nums text-foreground/80">×{n}</span>
                 </span>
               );
             })}
             {frame.highestBreak > 0 && (
-              <span className="ml-auto inline-flex items-center gap-1 text-[10px] font-mono text-gold">
-                <Crosshair size={11} /> best break {frame.highestBreak}
+              <span className="ml-auto inline-flex items-center gap-1 text-[10px] font-mono font-bold text-gold">
+                <Crosshair size={11} /> High Break: {frame.highestBreak}
               </span>
             )}
           </div>

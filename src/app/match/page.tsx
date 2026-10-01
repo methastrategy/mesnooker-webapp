@@ -47,6 +47,7 @@ export default function MatchPage() {
   if (paused && lastFrame?.endedAt) {
     return (
       <FramePauseSummary
+        onResume={() => setPaused(false)}
         onFinish={(a) => {
           setPaused(false);
           setJustFinished(a);

@@ -24,33 +24,54 @@ export function ClearRack({
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-[22px] border border-gold/40 bg-card/85 backdrop-blur-xl p-4 sm:p-5 flex flex-col gap-3.5 shadow-xl ring-1 ring-white/5"
+      className="rounded-[24px] border border-gold/45 bg-card/90 backdrop-blur-2xl p-4 sm:p-5 flex flex-col gap-4 shadow-xl relative overflow-hidden select-none"
       role="region"
       aria-label="Clear the table — colours must be potted in order"
     >
-      <div className="flex flex-wrap items-center justify-between gap-1.5">
-        <Badge variant="gold">Clear the table</Badge>
-        <span className="text-[11px] font-mono text-muted-foreground uppercase tracking-wider">
-          Colours in order — no skipping
+      {/* Golden Ambient Sheen */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full bg-gold/10 blur-2xl"
+      />
+
+      <div className="flex flex-wrap items-center justify-between gap-1.5 border-b border-gold/20 pb-2.5">
+        <div className="flex items-center gap-2">
+          <Badge variant="gold" className="text-xs font-mono font-bold">Clear the Table</Badge>
+          <span className="h-1.5 w-1.5 rounded-full bg-gold animate-pulse" />
+        </div>
+        <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">
+          Colours In Order · Strict Sequence
         </span>
       </div>
 
       {/* official order rack — safe single row with scroll containment */}
-      <div className="flex items-center justify-start sm:justify-center gap-2 overflow-x-auto no-scrollbar py-2 px-1">
+      <div className="flex items-center justify-start sm:justify-center gap-2 overflow-x-auto no-scrollbar py-1 px-1">
         {COLOUR_ORDER.map((c, i) => {
           const isDone = done[c];
           const onNow = c === nextColour;
           return (
-            <div key={c} className="flex flex-col items-center gap-1 shrink-0">
+            <div key={c} className="flex flex-col items-center gap-1.5 shrink-0">
               <span
-                className={`flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-bold shadow-xs ${
-                  onNow ? "ring-2 ring-gold text-black/80 font-black scale-110" : isDone ? "text-white/50" : "text-black/70"
+                className={`flex h-8 w-8 items-center justify-center rounded-full text-[11px] font-mono font-black shadow-sm transition-all ${
+                  onNow
+                    ? "ring-2 ring-gold ring-offset-2 ring-offset-card text-black scale-110 shadow-md"
+                    : isDone
+                      ? "text-white/40 ring-1 ring-white/10"
+                      : "text-black/80 ring-1 ring-white/20"
                 }`}
-                style={{ background: BALL_HEX[c], opacity: isDone ? 0.35 : 1 }}
+                style={{ background: BALL_HEX[c], opacity: isDone ? 0.3 : 1 }}
               >
                 {i + 1}
               </span>
-              <span className={`text-[10px] sm:text-[11px] font-mono leading-none ${onNow ? "font-bold text-foreground" : isDone ? "text-muted-foreground line-through opacity-50" : "text-muted-foreground"}`}>
+              <span
+                className={`text-[10px] sm:text-[11px] font-mono leading-none ${
+                  onNow
+                    ? "font-bold text-gold"
+                    : isDone
+                      ? "text-muted-foreground line-through opacity-40"
+                      : "text-muted-foreground"
+                }`}
+              >
                 {BALL_NAME[c]}
               </span>
             </div>
@@ -59,7 +80,7 @@ export function ClearRack({
       </div>
 
       {/* only the next colour is pottable */}
-      <div className="flex flex-col items-center gap-2 pt-1">
+      <div className="flex flex-col items-center gap-2.5 pt-1">
         {nextColour ? (
           <>
             <SnookerBall
@@ -80,5 +101,6 @@ export function ClearRack({
         )}
       </div>
     </motion.div>
+
   );
 }

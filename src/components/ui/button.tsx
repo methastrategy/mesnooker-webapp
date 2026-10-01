@@ -15,11 +15,12 @@ const buttonVariants = cva(
         gold: "bg-gold text-primary-foreground font-bold border-gold/50 border-t-white/25 hover:opacity-90 shadow-sm",
         violation:
           "bg-violation/15 text-violation border-violation/35 border-t-violation/50 hover:bg-violation/25",
-        secondary: "bg-secondary text-secondary-foreground border-border border-t-white/12 hover:bg-[#24201d]",
-        outline: "border-border border-t-white/12 bg-card text-foreground hover:bg-[#24201d]",
+        secondary: "bg-secondary text-secondary-foreground border-border border-t-white/12 hover:bg-card-solid",
+        outline: "border-border border-t-white/12 bg-card text-foreground hover:bg-card-solid",
         ghost: "text-muted-foreground hover:text-foreground hover:bg-white/[0.05]",
         danger: "bg-destructive/15 text-destructive border-destructive/35 border-t-destructive/50 hover:bg-destructive/25",
         glass: "bg-card/85 text-card-foreground border-border border-t-white/12 hover:bg-surface backdrop-blur-md",
+
       },
       size: {
         default: "h-11 px-5 text-sm",
