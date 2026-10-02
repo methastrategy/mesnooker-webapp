@@ -182,7 +182,7 @@ export const useCoachStore = create<CoachState>()((set, get) => ({
     }
   },
 
-  setObjectBall: (_id) => {
+  setObjectBall: () => {
     // Target is locked to the Black ball
     set({ objectId: BLACK_TARGET_ID });
     get().solve();

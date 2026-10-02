@@ -5,7 +5,7 @@ import { hashPassword } from "@/lib/auth/password";
 import { initAuthDb, findUserByEmail, createUser, hasAuthDb } from "@/lib/auth/db";
 import { signSession, SESSION_COOKIE, SESSION_TTL_DAYS } from "@/lib/auth/session";
 import { normalizeEmail, validEmail, validPassword } from "@/lib/auth/validate";
-import { isLocked, recordFail } from "@/lib/auth/ratelimit";
+import { isLocked } from "@/lib/auth/ratelimit";
 
 export const runtime = "nodejs";
 

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef, useCallback } from "react";
-import { useCoachStore, type CueSpin } from "@/store/coachStore";
+import { useCoachStore } from "@/store/coachStore";
 import { cn } from "@/lib/utils";
 
 interface Preset {

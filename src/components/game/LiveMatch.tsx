@@ -33,11 +33,31 @@ export function LiveMatch({ onPause }: {
   /** @deprecated accepted for signature parity; completion flows via onPause → FramePauseSummary */
   onFinish?: (a: ArchivedGame) => void;
 }) {
-  const store = useGameStore();
   const frame = useActiveFrame();
   const running = useRunningBalance();
+  const session = useGameStore((s) => s.session);
+  const frames = useGameStore((s) => s.frames);
+  const allEvents = useGameStore((s) => s.events);
+  const players = useGameStore((s) => s.players);
+  const mode = useGameStore((s) => s.mode);
+  const ballCounts = useGameStore((s) => s.ballCounts);
+  const shooterIndex = useGameStore((s) => s.shooterIndex);
+  const sound = useGameStore((s) => s.sound);
+  const haptics = useGameStore((s) => s.haptics);
+  const customRules = useGameStore((s) => s.customRules);
+  const startCounts = useGameStore((s) => s.startCounts);
+  const canUndo = useGameStore((s) => s.undoStack.length > 0);
+  const canRedo = useGameStore((s) => s.redoStack.length > 0);
+
+  const pot = useGameStore((s) => s.pot);
+  const applyScoring = useGameStore((s) => s.applyScoring);
+  const endTurn = useGameStore((s) => s.endTurn);
+  const endFrame = useGameStore((s) => s.endFrame);
+  const undo = useGameStore((s) => s.undo);
+  const redo = useGameStore((s) => s.redo);
+
   const frameStartedAt = frame?.startedAt;
-  const sessionClock = useElapsedSum(store.frames);
+  const sessionClock = useElapsedSum(frames);
   const frameClock = useElapsed(frameStartedAt);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
@@ -45,20 +65,6 @@ export function LiveMatch({ onPause }: {
   const [toast, setToast] = useState<{ id: number; msg: string; tone: ToastTone } | null>(null);
   // Desktop analytics rail renders inline on ≥lg regardless of the accordion.
   const [isDesktop, setIsDesktop] = useState(false);
-
-  const {
-    players,
-    mode,
-    ballCounts,
-    shooterIndex,
-    sound,
-    haptics,
-    pot,
-    applyScoring,
-    endTurn,
-    undo,
-    redo,
-  } = store;
 
   useEffect(() => {
     // MediaQueryList: modern browsers expose `window.matchMedia` (MediaQueryList
@@ -83,7 +89,7 @@ export function LiveMatch({ onPause }: {
     return () => window.removeEventListener("resize", update);
   }, []);
 
-  if (!frame || !store.session) {
+  if (!frame || !session) {
     return (
       <LiveShell>
         <div className="glass p-8 text-center text-muted-foreground">
@@ -97,21 +103,20 @@ export function LiveMatch({ onPause }: {
   const targetId = frame.targetCycle[shooter?.id];
   const targetName = players.find((p) => p.id === targetId)?.nickname;
 
-  const events = store.events.filter((e) => e.frameId === frame.id && !e.undone);
+  const events = allEvents.filter((e) => e.frameId === frame.id && !e.undone);
 
   // Break engine: legal phase + consecutive break count for the current shooter
   const phase = inferBreakPhase(events, shooter?.id ?? "");
   const breakCount = currentBreakCount(events, shooter?.id ?? "");
-  const legal = legalBalls(phase, store.ballCounts);
+  const legal = legalBalls(phase, ballCounts);
   const canStartBreak = phase === BreakPhase.COLOUR;
   // Once reds are gone, legal[0] is the exact next colour in sequence.
-  const clearingColours = store.ballCounts.red === 0;
+  const clearingColours = ballCounts.red === 0;
   // Ordered "ClearRack" only engages once the free finishing colour has been
   // potted (phase back to RED_FIRST). Right after the last red the shooter is
   // still entitled to any colour — show the free ball pad.
   const clearOrderLocked = clearingColours && phase === BreakPhase.RED_FIRST;
   const nextColour = clearOrderLocked ? legal[0] : undefined;
-  const customRules = store.customRules;
   const ballValues: Record<BallColor, number> = {
     red: ballValue("red", mode, customRules),
     yellow: ballValue("yellow", mode, customRules),
@@ -146,7 +151,8 @@ export function LiveMatch({ onPause }: {
     tap();
     pot(ball);
     // AUTO-END detection: if potting the black ended the frame, go to pause screen.
-    const freshFrame = store.frames[store.frames.length - 1];
+    const freshFrames = useGameStore.getState().frames;
+    const freshFrame = freshFrames[freshFrames.length - 1];
     if (freshFrame?.endedAt && onPause) {
       if (haptics && typeof navigator !== "undefined" && "vibrate" in navigator) {
         try { navigator.vibrate?.([20, 60, 20]); } catch {}
@@ -173,7 +179,8 @@ export function LiveMatch({ onPause }: {
     tap("penalty");
     applyScoring(kind);
     // FOUL-ON-BLACK auto-end: the store will have set frame.endedAt
-    const freshFrame = store.frames[store.frames.length - 1];
+    const freshFrames = useGameStore.getState().frames;
+    const freshFrame = freshFrames[freshFrames.length - 1];
     if (freshFrame?.endedAt && onPause) {
       if (haptics && typeof navigator !== "undefined" && "vibrate" in navigator) {
         try { navigator.vibrate?.([20, 60, 20]); } catch {}
@@ -186,13 +193,10 @@ export function LiveMatch({ onPause }: {
     setToast({ id: Date.now(), msg: `${verb} ${value} · → ${next?.nickname ?? "next"}`, tone });
   }
 
-  const canUndo = store.undoStack.length > 0;
-  const canRedo = store.redoStack.length > 0;
-
   function handleEndFrame() {
     // End THIS frame only; the match page then shows the frame summary with
     // the choice to continue (next frame) or end the whole session.
-    store.endFrame();
+    endFrame();
     if (onPause) onPause();
     if (haptics && typeof navigator !== "undefined" && "vibrate" in navigator) {
       try { navigator.vibrate?.([20, 40, 20]); } catch {}
@@ -200,7 +204,7 @@ export function LiveMatch({ onPause }: {
   }
 
   // Frame summary: total points, sets potted, per-colour potted
-  const startC = store.startCounts;
+  const startC = startCounts;
   const potted: Record<BallColor, number> = { red: 0, yellow: 0, green: 0, brown: 0, blue: 0, pink: 0, black: 0 };
   BALL_ORDER.forEach((c) => {
     potted[c] = (startC?.[c] ?? ballCounts[c]) - ballCounts[c];
@@ -237,7 +241,7 @@ export function LiveMatch({ onPause }: {
         canStartBreak={canStartBreak}
         frameClock={frameClock}
         sessionClock={sessionClock}
-        frameNumber={store.frames.length}
+        frameNumber={frames.length}
       />
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
@@ -251,7 +255,7 @@ export function LiveMatch({ onPause }: {
               legal={legal}
               ballValues={ballValues}
               onPot={onPot}
-              showCount={(c) => store.ballCounts[c]}
+              showCount={(c) => ballCounts[c]}
               clearingColours={clearOrderLocked}
             />
           )}

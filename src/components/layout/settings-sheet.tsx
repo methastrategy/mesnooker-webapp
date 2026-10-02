@@ -67,15 +67,16 @@ function Row({
  *  the sidebar item and the /settings route all open the SAME popup — there is
  *  exactly one settings surface in the app. */
 export function SettingsSheet() {
-  const store = useGameStore();
   const open = useGameStore((s) => s.settingsOpen);
   const sound = useGameStore((s) => s.sound);
   const haptics = useGameStore((s) => s.haptics);
   const theme = useGameStore((s) => s.theme);
-  const toggleSound = store.toggleSound;
-  const toggleHaptics = store.toggleHaptics;
-  const setTheme = store.setTheme;
-  const onClose = store.closeSettings;
+  const locale = useGameStore((s) => s.locale);
+  const toggleSound = useGameStore((s) => s.toggleSound);
+  const toggleHaptics = useGameStore((s) => s.toggleHaptics);
+  const setTheme = useGameStore((s) => s.setTheme);
+  const setLocale = useGameStore((s) => s.setLocale);
+  const onClose = useGameStore((s) => s.closeSettings);
 
   const [accountEmail, setAccountEmail] = useState<string | null>(null);
   useEffect(() => {
@@ -102,7 +103,7 @@ export function SettingsSheet() {
   return (
     <Sheet open={open} onClose={onClose} title="Settings">
       <div className="mb-1 px-2 pt-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-        {store.locale === "th" ? "การตั้งค่าทั่วไป" : "Preferences"}
+        {locale === "th" ? "การตั้งค่าทั่วไป" : "Preferences"}
       </div>
 
       {/* Language Selector */}
@@ -113,20 +114,20 @@ export function SettingsSheet() {
           </span>
           <div>
             <div className="text-sm font-semibold text-foreground">
-              {store.locale === "th" ? "ภาษาแสดงผล" : "Language"}
+              {locale === "th" ? "ภาษาแสดงผล" : "Language"}
             </div>
             <div className="text-[11px] text-muted-foreground">
-              {store.locale === "th" ? "ภาษาไทย / English" : "Thai / English"}
+              {locale === "th" ? "ภาษาไทย / English" : "Thai / English"}
             </div>
           </div>
         </div>
         <div className="flex items-center rounded-full bg-background/90 p-1 border border-border/80">
           <button
             type="button"
-            onClick={() => store.setLocale("th")}
+            onClick={() => setLocale("th")}
             className={cn(
               "rounded-full px-3 py-1 text-xs font-bold transition-all cursor-pointer",
-              store.locale === "th"
+              locale === "th"
                 ? "bg-primary text-primary-foreground shadow-xs"
                 : "text-muted-foreground hover:text-foreground"
             )}
@@ -135,10 +136,10 @@ export function SettingsSheet() {
           </button>
           <button
             type="button"
-            onClick={() => store.setLocale("en")}
+            onClick={() => setLocale("en")}
             className={cn(
               "rounded-full px-3 py-1 text-xs font-bold transition-all cursor-pointer",
-              store.locale === "en"
+              locale === "en"
                 ? "bg-primary text-primary-foreground shadow-xs"
                 : "text-muted-foreground hover:text-foreground"
             )}
@@ -150,15 +151,15 @@ export function SettingsSheet() {
 
       <Row
         icon={Volume2}
-        title={store.locale === "th" ? "เสียงเอฟเฟกต์" : "Sound"}
-        subtitle={store.locale === "th" ? "เสียงลูกกระทบและลงหลุม" : "Timers and ball impacts"}
+        title={locale === "th" ? "เสียงเอฟเฟกต์" : "Sound"}
+        subtitle={locale === "th" ? "เสียงลูกกระทบและลงหลุม" : "Timers and ball impacts"}
       >
         <Toggle on={sound} onChange={toggleSound} />
       </Row>
       <Row
         icon={Vibrate}
-        title={store.locale === "th" ? "การสั่นตอบสนอง" : "Haptics"}
-        subtitle={store.locale === "th" ? "สั่นเตือนเมื่อกดแต้ม" : "Tactile touch feedback"}
+        title={locale === "th" ? "การสั่นตอบสนอง" : "Haptics"}
+        subtitle={locale === "th" ? "สั่นเตือนเมื่อกดแต้ม" : "Tactile touch feedback"}
       >
         <Toggle on={haptics} onChange={toggleHaptics} />
       </Row>

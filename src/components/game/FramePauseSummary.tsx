@@ -22,15 +22,23 @@ export function FramePauseSummary({
   onFinish: (a: ArchivedGame) => void;
   onResume?: () => void;
 }) {
-  const store = useGameStore();
   const running = useRunningBalance();
-  const players = store.players;
-  const frame = store.frames[store.frames.length - 1];
+  const players = useGameStore((s) => s.players);
+  const frames = useGameStore((s) => s.frames);
+  const session = useGameStore((s) => s.session);
+  const shooterIndex = useGameStore((s) => s.shooterIndex);
+  const mode = useGameStore((s) => s.mode);
+  const setNextFrameOpener = useGameStore((s) => s.setNextFrameOpener);
+  const newFrame = useGameStore((s) => s.newFrame);
+  const resumeFrame = useGameStore((s) => s.resumeFrame);
+  const archiveAndReset = useGameStore((s) => s.archiveAndReset);
 
-  const sessionClock = useElapsedSum(store.frames);
+  const frame = frames[frames.length - 1];
+
+  const sessionClock = useElapsedSum(frames);
   const frameClock = useElapsedSum([frame].filter(Boolean));
 
-  if (!store.session || !frame) return null;
+  if (!session || !frame) return null;
 
   const sorted = [...players].sort(
     (a, b) => (frame.scores[b.id] ?? 0) - (frame.scores[a.id] ?? 0)
@@ -46,28 +54,28 @@ export function FramePauseSummary({
 
   // nextFrameFirstShooter: who opens next frame. Guaranteed fallback to next rotation player.
   const activeOpenerIdx =
-    store.session.nextFrameFirstShooter !== undefined
-      ? store.session.nextFrameFirstShooter
-      : (store.shooterIndex + 1) % Math.max(1, players.length);
+    session.nextFrameFirstShooter !== undefined
+      ? session.nextFrameFirstShooter
+      : (shooterIndex + 1) % Math.max(1, players.length);
   const nextOpener = players[activeOpenerIdx] ?? players[0];
 
   const handleSelectOpener = (idx: number) => {
-    store.setNextFrameOpener(idx);
+    setNextFrameOpener(idx);
   };
 
   const nextFrame = () => {
     // Ensure the designated opener is stored before newFrame runs
-    store.setNextFrameOpener(activeOpenerIdx);
-    store.newFrame();
+    setNextFrameOpener(activeOpenerIdx);
+    newFrame();
   };
 
   const handleResume = () => {
-    store.resumeFrame();
+    resumeFrame();
     if (onResume) onResume();
   };
 
   const endSession = () => {
-    const archived = store.archiveAndReset();
+    const archived = archiveAndReset();
     if (archived) onFinish(archived);
   };
 
@@ -98,7 +106,7 @@ export function FramePauseSummary({
               <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
             </div>
             <h2 className="text-xl sm:text-2xl font-black tracking-tight text-foreground">
-              Frame {store.frames.length} Complete
+              Frame {frames.length} Complete
             </h2>
             <div className="flex items-center gap-2 mt-0.5 text-xs font-mono text-muted-foreground">
               <span className="flex items-center gap-1">
@@ -124,7 +132,7 @@ export function FramePauseSummary({
             </Button>
           )}
           <Badge variant="gold" className="text-xs px-3 py-1 font-mono font-bold">
-            {store.frames.length} Frame{store.frames.length > 1 ? "s" : ""} Played
+            {frames.length} Frame{frames.length > 1 ? "s" : ""} Played
           </Badge>
         </div>
       </div>
@@ -354,7 +362,7 @@ export function FramePauseSummary({
             <Coins size={14} className="text-gold" /> Session Net Balance
           </h3>
           <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">
-            {store.mode === "points" ? "Rate: Per Point" : "Rate: Per Ball"}
+            {mode === "points" ? "Rate: Per Point" : "Rate: Per Ball"}
           </span>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">

@@ -5,12 +5,9 @@ import {
   ghostBall,
   PLAY,
   BALL_R,
-  TWO_R,
   POCKET_MAP,
   type Vec,
 } from "@/lib/geometry";
-
-const EPS = 1e-6;
 
 describe("escape solver", () => {
   it("straight shot: 0-cushion path ends at the ghost on the object->pocket line", () => {

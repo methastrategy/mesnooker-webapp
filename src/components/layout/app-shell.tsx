@@ -7,8 +7,8 @@ import { SettingsSheet } from "./settings-sheet";
 import { useGameStore } from "@/store/gameStore";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
-  const store = useGameStore();
-  const theme = store.theme;
+  const theme = useGameStore((s) => s.theme);
+  const closeSettings = useGameStore((s) => s.closeSettings);
   const pathname = usePathname();
 
   // Apply the active theme to the root <html data-theme="…"> so the Tailwind
@@ -20,7 +20,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   // A sheet left open (e.g. Settings) must never follow the user to another
   // page: its full-screen backdrop blocks every tap on the new screen.
   useEffect(() => {
-    store.closeSettings();
+    closeSettings();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
