@@ -121,3 +121,78 @@ export function playStrikeSound(volume = 0.14) {
     osc.stop(now + 0.07);
   } catch {}
 }
+
+/**
+ * Cue stick striking the cue ball with leather tip snap and wood resonance.
+ */
+export function playCueStrikeSound(powerPct = 50, volume = 0.2) {
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  try {
+    const now = ctx.currentTime;
+    const factor = Math.max(0.2, Math.min(1.0, powerPct / 100));
+
+    // High tip contact pop
+    const osc1 = ctx.createOscillator();
+    const gain1 = ctx.createGain();
+    osc1.type = "triangle";
+    osc1.frequency.setValueAtTime(680 + factor * 220, now);
+    osc1.frequency.exponentialRampToValueAtTime(180, now + 0.04);
+
+    gain1.gain.setValueAtTime(volume * factor, now);
+    gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+
+    osc1.connect(gain1);
+    gain1.connect(ctx.destination);
+
+    osc1.start(now);
+    osc1.stop(now + 0.06);
+
+    // Cue shaft resonance thump
+    const osc2 = ctx.createOscillator();
+    const gain2 = ctx.createGain();
+    osc2.type = "sine";
+    osc2.frequency.setValueAtTime(260 + factor * 80, now);
+    osc2.frequency.exponentialRampToValueAtTime(90, now + 0.08);
+
+    gain2.gain.setValueAtTime(volume * factor * 0.7, now);
+    gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+
+    osc2.connect(gain2);
+    gain2.connect(ctx.destination);
+
+    osc2.start(now);
+    osc2.stop(now + 0.1);
+  } catch {}
+}
+
+/**
+ * Cushion rubber dull thump.
+ */
+export function playCushionSound(speed = 400, volume = 0.12) {
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  try {
+    const now = ctx.currentTime;
+    const factor = Math.max(0.2, Math.min(1.0, speed / 800));
+
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(140 + factor * 60, now);
+    osc.frequency.exponentialRampToValueAtTime(60, now + 0.07);
+
+    gain.gain.setValueAtTime(volume * factor, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(now);
+    osc.stop(now + 0.09);
+  } catch {}
+}
+

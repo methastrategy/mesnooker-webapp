@@ -17,8 +17,10 @@ import {
 } from "@/lib/geometry";
 import { solveEscape } from "@/lib/geometry";
 import { uid } from "@/lib/utils";
+import type { ShotOutcome } from "@/lib/physics";
 
 export type DrillKind = "safety" | "escape" | "thin" | "position";
+export type CoachMode = "ai" | "practice";
 
 const CUE_ID = "cue";
 export const BLACK_TARGET_ID = "target-black";
@@ -46,6 +48,7 @@ export interface CueSpin {
 }
 
 export interface CoachState {
+  mode: CoachMode;
   balls: Ball[];
   objectId: string;
   pocketId: string;
@@ -58,12 +61,25 @@ export interface CoachState {
   targetMode: "hit" | "pot";
   spin: CueSpin;
 
+  // Interactive Practice State
+  aimAngleDeg: number;
+  power: number;
+  isSimulating: boolean;
+  shotOutcome: ShotOutcome | null;
+
   // selectors
   cue: () => Ball | undefined;
   object: () => Ball | undefined;
   blockers: () => Ball[];
 
   // actions
+  setMode: (m: CoachMode) => void;
+  setAimAngle: (angle: number) => void;
+  adjustAimAngle: (delta: number) => void;
+  setPower: (p: number) => void;
+  setIsSimulating: (s: boolean) => void;
+  setShotOutcome: (o: ShotOutcome | null) => void;
+  syncAimFromSolver: () => void;
   moveBall: (id: string, pos: Vec, skipSolve?: boolean) => void;
   setObjectBall: (id: string) => void;
   setPocket: (id: string) => void;
@@ -90,6 +106,7 @@ export interface CoachState {
 const INITIAL_BALLS = initialTable();
 
 export const useCoachStore = create<CoachState>()((set, get) => ({
+  mode: "ai",
   balls: INITIAL_BALLS,
   objectId: BLACK_TARGET_ID, // Black ball is PERMANENTLY the target ball
   pocketId: "br",
@@ -102,10 +119,56 @@ export const useCoachStore = create<CoachState>()((set, get) => ({
   targetMode: "hit",
   spin: { side: 0, vertical: 0 },
 
+  aimAngleDeg: 0,
+  power: 50,
+  isSimulating: false,
+  shotOutcome: null,
+
   cue: () => get().balls.find((b) => b.id === CUE_ID),
   object: () => get().balls.find((b) => b.id === BLACK_TARGET_ID) ?? get().balls.find((b) => b.color === "black"),
   blockers: () =>
     get().balls.filter((b) => b.id !== CUE_ID && b.id !== BLACK_TARGET_ID && b.color !== "black"),
+
+  setMode: (m) => {
+    set({ mode: m, shotOutcome: null });
+    if (m === "practice") {
+      get().syncAimFromSolver();
+    }
+  },
+
+  setAimAngle: (angle) => {
+    set({ aimAngleDeg: ((angle % 360) + 360) % 360 });
+  },
+
+  adjustAimAngle: (delta) => {
+    set((s) => ({
+      aimAngleDeg: Math.round(((((s.aimAngleDeg + delta) % 360) + 360) % 360) * 10) / 10,
+    }));
+  },
+
+  setPower: (p) => {
+    set({ power: Math.max(0, Math.min(100, Math.round(p))) });
+  },
+
+  setIsSimulating: (isSimulating) => set({ isSimulating }),
+
+  setShotOutcome: (shotOutcome) => set({ shotOutcome }),
+
+  syncAimFromSolver: () => {
+    const s = get();
+    const cue = s.balls.find((b) => b.id === CUE_ID);
+    const best =
+      s.paths.find((p) => p.id === s.selectedPathId) ??
+      s.paths.find((p) => !p.blocked) ??
+      s.paths[0];
+    if (cue && best && best.cuePolyline.length > 1) {
+      const p1 = best.cuePolyline[1];
+      const dx = p1.x - cue.pos.x;
+      const dy = p1.y - cue.pos.y;
+      const deg = ((Math.atan2(dy, dx) * 180) / Math.PI + 360) % 360;
+      set({ aimAngleDeg: Math.round(deg * 10) / 10 });
+    }
+  },
 
   moveBall: (id, pos, skipSolve = false) => {
     const r = BALL_R;
@@ -208,7 +271,9 @@ export const useCoachStore = create<CoachState>()((set, get) => ({
 
   reset: () => {
     const balls = initialTable();
+    const currentMode = get().mode;
     set({
+      mode: currentMode,
       balls,
       objectId: balls[1].id,
       pocketId: "br",
@@ -217,8 +282,15 @@ export const useCoachStore = create<CoachState>()((set, get) => ({
       selectedPathId: null,
       hintLevel: 1,
       solved: false,
+      aimAngleDeg: 0,
+      power: 50,
+      isSimulating: false,
+      shotOutcome: null,
     });
     get().solve();
+    if (currentMode === "practice") {
+      get().syncAimFromSolver();
+    }
   },
 
   loadDrill: (d) => {

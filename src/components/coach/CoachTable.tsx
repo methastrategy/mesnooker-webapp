@@ -6,7 +6,7 @@
  * bounce markers, aim crosshair, user aim line (analyzer) and replay.
  * All theme colours come from CSS variables so it re-skins with Emerald Noir.
  */
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useCoachStore, COACH_CUE_ID } from "@/store/coachStore";
 import type { SolvePath, Vec } from "@/lib/geometry";
 import {
@@ -17,9 +17,8 @@ import {
   VIEW_H,
   POCKETS,
   BALL_COLORS,
-  BAULK_LINE,
-  BAULK_SPOT,
 } from "@/lib/geometry";
+import { computeTrajectoryPreview } from "@/lib/physics";
 
 const OX = CUSHION;
 const OY = CUSHION;
@@ -34,10 +33,12 @@ export interface ReplayState {
 export function CoachTable({
   aimLine,
   replay,
+  simulatedBalls,
   onAim,
 }: {
-  aimLine: { from: Vec; to: Vec } | null;
-  replay: ReplayState | null;
+  aimLine?: { from: Vec; to: Vec } | null;
+  replay?: ReplayState | null;
+  simulatedBalls?: { id: string; color: string; pos: Vec; isPotted: boolean }[] | null;
   onAim?: (line: { from: Vec; to: Vec } | null) => void;
 }) {
   const balls = useCoachStore((s) => s.balls);
@@ -48,6 +49,14 @@ export function CoachTable({
   const selectedPathId = useCoachStore((s) => s.selectedPathId);
   const hintLevel = useCoachStore((s) => s.hintLevel);
   const solve = useCoachStore((s) => s.solve);
+
+  // Practice Mode State
+  const mode = useCoachStore((s) => s.mode);
+  const aimAngleDeg = useCoachStore((s) => s.aimAngleDeg);
+  const setAimAngle = useCoachStore((s) => s.setAimAngle);
+  const power = useCoachStore((s) => s.power);
+  const isSimulating = useCoachStore((s) => s.isSimulating);
+  const spin = useCoachStore((s) => s.spin);
 
   const svgRef = useRef<SVGSVGElement | null>(null);
   const [dragId, setDragId] = useState<string | null>(null);
@@ -65,12 +74,28 @@ export function CoachTable({
   }, []);
 
   const showGrid = useCoachStore((s) => s.showGrid);
-  const targetMode = useCoachStore((s) => s.targetMode);
 
   const selectedPath: SolvePath | undefined = paths.find(
     (p) => p.id === selectedPathId
   );
   const bestPath = paths.find((p) => !p.blocked) ?? paths[0];
+
+  const cueBall = balls.find((b) => b.id === COACH_CUE_ID);
+  const trajectoryPreview = useMemo(() => {
+    if (mode !== "practice" || !cueBall || isSimulating) return null;
+    return computeTrajectoryPreview(
+      cueBall.pos,
+      aimAngleDeg,
+      power,
+      spin,
+      balls
+    );
+  }, [mode, cueBall, aimAngleDeg, power, spin, balls, isSimulating]);
+
+  const displayBalls =
+    isSimulating && simulatedBalls
+      ? simulatedBalls
+      : balls.map((b) => ({ ...b, isPotted: false }));
 
   // ── pointer → table coordinates ────────────────────────────────────────
   const toTable = useCallback((clientX: number, clientY: number): Vec => {
@@ -88,7 +113,26 @@ export function CoachTable({
     };
   }, []);
 
+  const onSvgPointerDown = (e: React.PointerEvent<SVGSVGElement>) => {
+    if (mode === "practice" && !isSimulating) {
+      const p = toTable(e.clientX, e.clientY);
+      const cue = balls.find((b) => b.id === COACH_CUE_ID);
+      if (cue) {
+        const dx = p.x - cue.pos.x;
+        const dy = p.y - cue.pos.y;
+        if (Math.hypot(dx, dy) > BALL_R * 1.2) {
+          (e.currentTarget as Element).setPointerCapture?.(e.pointerId);
+          setDragId("aim-rotate");
+          const deg = ((Math.atan2(dy, dx) * 180) / Math.PI + 360) % 360;
+          setAimAngle(Math.round(deg * 10) / 10);
+        }
+      }
+    }
+  };
+
   const startDrag = (id: string) => (e: React.PointerEvent) => {
+    e.stopPropagation();
+    if (isSimulating) return;
     if (id === COACH_CUE_ID && onAim) {
       const start = toTable(e.clientX, e.clientY);
       (e.target as Element).setPointerCapture?.(e.pointerId);
@@ -101,7 +145,16 @@ export function CoachTable({
   };
 
   const onPointerMove = (e: React.PointerEvent) => {
-    if (dragId === "aim" && onAim) {
+    if (dragId === "aim-rotate") {
+      const p = toTable(e.clientX, e.clientY);
+      const cue = balls.find((b) => b.id === COACH_CUE_ID);
+      if (cue) {
+        const dx = p.x - cue.pos.x;
+        const dy = p.y - cue.pos.y;
+        const deg = ((Math.atan2(dy, dx) * 180) / Math.PI + 360) % 360;
+        setAimAngle(Math.round(deg * 10) / 10);
+      }
+    } else if (dragId === "aim" && onAim) {
       const p = toTable(e.clientX, e.clientY);
       const cue = balls.find((b) => b.id === COACH_CUE_ID);
       if (cue) onAim({ from: cue.pos, to: p });
@@ -126,6 +179,10 @@ export function CoachTable({
   };
 
   const onPointerUp = () => {
+    if (dragId === "aim-rotate") {
+      setDragId(null);
+      return;
+    }
     if (dragId && dragId !== "aim") {
       if (solveThrottleTimer.current) {
         clearTimeout(solveThrottleTimer.current);
@@ -148,6 +205,7 @@ export function CoachTable({
       ref={svgRef}
       viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
       className="h-auto w-full touch-none select-none"
+      onPointerDown={onSvgPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
       onPointerLeave={onPointerUp}
@@ -400,8 +458,9 @@ export function CoachTable({
       {/* Cushion face boundary line */}
       <rect x={OX} y={OY} width={PLAY.x1} height={PLAY.y1} fill="none" stroke="rgba(255,255,255,0.22)" strokeWidth={1.2} />
 
-      {/* selected / best path (highlighted) */}
-      {(selectedPath ?? (paths.length ? bestPath : undefined)) &&
+      {/* selected / best path (highlighted) in AI Coach Mode */}
+      {mode === "ai" &&
+        (selectedPath ?? (paths.length ? bestPath : undefined)) &&
         (() => {
           const p = selectedPath ?? bestPath!;
           const sp = p.cuePolyline.map(S);
@@ -497,6 +556,122 @@ export function CoachTable({
           );
         })()}
 
+      {/* 8-Ball Pool Aiming Trajectory Guide in Practice Mode */}
+      {mode === "practice" && trajectoryPreview && (
+        <g pointerEvents="none">
+          {/* Main Aim Ray */}
+          <polyline
+            points={trajectoryPreview.aimPolyline.map(S).map((v) => `${v.x},${v.y}`).join(" ")}
+            fill="none"
+            stroke={
+              trajectoryPreview.isTargetHit
+                ? "#10b981"
+                : trajectoryPreview.firstHitBall
+                ? "#ef4444"
+                : "#38bdf8"
+            }
+            strokeWidth={3}
+            strokeDasharray="6 4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            filter="url(#pathglow)"
+            opacity={0.95}
+          />
+
+          {/* Cushion Bounce Indicators */}
+          {trajectoryPreview.cushionBounces.map((cb, idx) => {
+            const sp = S(cb.point);
+            return (
+              <g key={`cb-${idx}`} filter="url(#midglow)">
+                <circle cx={sp.x} cy={sp.y} r={9} fill="#f59e0b" stroke="#000" strokeWidth={1.5} />
+                <text
+                  x={sp.x}
+                  y={sp.y + 3.5}
+                  textAnchor="middle"
+                  fill="#000"
+                  fontSize="9"
+                  fontWeight="bold"
+                >
+                  {idx + 1}
+                </text>
+                <rect
+                  x={sp.x - 14}
+                  y={cb.side === "b" ? sp.y + 12 : sp.y - 22}
+                  width={28}
+                  height={13}
+                  rx={3}
+                  fill="rgba(0,0,0,0.8)"
+                  stroke="rgba(245,158,11,0.6)"
+                  strokeWidth={0.8}
+                />
+                <text
+                  x={sp.x}
+                  y={cb.side === "b" ? sp.y + 21 : sp.y - 13}
+                  textAnchor="middle"
+                  fill="#fff"
+                  fontSize="8"
+                  fontWeight="bold"
+                >
+                  {cb.angleDeg}°
+                </text>
+              </g>
+            );
+          })}
+
+          {/* Ghost Ball at Object Contact */}
+          {trajectoryPreview.ghostBall && (
+            <g>
+              <circle
+                cx={S(trajectoryPreview.ghostBall).x}
+                cy={S(trajectoryPreview.ghostBall).y}
+                r={BALL_R}
+                fill="none"
+                stroke={trajectoryPreview.isTargetHit ? "#10b981" : "#ef4444"}
+                strokeWidth={2.5}
+                strokeDasharray="4 3"
+                opacity={0.95}
+              />
+              <circle
+                cx={S(trajectoryPreview.ghostBall).x}
+                cy={S(trajectoryPreview.ghostBall).y}
+                r={4}
+                fill={trajectoryPreview.isTargetHit ? "#10b981" : "#ef4444"}
+              />
+            </g>
+          )}
+
+          {/* Projected Target Ball Path */}
+          {trajectoryPreview.targetRay && (
+            <line
+              x1={S(trajectoryPreview.targetRay.from).x}
+              y1={S(trajectoryPreview.targetRay.from).y}
+              x2={S(trajectoryPreview.targetRay.to).x}
+              y2={S(trajectoryPreview.targetRay.to).y}
+              stroke={trajectoryPreview.isTargetHit ? "#f59e0b" : "#ef4444"}
+              strokeWidth={3}
+              strokeDasharray="5 3"
+              strokeLinecap="round"
+              opacity={0.9}
+            />
+          )}
+
+          {/* Cue Ball Post-Impact Deflection */}
+          {trajectoryPreview.cueDeflectionRay && (
+            <line
+              x1={S(trajectoryPreview.cueDeflectionRay.from).x}
+              y1={S(trajectoryPreview.cueDeflectionRay.from).y}
+              x2={S(trajectoryPreview.cueDeflectionRay.to).x}
+              y2={S(trajectoryPreview.cueDeflectionRay.to).y}
+              stroke="#60a5fa"
+              strokeWidth={2}
+              strokeDasharray="3 3"
+              strokeLinecap="round"
+              opacity={0.75}
+            />
+          )}
+        </g>
+      )}
+
       {/* user aim line (Shot Analyzer) */}
       {aimLine && (
         <g>
@@ -520,7 +695,8 @@ export function CoachTable({
       )}
 
       {/* balls */}
-      {balls.map((b) => {
+      {displayBalls.map((b) => {
+        if (b.isPotted) return null;
         const isCue = b.id === COACH_CUE_ID;
         const isObj = b.id === objectId;
         const pos = S(b.pos);
@@ -530,11 +706,11 @@ export function CoachTable({
           <g
             key={b.id}
             opacity={dim * dimObj}
-            onPointerDown={startDrag(b.id)}
+            onPointerDown={!isSimulating ? startDrag(b.id) : undefined}
             onClick={() => {
-              if (!isCue) setObjectBall(b.id);
+              if (!isCue && !isSimulating) setObjectBall(b.id);
             }}
-            style={{ cursor: "grab" }}
+            style={{ cursor: isSimulating ? "default" : "grab" }}
           >
             {/* Expanded touch target hit area for mobile touch drag */}
             <circle
@@ -544,13 +720,22 @@ export function CoachTable({
               fill="transparent"
               pointerEvents="all"
             />
-            {/* Ambient ball drop shadow on baize felt (anchors ball to the table) */}
+            {/* Deep sharp contact shadow directly under ball */}
             <ellipse
-              cx={pos.x + 1.8}
-              cy={pos.y + 2.8}
-              rx={BALL_R * 0.94}
-              ry={BALL_R * 0.72}
-              fill="rgba(4, 18, 10, 0.42)"
+              cx={pos.x + 0.8}
+              cy={pos.y + 1.4}
+              rx={BALL_R * 0.90}
+              ry={BALL_R * 0.62}
+              fill="rgba(0, 0, 0, 0.52)"
+              filter="url(#ball-shadow-blur)"
+            />
+            {/* Directional ambient table drop shadow */}
+            <ellipse
+              cx={pos.x + 2.5}
+              cy={pos.y + 3.8}
+              rx={BALL_R * 0.96}
+              ry={BALL_R * 0.74}
+              fill="rgba(3, 16, 9, 0.38)"
               filter="url(#ball-shadow-blur)"
             />
             {(isObj || hoverId === b.id) && (
@@ -575,6 +760,40 @@ export function CoachTable({
               onPointerEnter={() => setHoverId(b.id)}
               onPointerLeave={() => setHoverId(null)}
             />
+            {/* Aramith Pro Cup 6-dot cue ball roll pattern */}
+            {b.color === "cue" && (() => {
+              const rollDist = Math.hypot(b.pos.x, b.pos.y) / BALL_R;
+              const dotAngles = [0, 60, 120, 180, 240, 300];
+              return (
+                <g pointerEvents="none" opacity={0.85}>
+                  {dotAngles.map((baseDeg, idx) => {
+                    const rad = ((baseDeg + rollDist * 57.3) * Math.PI) / 180;
+                    const orbitR = BALL_R * 0.52;
+                    const dx = Math.cos(rad) * orbitR;
+                    const dy = Math.sin(rad) * orbitR * 0.75;
+                    return (
+                      <circle
+                        key={`cue-dot-${idx}`}
+                        cx={pos.x + dx}
+                        cy={pos.y + dy}
+                        r={2.2}
+                        fill="#dc2626"
+                        stroke="#991b1b"
+                        strokeWidth={0.5}
+                      />
+                    );
+                  })}
+                  <circle
+                    cx={pos.x}
+                    cy={pos.y}
+                    r={2.2}
+                    fill="#dc2626"
+                    stroke="#991b1b"
+                    strokeWidth={0.5}
+                  />
+                </g>
+              );
+            })()}
             {/* 3D Specular reflection gloss */}
             <circle cx={pos.x} cy={pos.y} r={BALL_R} fill="url(#ballGloss)" pointerEvents="none" />
             {isObj && (
@@ -594,56 +813,75 @@ export function CoachTable({
 
       {/* Visual Cue Stick aiming at white cue ball */}
       {(() => {
-        const p = selectedPath ?? (paths.length ? bestPath : undefined);
         const cueBall = balls.find((b) => b.id === COACH_CUE_ID);
-        if (!p || !cueBall || replay?.phase === "object") return null;
+        if (!cueBall || replay?.phase === "object") return null;
 
-        const firstTarget = p.cuePolyline[1];
-        if (!firstTarget) return null;
+        let angle = 0;
+        let pullback = 0;
 
-        const dx = firstTarget.x - cueBall.pos.x;
-        const dy = firstTarget.y - cueBall.pos.y;
-        const angle = Math.atan2(dy, dx);
+        if (mode === "practice") {
+          if (isSimulating) return null; // hide cue stick while balls are rolling
+          angle = (aimAngleDeg * Math.PI) / 180;
+          pullback = (power / 100) * 45;
+        } else {
+          // AI mode
+          const p = selectedPath ?? (paths.length ? bestPath : undefined);
+          if (!p) return null;
+          const firstTarget = p.cuePolyline[1];
+          if (!firstTarget) return null;
+          const dx = firstTarget.x - cueBall.pos.x;
+          const dy = firstTarget.y - cueBall.pos.y;
+          angle = Math.atan2(dy, dx);
+        }
+
         const cuePos = S(cueBall.pos);
-
-        // Position cue stick behind the cue ball along -angle
-        const stickDist = BALL_R + 14;
-        const stickLength = 170;
+        const stickDist = BALL_R + 12 + pullback;
+        const stickLength = 190;
         const tipX = cuePos.x - stickDist * Math.cos(angle);
         const tipY = cuePos.y - stickDist * Math.sin(angle);
         const buttX = cuePos.x - (stickDist + stickLength) * Math.cos(angle);
         const buttY = cuePos.y - (stickDist + stickLength) * Math.sin(angle);
 
         return (
-          <g opacity={replay ? 0.35 : 0.88} pointerEvents="none">
+          <g opacity={replay ? 0.35 : 0.95} pointerEvents="none">
             {/* Cue stick shadow */}
             <line
               x1={buttX + 3}
               y1={buttY + 4}
               x2={tipX + 3}
               y2={tipY + 4}
-              stroke="rgba(0,0,0,0.32)"
-              strokeWidth={5}
+              stroke="rgba(0,0,0,0.35)"
+              strokeWidth={5.5}
               strokeLinecap="round"
             />
-            {/* Maple / Ash wood shaft */}
+            {/* Ash / Maple wood shaft with subtle taper */}
             <line
               x1={buttX}
               y1={buttY}
               x2={tipX}
               y2={tipY}
               stroke="#d4aa70"
-              strokeWidth={4.5}
+              strokeWidth={5}
+              strokeLinecap="round"
+            />
+            {/* Grip wrap near butt */}
+            <line
+              x1={buttX}
+              y1={buttY}
+              x2={buttX + (tipX - buttX) * 0.35}
+              y2={buttY + (tipY - buttY) * 0.35}
+              stroke="#3a2717"
+              strokeWidth={5.4}
               strokeLinecap="round"
             />
             {/* Brass Ferrule */}
-            <circle cx={tipX} cy={tipY} r={2.4} fill="#ffd27a" />
-            {/* Blue chalk tip */}
+            <circle cx={tipX} cy={tipY} r={2.6} fill="#ffd27a" stroke="#8a5e12" strokeWidth={0.5} />
+            {/* Chalk tip */}
             <circle
               cx={tipX + 1.8 * Math.cos(angle)}
               cy={tipY + 1.8 * Math.sin(angle)}
-              r={1.8}
-              fill="#3b82f6"
+              r={2}
+              fill="#2563eb"
             />
           </g>
         );
