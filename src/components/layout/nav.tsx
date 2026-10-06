@@ -7,7 +7,6 @@ import {
   Timer,
   BarChart3,
   Settings,
-  Zap,
   Globe,
   User,
   Sliders,
@@ -77,7 +76,6 @@ export function TopDockNav() {
     { href: "/match", label: t("nav.match", locale), icon: Timer },
     { href: "/settlement", label: t("nav.settlement", locale), icon: Coins },
     { href: "/stats", label: t("nav.stats", locale), icon: BarChart3 },
-    { href: "/solve", label: "Simulator", icon: Zap },
   ];
 
   const isSettings = pathname.startsWith("/settings");
@@ -231,7 +229,6 @@ export function BottomNav() {
     { href: "/match", label: t("nav.match", locale), icon: Timer },
     { href: "/settlement", label: t("nav.settlement", locale), icon: Coins },
     { href: "/stats", label: t("nav.stats", locale), icon: BarChart3 },
-    { href: "/solve", label: "Simulator", icon: Zap },
     { href: "/settings", label: t("nav.settings", locale), icon: Settings },
   ];
 

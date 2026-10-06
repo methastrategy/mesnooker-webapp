@@ -146,7 +146,7 @@ export function NewSession({
           <div className="baize relative rounded-[20px] p-4 shadow-inner border border-white/10">
             <div className="mb-2.5 flex items-center justify-between">
               <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground font-bold">
-                Table Baize Simulator
+                Table Baize Preview
               </span>
               <span className="text-[10px] font-mono font-bold text-muted-foreground">
                 {redCount} reds · 6 colours
