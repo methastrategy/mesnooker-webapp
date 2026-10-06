@@ -44,6 +44,12 @@ export function isLocked(req: Request): boolean {
   return b.count >= MAX_FAILS;
 }
 
+/** Clear failed login counter upon successful authentication */
+export function clearFailures(req: Request): void {
+  const ip = clientIp(req);
+  buckets.delete(`auth_fail:${ip}`);
+}
+
 /** General purpose rate limiter for arbitrary routes and action keys. */
 export function checkRateLimit(
   req: Request,

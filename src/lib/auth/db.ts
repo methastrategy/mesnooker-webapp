@@ -119,6 +119,52 @@ export async function findUserByUsername(username: string): Promise<AuthUser | n
 /** Backward compatible alias for findUserByUsername */
 export const findUserByEmail = findUserByUsername;
 
+export async function findUserById(id: string): Promise<AuthUser | null> {
+  const p = getPool();
+  if (!p) return null;
+  try {
+    const r = await p.query(
+      `SELECT id,
+              COALESCE(username, email) AS username,
+              email,
+              pass_hash, salt, created_at
+       FROM auth_users
+       WHERE id = $1
+       LIMIT 1`,
+      [id]
+    );
+    if (r.rows.length === 0) return null;
+    const row = r.rows[0];
+    return {
+      id: row.id,
+      username: row.username,
+      email: row.email ?? undefined,
+      passHash: row.pass_hash,
+      salt: row.salt,
+      createdAt: row.created_at,
+    };
+  } catch (err: unknown) {
+    const msg = String((err as Error)?.message ?? "");
+    if (msg.includes('column "username" does not exist')) {
+      const r = await p.query(
+        "SELECT id, email, pass_hash, salt, created_at FROM auth_users WHERE id = $1 LIMIT 1",
+        [id]
+      );
+      if (r.rows.length === 0) return null;
+      const row = r.rows[0];
+      return {
+        id: row.id,
+        username: row.email,
+        email: row.email,
+        passHash: row.pass_hash,
+        salt: row.salt,
+        createdAt: row.created_at,
+      };
+    }
+    throw err;
+  }
+}
+
 export async function createUser(username: string, passHash: string, salt: string): Promise<string> {
   const p = getPool();
   if (!p) throw new Error("no database configured");

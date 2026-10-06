@@ -256,7 +256,7 @@ describe("Safe Redirect URL Validation", () => {
   });
 });
 
-import { checkRateLimit, recordFail, isLocked, clientIp } from "../ratelimit";
+import { checkRateLimit, recordFail, isLocked, clientIp, clearFailures } from "../ratelimit";
 
 describe("Rate Limiting & Admin Credentials", () => {
   it("correctly hashes and verifies initial admin password '123456'", () => {
@@ -303,7 +303,7 @@ describe("Rate Limiting & Admin Credentials", () => {
     expect(res4.remaining).toBe(0);
   });
 
-  it("locks out IP after repeated failed attempts", () => {
+  it("locks out IP after repeated failed attempts and clears on success", () => {
     const ip = "10.99.88.77";
     const req = new Request("http://localhost", {
       headers: { "x-forwarded-for": ip },
@@ -317,5 +317,19 @@ describe("Rate Limiting & Admin Credentials", () => {
     const lockedNow = recordFail(req);
     expect(lockedNow).toBe(true);
     expect(isLocked(req)).toBe(true);
+
+    // Successful login clears failure bucket
+    clearFailures(req);
+    expect(isLocked(req)).toBe(false);
+  });
+
+  it("invalidates tokens when AUTH_SECRET is rotated", async () => {
+    process.env.AUTH_SECRET = "initial-secret-key-32-chars-long-12";
+    const token = await signSession({ sub: "u-123", username: "admin" });
+    expect(await verifySession(token)).not.toBeNull();
+
+    // Rotate secret
+    process.env.AUTH_SECRET = "new-rotated-secret-key-32-chars-long";
+    expect(await verifySession(token)).toBeNull();
   });
 });

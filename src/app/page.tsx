@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
@@ -21,6 +22,11 @@ import { useGameStore } from "@/store/gameStore";
 import { cn } from "@/lib/utils";
 
 export default function HomePage() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const session = useGameStore((s) => s.session);
   const frames = useGameStore((s) => s.frames);
   const history = useGameStore((s) => s.history);
@@ -28,7 +34,7 @@ export default function HomePage() {
   const moneyRate = useGameStore((s) => s.moneyRate);
   const moneyPer = useGameStore((s) => s.moneyPer);
 
-  const isLive = session && session.status === "live" && frames.length > 0;
+  const isLive = mounted && session && session.status === "live" && frames.length > 0;
   const currentFrame = frames[frames.length - 1];
 
   const QUICK_ACTIONS = [
@@ -172,7 +178,7 @@ export default function HomePage() {
                   </span>
                 </div>
                 <div className="text-sm font-semibold text-foreground mt-0.5">
-                  {session?.players.map((p) => p.nickname).join(" vs ") || "Active Match"}
+                  {session?.players ? session.players.map((p) => p.nickname).filter(Boolean).join(" vs ") : "Active Match"}
                   {currentFrame && (
                     <span className="text-xs font-mono text-muted-foreground ml-2">
                       ({locale === "th" ? "โหมด" : "Mode"}: {session?.mode === "balls" ? "Ball Count" : "Points"})
@@ -263,7 +269,7 @@ export default function HomePage() {
             <div className="flex items-center gap-1.5">
               <span className="h-2 w-2 rounded-full bg-emerald-400" />
               <span>{locale === "th" ? "เกมที่บันทึกแล้ว" : "Archived Games"}:</span>
-              <span className="font-mono font-bold text-foreground">{history.length}</span>
+              <span className="font-mono font-bold text-foreground">{mounted ? history.length : 0}</span>
             </div>
             <div className="flex items-center gap-1.5">
               <span>{locale === "th" ? "อัตราเดิมพันตั้งต้น" : "Default Rate"}:</span>

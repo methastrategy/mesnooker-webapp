@@ -1,5 +1,6 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
+import * as crypto from "node:crypto";
 import { initAuthDb, createUser, clearAllUsers, findUserByUsername, closePool } from "../src/lib/auth/db";
 import { hashPassword, verifyPassword } from "../src/lib/auth/password";
 
@@ -66,6 +67,22 @@ async function main() {
   }
 
   console.log("✓ Verified credentials: username: admin ; password: 123456 (scrypt hash matched)");
+
+  // 5. Invalidate all pre-existing active sessions by rotating AUTH_SECRET in .env.local
+  const envPath = path.resolve(process.cwd(), ".env.local");
+  if (fs.existsSync(envPath)) {
+    const newSecret = crypto.randomBytes(32).toString("hex");
+    let content = fs.readFileSync(envPath, "utf-8");
+    if (content.includes("AUTH_SECRET=")) {
+      content = content.replace(/AUTH_SECRET=.*/, `AUTH_SECRET=${newSecret}`);
+    } else {
+      content += `\nAUTH_SECRET=${newSecret}\n`;
+    }
+    fs.writeFileSync(envPath, content, "utf-8");
+    process.env.AUTH_SECRET = newSecret;
+    console.log("✓ Rotated AUTH_SECRET in .env.local to immediately invalidate all pre-existing sessions");
+  }
+
   console.log("✨ Reset complete! Only admin is active. New users can sign up normally.");
 
   await closePool();

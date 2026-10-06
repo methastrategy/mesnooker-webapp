@@ -4,7 +4,7 @@ import { verifyPassword } from "@/lib/auth/password";
 import { findUserByUsername, hasAuthDb } from "@/lib/auth/db";
 import { signSession, SESSION_COOKIE, SESSION_TTL_DAYS } from "@/lib/auth/session";
 import { normalizeUsername, validUsername, validEmail } from "@/lib/auth/validate";
-import { isLocked, recordFail, checkRateLimit } from "@/lib/auth/ratelimit";
+import { isLocked, recordFail, checkRateLimit, clearFailures } from "@/lib/auth/ratelimit";
 
 export const runtime = "nodejs";
 
@@ -47,6 +47,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Incorrect username or password." }, { status: 401 });
   }
 
+  clearFailures(req);
   const token = await signSession({ sub: user.id, username: user.username, email: user.email });
   const res = NextResponse.json({ ok: true, username: user.username, email: user.email });
   res.cookies.set(SESSION_COOKIE, token, {
