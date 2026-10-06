@@ -200,11 +200,11 @@ export default function HomePage() {
       )}
 
       {/* ── TOP COMPACT COMMAND TOOLBAR ─────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-border/60">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-border/60">
         <div>
           <div className="flex flex-wrap items-center gap-2 text-xs">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-[11px] font-mono font-semibold text-primary">
-              <Sparkles size={12} className="text-primary" />
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/35 bg-amber-500/10 px-3 py-0.5 text-[11px] font-mono font-semibold text-amber-300">
+              <Sparkles size={12} className="text-amber-400" />
               <span>MESNOOKER PRO</span>
             </span>
             <span className="hidden sm:inline text-border">·</span>
@@ -219,17 +219,17 @@ export default function HomePage() {
               <span className="font-bold text-amber-400">฿{moneyRate}/{moneyPer}</span>
             </div>
           </div>
-          <h1 className="text-lg sm:text-xl font-bold tracking-tight text-foreground flex items-center gap-2 mt-1.5">
-            <Crosshair size={20} className="text-primary" />
+          <h1 className="text-lg sm:text-xl font-bold tracking-tight text-foreground flex items-center gap-2 mt-2">
+            <Crosshair size={20} className="text-amber-400" />
             <span>{locale === "th" ? "เมนูการใช้งานหลัก" : "Core Command Center"}</span>
           </h1>
         </div>
 
         {/* Compact Quick Actions Toolbar */}
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
           <Link
             href="/setup"
-            className="inline-flex items-center gap-2 rounded-full border border-primary/60 bg-primary px-4 py-2 text-xs sm:text-sm font-bold text-primary-foreground shadow-md transition-all hover:bg-primary-hover active:scale-95"
+            className="inline-flex items-center gap-2 rounded-full border border-amber-500/60 bg-gradient-to-r from-amber-500 to-amber-600 px-4.5 py-2.5 text-xs sm:text-sm font-bold text-stone-950 shadow-md transition-all hover:brightness-110 active:scale-[0.97] min-h-[42px]"
           >
             <Play size={14} className="fill-current" />
             <span>{locale === "th" ? "เริ่มเกมใหม่" : "Start New Game"}</span>
@@ -237,19 +237,27 @@ export default function HomePage() {
 
           <Link
             href="/match"
-            className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-surface/90 px-3.5 py-2 text-xs sm:text-sm font-semibold text-foreground transition-all hover:border-primary/40 hover:bg-card active:scale-95 shadow-xs"
+            className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-surface/90 px-3.5 py-2.5 text-xs sm:text-sm font-semibold text-foreground transition-all hover:border-amber-400/40 hover:bg-card active:scale-[0.97] shadow-xs min-h-[42px]"
           >
-            <Timer size={14} className="text-primary" />
+            <Timer size={14} className="text-amber-400" />
             <span>{locale === "th" ? "กระดานสด" : "Live Board"}</span>
           </Link>
 
           <Link
+            href="/settlement"
+            className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-surface/90 px-3.5 py-2.5 text-xs sm:text-sm font-semibold text-foreground transition-all hover:border-amber-400/40 hover:bg-card active:scale-[0.97] shadow-xs min-h-[42px]"
+          >
+            <Coins size={14} className="text-amber-400" />
+            <span>{locale === "th" ? "สรุปยอดเงิน" : "Settlement"}</span>
+          </Link>
+
+          <Link
             href="/settings"
-            className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-surface/90 px-3 py-2 text-xs sm:text-sm font-semibold text-muted-foreground hover:text-foreground transition-all hover:border-primary/40 hover:bg-card active:scale-95 shadow-xs"
+            className="inline-flex items-center justify-center rounded-full border border-border/80 bg-surface/90 px-3 py-2.5 text-xs sm:text-sm font-semibold text-muted-foreground hover:text-foreground transition-all hover:border-amber-400/40 hover:bg-card active:scale-[0.97] shadow-xs min-h-[42px]"
             title={locale === "th" ? "ตั้งค่าระบบ" : "Preferences"}
           >
             <Sliders size={14} />
-            <span className="hidden md:inline">{locale === "th" ? "ตั้งค่า" : "Settings"}</span>
+            <span className="hidden md:inline ml-1.5">{locale === "th" ? "ตั้งค่า" : "Settings"}</span>
           </Link>
         </div>
       </div>
