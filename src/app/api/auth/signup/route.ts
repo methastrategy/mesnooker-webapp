@@ -5,13 +5,17 @@ import { hashPassword } from "@/lib/auth/password";
 import { initAuthDb, findUserByUsername, createUser, hasAuthDb } from "@/lib/auth/db";
 import { signSession, SESSION_COOKIE, SESSION_TTL_DAYS } from "@/lib/auth/session";
 import { normalizeUsername, validUsername, validPassword } from "@/lib/auth/validate";
-import { isLocked } from "@/lib/auth/ratelimit";
+import { isLocked, checkRateLimit } from "@/lib/auth/ratelimit";
 
 export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
   if (isLocked(req)) {
     return NextResponse.json({ error: "Too many attempts. Try again in 15 minutes." }, { status: 429 });
+  }
+  const rl = checkRateLimit(req, "signup", 10, 10 * 60 * 1000);
+  if (!rl.allowed) {
+    return NextResponse.json({ error: "Too many sign-up requests. Please try again later." }, { status: 429 });
   }
   let body: unknown;
   try {

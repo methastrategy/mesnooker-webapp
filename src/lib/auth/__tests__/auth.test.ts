@@ -255,3 +255,67 @@ describe("Safe Redirect URL Validation", () => {
     expect(getSafeRedirectUrl("javascript:alert(1)")).toBe("/");
   });
 });
+
+import { checkRateLimit, recordFail, isLocked, clientIp } from "../ratelimit";
+
+describe("Rate Limiting & Admin Credentials", () => {
+  it("correctly hashes and verifies initial admin password '123456'", () => {
+    const { hash, salt } = hashPassword("123456");
+    expect(hash).toBeDefined();
+    expect(salt).toBeDefined();
+    expect(verifyPassword("123456", salt, hash)).toBe(true);
+    expect(verifyPassword("wrongpass", salt, hash)).toBe(false);
+  });
+
+  it("extracts client IP from various forward headers", () => {
+    const reqFwd = new Request("http://localhost", {
+      headers: { "x-forwarded-for": "203.0.113.195, 10.0.0.1" },
+    });
+    expect(clientIp(reqFwd)).toBe("203.0.113.195");
+
+    const reqReal = new Request("http://localhost", {
+      headers: { "x-real-ip": "198.51.100.42" },
+    });
+    expect(clientIp(reqReal)).toBe("198.51.100.42");
+
+    const reqCf = new Request("http://localhost", {
+      headers: { "cf-connecting-ip": "192.0.2.1" },
+    });
+    expect(clientIp(reqCf)).toBe("192.0.2.1");
+  });
+
+  it("throttles requests with checkRateLimit", () => {
+    const req = new Request("http://localhost", {
+      headers: { "x-forwarded-for": "192.168.1.100" },
+    });
+    const res1 = checkRateLimit(req, "test_action", 3, 60000);
+    expect(res1.allowed).toBe(true);
+    expect(res1.remaining).toBe(2);
+
+    const res2 = checkRateLimit(req, "test_action", 3, 60000);
+    expect(res2.allowed).toBe(true);
+
+    const res3 = checkRateLimit(req, "test_action", 3, 60000);
+    expect(res3.allowed).toBe(true);
+
+    const res4 = checkRateLimit(req, "test_action", 3, 60000);
+    expect(res4.allowed).toBe(false);
+    expect(res4.remaining).toBe(0);
+  });
+
+  it("locks out IP after repeated failed attempts", () => {
+    const ip = "10.99.88.77";
+    const req = new Request("http://localhost", {
+      headers: { "x-forwarded-for": ip },
+    });
+    expect(isLocked(req)).toBe(false);
+    // 5 fails locks out
+    recordFail(req);
+    recordFail(req);
+    recordFail(req);
+    recordFail(req);
+    const lockedNow = recordFail(req);
+    expect(lockedNow).toBe(true);
+    expect(isLocked(req)).toBe(true);
+  });
+});

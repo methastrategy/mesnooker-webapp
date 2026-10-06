@@ -1,6 +1,5 @@
 // src/lib/auth/db.ts — auth_users table on the app's Postgres (Neon).
 // Same connection string as the journal (DATABASE_URL). Server-side only.
-import "server-only";
 import { Pool } from "pg";
 import { randomUUID } from "node:crypto";
 
@@ -15,13 +14,20 @@ export interface AuthUser {
 
 let pool: Pool | null = null;
 
-function getPool(): Pool | null {
+export function getPool(): Pool | null {
   if (!pool) {
     const url = process.env.DATABASE_URL || process.env.POSTGRES_URL;
     if (!url) return null;
     pool = new Pool({ connectionString: url, max: 1 });
   }
   return pool;
+}
+
+export async function closePool(): Promise<void> {
+  if (pool) {
+    await pool.end();
+    pool = null;
+  }
 }
 
 export function hasAuthDb(): boolean {
@@ -155,3 +161,9 @@ export async function createUser(username: string, passHash: string, salt: strin
   return id;
 }
 
+export async function clearAllUsers(): Promise<number> {
+  const p = getPool();
+  if (!p) throw new Error("no database configured");
+  const r = await p.query("DELETE FROM auth_users");
+  return r.rowCount ?? 0;
+}

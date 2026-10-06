@@ -159,6 +159,8 @@ export function generateDrill(kind: DrillKind, difficulty: number): Drill | null
   for (let i = 0; i < 40; i++) {
     const pose = maker(d);
     if (pose) {
+      const dist = Math.hypot(pose.cue.x - pose.object.pos.x, pose.cue.y - pose.object.pos.y);
+      if (dist < 2 * BALL_R + 4) continue;
       return {
         id: uid(),
         name: `${kindLabel(kind)} D${d}`,

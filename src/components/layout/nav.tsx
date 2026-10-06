@@ -87,7 +87,7 @@ export function TopDockNav() {
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-2 sm:gap-4 px-3 sm:px-6">
         
         {/* Brand Zone: Squircle Icon + Name + HUD Badge */}
-        <Link href="/match" className="flex items-center gap-2 group select-none shrink-0">
+        <Link href="/" className="flex items-center gap-2 group select-none shrink-0" title="Mesnooker Home">
           <div className="relative flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-primary/15 text-primary border border-primary/30 group-hover:border-primary/60 transition-colors shadow-xs">
             <Crosshair size={18} className="text-primary transition-transform duration-200 group-hover:rotate-45" />
           </div>
@@ -108,7 +108,7 @@ export function TopDockNav() {
           {NAV_ITEMS.map((item) => {
             const active =
               item.href === "/match"
-                ? pathname === "/match" || pathname === "/"
+                ? pathname === "/match"
                 : pathname === item.href || pathname.startsWith(item.href);
 
             return (
@@ -232,7 +232,7 @@ export function BottomNav() {
         {NAV_BOTTOM.map((item) => {
           const active =
             item.href === "/match"
-              ? pathname === "/match" || pathname === "/"
+              ? pathname === "/match"
               : pathname === item.href || pathname.startsWith(item.href);
 
           return (

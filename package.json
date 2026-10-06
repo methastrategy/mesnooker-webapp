@@ -10,7 +10,8 @@
     "build": "next build",
     "test": "vitest run",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "reset-auth": "tsx scripts/reset-auth-users.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0",

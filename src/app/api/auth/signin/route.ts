@@ -4,13 +4,17 @@ import { verifyPassword } from "@/lib/auth/password";
 import { findUserByUsername, hasAuthDb } from "@/lib/auth/db";
 import { signSession, SESSION_COOKIE, SESSION_TTL_DAYS } from "@/lib/auth/session";
 import { normalizeUsername, validUsername, validEmail } from "@/lib/auth/validate";
-import { isLocked, recordFail } from "@/lib/auth/ratelimit";
+import { isLocked, recordFail, checkRateLimit } from "@/lib/auth/ratelimit";
 
 export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
   if (isLocked(req)) {
     return NextResponse.json({ error: "Too many attempts. Try again in 15 minutes." }, { status: 429 });
+  }
+  const rl = checkRateLimit(req, "signin_burst", 30, 60 * 1000);
+  if (!rl.allowed) {
+    return NextResponse.json({ error: "Too many requests. Please slow down." }, { status: 429 });
   }
   let body: unknown;
   try {
