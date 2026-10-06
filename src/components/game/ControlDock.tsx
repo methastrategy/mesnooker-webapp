@@ -1,19 +1,16 @@
 "use client";
 
-import { ArrowRight, Flag } from "lucide-react";
+import { ArrowRight, Flag, Undo2 } from "lucide-react";
 import { ActionButton } from "@/components/ui";
 import { ViolationPanel } from "@/components/game/ViolationPanel";
 import { MoreActionsSheet } from "@/components/game/MoreActionsSheet";
 import type { GameMode } from "@/types";
 
 /**
- * ControlDock — Raycast Ergonomic Command Deck:
- * 1. Penalties Group: Foul (−4/−2) & Miss (−2/−1) grouped side-by-side in capsule.
- * 2. Solve (+1): Always enabled for escaping snookers.
- * 3. Red Pot (+1): Active & bright ONLY when on red, dimmed when on colour.
- * 4. Next Turn: Dominant primary action button (full 48px height, high-contrast green).
- * 5. More (⋯): Undo/Redo quick sheet.
- * 6. End Frame: Ergonomically separated below the deck with distinct compact footprint (28px height, muted) to prevent accidental mis-taps.
+ * ControlDock — Pro Ergonomic Snooker Command Deck:
+ * Row 1 (Scoring Keycaps): FOUL (−4/−2) | MISS (−2/−1) | SOLVE (+1) | RED (+1)
+ * Row 2 (Match Flow): UNDO (1-tap) | TURN (Dominant hero key) | MORE (⋯) | END FRAME
+ * Designed for comfortable thumb tapping on mobile and generous click targets on desktop.
  */
 export function ControlDock({
   mode,
@@ -49,56 +46,67 @@ export function ControlDock({
   onEndFrame: () => void;
 }) {
   return (
-    <div className="control-dock">
-      {/* Primary Dock Bar */}
-      <div className="flex w-full max-w-lg items-center justify-between gap-1 sm:gap-1.5">
-        {/* Penalties Group + Solve + Red Pot */}
-        <ViolationPanel
-          mode={mode}
-          onFoul={onFoul}
-          onMiss={onMiss}
-          onSolve={onSolve}
-          onPotRed={onPotRed}
-          canPotRed={canPotRed}
-        />
+    <div className="control-dock w-full max-w-3xl mx-auto flex flex-col gap-1.5 sm:gap-2.5">
+      {/* ─── Row 1: The 4 Big Tactical Keycaps (Foul, Miss, Solve, Red) ─── */}
+      <ViolationPanel
+        mode={mode}
+        onFoul={onFoul}
+        onMiss={onMiss}
+        onSolve={onSolve}
+        onPotRed={onPotRed}
+        canPotRed={canPotRed}
+      />
 
-        <div className="mx-0.5 sm:mx-1 h-8 w-px shrink-0 bg-border/80" />
-
-        {/* Turn & More Group */}
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-          <ActionButton
-            tone="primary"
-            onClick={onEndTurn}
-            className="h-12 min-w-[80px] sm:min-w-[104px] px-4 sm:px-6 gap-2 rounded-full shadow-lg shadow-primary/25 font-black uppercase tracking-wider"
-            aria-label="End turn"
-          >
-            <span className="text-xs sm:text-sm font-black">Turn</span>
-            <ArrowRight size={16} />
-          </ActionButton>
-
-          <ActionButton
-            tone="outline"
-            onClick={onMoreOpen}
-            aria-label="More actions"
-            title="More actions"
-            className="h-12 w-11 shrink-0 px-0 rounded-full"
-          >
-            <span className="text-lg font-bold leading-none">⋯</span>
-          </ActionButton>
-        </div>
-      </div>
-
-      {/* End Frame: Ergonomic Safety Guardrail */}
-      <div className="flex items-center justify-center pt-0.5">
-        <button
-          type="button"
-          onClick={onEndFrame}
-          aria-label="End frame"
-          className="flex h-7 items-center gap-1.5 rounded-full border border-border/80 bg-surface/80 px-4 text-[11px] font-mono font-medium text-muted-foreground hover:border-destructive/40 hover:text-destructive hover:bg-destructive/10 transition-all cursor-pointer shadow-xs active:scale-95"
+      {/* ─── Row 2: Turn Flow, Quick Undo, More & End Frame ─── */}
+      <div className="flex items-center gap-1.5 sm:gap-2 w-full">
+        {/* Quick Undo (Immediate 1-tap correction) */}
+        <ActionButton
+          tone="outline"
+          onClick={onUndo}
+          disabled={!canUndo}
+          aria-label="Undo last action"
+          title="Undo last action"
+          className="h-13 min-[380px]:h-14 sm:h-14 md:h-16 px-2.5 sm:px-4 min-w-[58px] sm:min-w-[80px] rounded-2xl flex-col sm:flex-row gap-0.5 sm:gap-1.5 border-border/80"
         >
-          <Flag size={11} className="text-muted-foreground group-hover:text-destructive" />
-          <span>End frame</span>
-        </button>
+          <Undo2 size={18} className={canUndo ? "text-primary" : "text-muted-foreground"} />
+          <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider">Undo</span>
+        </ActionButton>
+
+        {/* Primary TURN Action Button — Dominant, tactile thumb target */}
+        <ActionButton
+          tone="primary"
+          onClick={onEndTurn}
+          aria-label="Pass turn to next player"
+          className="h-13 min-[380px]:h-14 sm:h-14 md:h-16 flex-1 px-4 sm:px-8 gap-2.5 rounded-2xl bg-gradient-to-r from-amber-500 via-primary to-amber-600 text-stone-950 font-black shadow-lg shadow-primary/25 hover:brightness-110 transition-all cursor-pointer"
+        >
+          <span className="text-sm sm:text-base md:text-lg font-black tracking-widest uppercase">
+            TURN
+          </span>
+          <ArrowRight size={20} className="stroke-[2.8]" />
+        </ActionButton>
+
+        {/* More Actions (⋯) — Redo & detailed log */}
+        <ActionButton
+          tone="outline"
+          onClick={onMoreOpen}
+          aria-label="More options"
+          title="More options"
+          className="h-13 min-[380px]:h-14 sm:h-14 md:h-16 w-11 sm:w-14 shrink-0 px-0 rounded-2xl border-border/80"
+        >
+          <span className="text-xl font-black leading-none">⋯</span>
+        </ActionButton>
+
+        {/* End Frame Button */}
+        <ActionButton
+          tone="outline"
+          onClick={onEndFrame}
+          aria-label="End current frame"
+          title="End frame"
+          className="h-13 min-[380px]:h-14 sm:h-14 md:h-16 px-2.5 sm:px-4 min-w-[62px] sm:min-w-[90px] rounded-2xl flex-col sm:flex-row gap-0.5 sm:gap-1.5 border-border/80 hover:border-destructive/50 hover:text-destructive hover:bg-destructive/10 transition-all"
+        >
+          <Flag size={15} className="text-muted-foreground group-hover:text-destructive" />
+          <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider whitespace-nowrap">End</span>
+        </ActionButton>
       </div>
 
       <MoreActionsSheet

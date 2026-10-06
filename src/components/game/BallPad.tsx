@@ -51,18 +51,18 @@ export function BallPad({
   }
   const legalSet = new Set(legal);
   return (
-    <div className="relative mx-auto w-full max-w-3xl rounded-[22px] border border-primary/20 bg-surface/85 backdrop-blur-xl shadow-xl p-3 sm:p-5 ring-1 ring-white/5">
+    <div className="relative mx-auto w-full max-w-3xl rounded-[20px] sm:rounded-[22px] border border-primary/20 bg-surface/85 backdrop-blur-xl shadow-lg p-2 min-[380px]:p-2.5 sm:p-4 ring-1 ring-white/5 select-none">
       {clearingColours ? (
         /* Pro HUD Clear Rack Tracker */
-        <div className="relative mb-3 flex items-center justify-center gap-2 sm:gap-3 rounded-full bg-card/70 border border-border/60 p-2 shadow-inner">
+        <div className="relative mb-2 flex items-center justify-center gap-1.5 sm:gap-3 rounded-full bg-card/70 border border-border/60 p-1.5 shadow-inner">
           {COLOUR_ORDER.map((c, i) => {
             const onNow = legalSet.has(c);
             const done = showCount ? showCount(c) === 0 : false;
             return (
-              <div key={c} className="flex flex-col items-center gap-1">
+              <div key={c} className="flex flex-col items-center gap-0.5">
                 <span
                   className={cn(
-                    "flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-mono font-bold transition-all",
+                    "flex h-3.5 w-3.5 items-center justify-center rounded-full text-[8px] font-mono font-bold transition-all",
                     onNow ? "ring-2 ring-primary ring-offset-1 ring-offset-surface scale-110" : "opacity-40"
                   )}
                   style={{ background: BALL_HEX[c], color: c === "yellow" ? "#000" : "#fff" }}
@@ -71,7 +71,7 @@ export function BallPad({
                 </span>
                 <span
                   className={cn(
-                    "text-[10px] font-mono leading-none",
+                    "text-[9px] font-mono leading-none",
                     onNow ? "font-bold text-foreground" : done ? "text-muted-foreground/50 line-through" : "text-muted-foreground"
                   )}
                 >
@@ -88,7 +88,7 @@ export function BallPad({
         <div
           aria-hidden
           className={cn(
-            "pointer-events-none absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-surface via-surface/80 to-transparent z-10 transition-opacity duration-200 sm:hidden",
+            "pointer-events-none absolute left-0 top-0 bottom-0 w-6 bg-gradient-to-r from-surface via-surface/80 to-transparent z-10 transition-opacity duration-200 sm:hidden",
             canScrollLeft ? "opacity-100" : "opacity-0"
           )}
         />
@@ -96,7 +96,7 @@ export function BallPad({
         <div
           aria-hidden
           className={cn(
-            "pointer-events-none absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-surface via-surface/85 to-transparent z-10 transition-opacity duration-200 sm:hidden",
+            "pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-surface via-surface/85 to-transparent z-10 transition-opacity duration-200 sm:hidden",
             canScrollRight ? "opacity-100" : "opacity-60"
           )}
         />
@@ -104,9 +104,9 @@ export function BallPad({
         <div
           ref={scrollRef}
           onScroll={updateScrollHints}
-          className="w-full overflow-x-auto no-scrollbar py-1"
+          className="w-full overflow-x-auto no-scrollbar py-0.5"
         >
-          <div className="mx-auto flex w-max flex-row flex-nowrap items-center gap-1.5 min-[380px]:gap-2 sm:gap-3 px-1">
+          <div className="mx-auto flex w-full max-w-full justify-between sm:justify-center items-center gap-1 min-[360px]:gap-1.5 min-[390px]:gap-2 sm:gap-3 px-0.5">
             {BALL_ORDER.map((c) => {
               const isLegal = legalSet.has(c);
               const value = ballValues[c];

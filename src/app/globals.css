@@ -325,45 +325,17 @@ body {
 
 /* ───────── Ergonomic Tactical Control Dock ───────── */
 .control-dock {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: calc(3.5rem + env(safe-area-inset-bottom, 0px));
-  z-index: 40;
+  position: static;
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.625rem 1rem;
-  background: color-mix(in srgb, var(--surface) 95%, transparent);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border-top: 1px solid var(--border);
-  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.45);
-}
-@media (min-width: 768px) {
-  .control-dock {
-    bottom: env(safe-area-inset-bottom, 0px);
-  }
-}
-@media (min-width: 1024px) {
-  .control-dock {
-    position: static;
-    left: auto;
-    right: auto;
-    bottom: auto;
-    z-index: auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 0;
-    background: transparent;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-    border: none;
-    box-shadow: none;
-  }
+  padding: 0.25rem 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  z-index: 10;
 }
 
 /* Hide scrollbar */

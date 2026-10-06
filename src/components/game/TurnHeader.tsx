@@ -85,18 +85,20 @@ export function TurnHeader({
       {/* ═════════════ 1. ASYMMETRIC SCOREBOARD PODIUM ═════════════ */}
       <div
         className={cn(
-          "grid gap-2.5 sm:gap-3",
-          opponents.length > 0
-            ? "grid-cols-1 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]"
-            : "grid-cols-1"
+          "grid gap-2 sm:gap-3",
+          opponents.length === 1
+            ? "grid-cols-2"
+            : opponents.length > 0
+              ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]"
+              : "grid-cols-1"
         )}
       >
         {/* ─── HERO ACTIVE SHOOTER PODIUM CARD ─── */}
-        <div className="relative overflow-hidden rounded-[22px] border border-primary/30 bg-surface/85 backdrop-blur-xl p-4 sm:p-5 shadow-lg transition-all select-none">
+        <div className="relative overflow-hidden rounded-[20px] sm:rounded-[22px] border border-primary/35 bg-surface/90 backdrop-blur-xl p-2.5 sm:p-4 shadow-lg transition-all select-none">
           {/* Ambient Warm Spotlight Glow */}
           <div
             aria-hidden
-            className="pointer-events-none absolute -right-8 -top-8 h-36 w-36 rounded-full bg-primary/10 blur-3xl"
+            className="pointer-events-none absolute -right-6 -top-6 h-28 w-28 rounded-full bg-primary/10 blur-2xl"
           />
 
           {/* Top Line: Avatar + Nickname + Matchup + Live Status Pills */}
@@ -146,22 +148,22 @@ export function TurnHeader({
           </div>
 
           {/* Center Line: Big Score + Net Money + Ball State Pill */}
-          <div className="flex items-end justify-between gap-3 mt-3 pt-2 border-t border-primary/20">
+          <div className="flex items-end justify-between gap-2 mt-2 pt-1.5 border-t border-primary/20">
             <div className="flex flex-col">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
+              <span className="text-[9px] sm:text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
                 Score
               </span>
-              <div className="font-mono font-black tracking-tighter text-foreground tabular-nums leading-none text-4xl sm:text-5xl md:text-6xl">
+              <div className="font-mono font-black tracking-tighter text-foreground tabular-nums leading-none text-3xl min-[380px]:text-4xl sm:text-5xl md:text-6xl">
                 <AnimatedNumber value={shooterScore} />
               </div>
             </div>
 
-            <div className="flex flex-col items-end gap-1.5">
+            <div className="flex flex-col items-end gap-1">
               <div className="text-right">
-                <span className="text-[9px] uppercase tracking-wider font-mono text-muted-foreground block leading-tight">
+                <span className="text-[8px] sm:text-[9px] uppercase tracking-wider font-mono text-muted-foreground block leading-tight">
                   Net Money
                 </span>
-                <span className={cn("font-mono font-black tabular-nums text-sm sm:text-lg leading-tight", shooterBalColor)}>
+                <span className={cn("font-mono font-black tabular-nums text-xs sm:text-base leading-tight", shooterBalColor)}>
                   {shooterBal > 0 ? "+" : ""}
                   <AnimatedNumber value={shooterBal} prefix="฿" decimals={0} />
                 </span>
@@ -170,7 +172,7 @@ export function TurnHeader({
               {/* Legal Ball State Pill */}
               <span
                 className={cn(
-                  "px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold tracking-wide uppercase shrink-0 shadow-xs",
+                  "px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-mono font-bold tracking-wide uppercase shrink-0 shadow-xs",
                   isClearing
                     ? "bg-gold/20 text-gold border border-gold/35"
                     : canStartBreak
@@ -181,8 +183,8 @@ export function TurnHeader({
                 {isClearing
                   ? `🎯 CLEAR: ${clearingLabel ?? "..."}`
                   : canStartBreak
-                    ? "● Any Colour"
-                    : "● Red First"}
+                    ? "● Colour"
+                    : "● Red 1st"}
               </span>
             </div>
           </div>
@@ -216,7 +218,7 @@ export function TurnHeader({
               <div
                 key={p.id}
                 className={cn(
-                  "relative flex flex-col justify-between rounded-2xl border p-3 sm:p-3.5 transition-all duration-150 select-none shadow-md backdrop-blur-md",
+                  "relative flex flex-col justify-between rounded-[20px] sm:rounded-2xl border p-2.5 sm:p-3.5 transition-all duration-150 select-none shadow-md backdrop-blur-md",
                   isNext
                     ? "border-primary/40 bg-surface/90 ring-1 ring-primary/20"
                     : "border-border/80 bg-surface/75 hover:border-primary/30"
@@ -226,9 +228,9 @@ export function TurnHeader({
                 <div className="flex items-center justify-between gap-1.5">
                   <Link
                     href={`/player?id=${p.id}`}
-                    className="flex items-center gap-2 min-w-0 group hover:opacity-90 transition-opacity"
+                    className="flex items-center gap-1.5 sm:gap-2 min-w-0 group hover:opacity-90 transition-opacity"
                   >
-                    <AvatarBubble avatar={p.avatar} size={22} />
+                    <AvatarBubble avatar={p.avatar} size={20} />
                     <span className="truncate font-bold tracking-tight text-xs sm:text-sm text-foreground/90 group-hover:text-primary transition-colors">
                       {p.nickname}
                     </span>
@@ -236,12 +238,12 @@ export function TurnHeader({
 
                   <div className="flex items-center gap-1 shrink-0">
                     {isLeading && (
-                      <span className="flex items-center gap-0.5 rounded-full px-1.5 py-0.2 bg-gold/15 border border-gold/30 text-[9px] font-mono font-bold text-gold uppercase tracking-wider">
-                        <Trophy size={9} />
+                      <span className="flex items-center gap-0.5 rounded-full px-1.5 py-0.2 bg-gold/15 border border-gold/30 text-[8px] sm:text-[9px] font-mono font-bold text-gold uppercase tracking-wider">
+                        <Trophy size={8} />
                       </span>
                     )}
                     {isNext && (
-                      <span className="rounded-full px-2 py-0.2 bg-white/10 border border-white/20 text-[9px] font-mono font-bold text-foreground/80 uppercase tracking-wider">
+                      <span className="rounded-full px-1.5 py-0.2 bg-white/10 border border-white/20 text-[8px] sm:text-[9px] font-mono font-bold text-foreground/80 uppercase tracking-wider">
                         Next
                       </span>
                     )}
@@ -249,8 +251,8 @@ export function TurnHeader({
                 </div>
 
                 {/* Score & Money */}
-                <div className="flex items-baseline justify-between gap-2 mt-2 pt-1.5 border-t border-border/70">
-                  <div className="font-mono font-black tracking-tight text-foreground tabular-nums text-2xl sm:text-3xl leading-none">
+                <div className="flex items-baseline justify-between gap-1.5 mt-2 pt-1.5 border-t border-border/70">
+                  <div className="font-mono font-black tracking-tight text-foreground tabular-nums text-2xl min-[380px]:text-3xl sm:text-4xl leading-none">
                     <AnimatedNumber value={score} />
                   </div>
                   <div className="text-right">
@@ -267,7 +269,7 @@ export function TurnHeader({
       </div>
 
       {/* ═════════════ 2. STREAMLINED HUD STATUS & ROTATION RIBBON ═════════════ */}
-      <div className="flex items-center justify-between gap-2 rounded-full border border-border/80 bg-card/85 px-3.5 sm:px-4 py-1.5 text-xs shadow-md backdrop-blur-md">
+      <div className="flex items-center justify-between gap-2 rounded-full border border-border/80 bg-card/85 px-3 sm:px-4 py-1 text-xs shadow-md backdrop-blur-md">
         {/* Rotation Queue Flow */}
         <div className="flex items-center gap-1.5 text-[11px] font-mono min-w-0">
           <span className="text-muted-foreground uppercase tracking-wider shrink-0 text-[10px]">

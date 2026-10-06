@@ -22,6 +22,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }, []);
 
   const isAuthPage = pathname === "/login";
+  const isMatchPage = pathname === "/match";
 
   if (isAuthPage) {
     return (
@@ -34,12 +35,32 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="relative flex min-h-screen flex-col bg-background text-foreground antialiased selection:bg-primary/20">
+    <div
+      className={
+        isMatchPage
+          ? "relative flex h-[100dvh] max-h-[100dvh] flex-col bg-background text-foreground antialiased selection:bg-primary/20 overflow-hidden"
+          : "relative flex min-h-screen flex-col bg-background text-foreground antialiased selection:bg-primary/20"
+      }
+    >
       <TopDockNav />
-      <main className="relative z-10 w-full min-w-0 flex-1 px-3 sm:px-6 pt-3 sm:pt-4 pb-28 md:pb-12">
-        <div className="mx-auto w-full max-w-5xl md:max-w-6xl">{children}</div>
+      <main
+        className={
+          isMatchPage
+            ? "relative z-10 w-full min-w-0 flex-1 px-2 sm:px-4 pt-1 sm:pt-2 pb-1 sm:pb-2 flex flex-col overflow-hidden"
+            : "relative z-10 w-full min-w-0 flex-1 px-3 sm:px-6 pt-3 sm:pt-4 pb-28 md:pb-12"
+        }
+      >
+        <div
+          className={
+            isMatchPage
+              ? "mx-auto w-full max-w-5xl md:max-w-6xl h-full flex flex-col overflow-hidden"
+              : "mx-auto w-full max-w-5xl md:max-w-6xl"
+          }
+        >
+          {children}
+        </div>
       </main>
-      <BottomNav />
+      {!isMatchPage && <BottomNav />}
     </div>
   );
 }
