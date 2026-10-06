@@ -76,20 +76,20 @@ export function TopDockNav() {
   const NAV_ITEMS = [
     { href: "/match", label: t("nav.match", locale), icon: Timer },
     { href: "/settlement", label: t("nav.settlement", locale), icon: Coins },
-    { href: "/solve", label: "Simulator", icon: Zap },
     { href: "/stats", label: t("nav.stats", locale), icon: BarChart3 },
+    { href: "/solve", label: "Simulator", icon: Zap },
   ];
 
   const isSettings = pathname.startsWith("/settings");
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/70 bg-background/85 backdrop-blur-xl transition-all">
-      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-2 sm:gap-4 px-3 sm:px-6">
+      <div className="mx-auto flex h-15 sm:h-16 max-w-6xl items-center justify-between gap-2 sm:gap-4 px-3 sm:px-6">
         
         {/* Brand Zone: Squircle Icon + Name + HUD Badge */}
-        <Link href="/" className="flex items-center gap-2 group select-none shrink-0" title="Mesnooker Home">
-          <div className="relative flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-primary/15 text-primary border border-primary/30 group-hover:border-primary/60 transition-colors shadow-xs">
-            <Crosshair size={18} className="text-primary transition-transform duration-200 group-hover:rotate-45" />
+        <Link href="/" className="flex items-center gap-2.5 group select-none shrink-0" title="Mesnooker Home">
+          <div className="relative flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-primary/15 text-primary border border-primary/30 group-hover:border-primary/60 transition-colors shadow-xs">
+            <Crosshair size={19} className="text-primary transition-transform duration-200 group-hover:rotate-45" />
           </div>
           <div className="flex flex-col">
             <div className="flex items-center gap-1.5">
@@ -104,7 +104,7 @@ export function TopDockNav() {
         </Link>
 
         {/* Center Zone: Segmented Pill Navigation */}
-        <nav className="flex items-center gap-1 rounded-full border border-border/70 bg-surface/70 p-1">
+        <nav className="flex items-center gap-1 sm:gap-1.5 rounded-full border border-border/80 bg-surface/85 p-1 sm:p-1.5 shadow-sm backdrop-blur-xl">
           {NAV_ITEMS.map((item) => {
             const active =
               item.href === "/match"
@@ -112,22 +112,28 @@ export function TopDockNav() {
                 : pathname === item.href || pathname.startsWith(item.href);
 
             return (
-              <Link key={item.href} href={item.href} className="relative">
+              <Link key={item.href} href={item.href} className="relative group">
                 <span
                   className={cn(
-                    "relative z-10 flex items-center gap-1.5 rounded-full px-2.5 sm:px-3.5 py-1 text-xs font-semibold transition-colors duration-150",
+                    "relative z-10 flex items-center gap-1.5 sm:gap-2 rounded-full px-3 sm:px-4.5 py-1.5 sm:py-2 text-xs sm:text-sm font-medium transition-all duration-150 select-none min-h-[36px] sm:min-h-[40px]",
                     active
-                      ? "text-primary font-bold"
-                      : "text-muted-foreground hover:text-foreground"
+                      ? "text-primary font-bold shadow-xs"
+                      : "text-muted-foreground hover:text-foreground hover:bg-white/[0.04]"
                   )}
                 >
-                  <item.icon size={15} className={cn(active ? "text-primary" : "text-muted-foreground")} />
-                  <span className="hidden sm:inline">{item.label}</span>
+                  <item.icon
+                    size={17}
+                    className={cn(
+                      "transition-colors shrink-0",
+                      active ? "text-primary stroke-[2.2]" : "text-muted-foreground group-hover:text-foreground stroke-[1.8]"
+                    )}
+                  />
+                  <span className="hidden sm:inline tracking-tight">{item.label}</span>
                 </span>
                 {active && (
                   <motion.span
                     layoutId="topdock-active-pill"
-                    className="absolute inset-0 z-0 rounded-full bg-primary/15 border border-primary/30 shadow-xs"
+                    className="absolute inset-0 z-0 rounded-full bg-gradient-to-b from-primary/20 to-primary/10 border border-primary/40 shadow-xs"
                     transition={{ type: "spring", stiffness: 450, damping: 32 }}
                   />
                 )}
@@ -137,17 +143,17 @@ export function TopDockNav() {
         </nav>
 
         {/* Right Zone: Language + Settings Controls */}
-        <div className="flex items-center gap-1.5 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           {/* Language Toggle Pill */}
           <button
             type="button"
             onClick={() => setLocale(locale === "th" ? "en" : "th")}
             aria-label="Switch Language TH/EN"
-            className="flex items-center gap-1 rounded-full border border-border bg-surface/80 px-2.5 py-1 text-[11px] font-mono font-semibold transition-all hover:border-primary/40 hover:bg-surface active:scale-95 cursor-pointer shadow-xs"
+            className="flex items-center gap-1 sm:gap-1.5 rounded-full border border-border bg-surface/80 px-2.5 sm:px-3 py-1.5 text-xs font-mono font-semibold transition-all hover:border-primary/40 hover:bg-surface active:scale-95 cursor-pointer shadow-xs min-h-[36px] sm:min-h-[40px]"
           >
-            <Globe size={13} className="text-primary" />
+            <Globe size={14} className="text-primary" />
             <span className={locale === "th" ? "text-primary font-bold" : "text-muted-foreground"}>TH</span>
-            <span className="text-border text-[9px]">/</span>
+            <span className="text-border text-[10px]">/</span>
             <span className={locale === "en" ? "text-primary font-bold" : "text-muted-foreground"}>EN</span>
           </button>
 
@@ -156,13 +162,13 @@ export function TopDockNav() {
             href="/settings"
             aria-label="Settings"
             className={cn(
-              "flex h-8 w-8 sm:h-8 sm:w-auto sm:px-3 items-center justify-center gap-1.5 rounded-full border text-xs font-semibold transition-all shadow-xs active:scale-95",
+              "flex h-9 w-9 sm:h-10 sm:w-auto sm:px-3.5 items-center justify-center gap-1.5 rounded-full border text-xs sm:text-sm font-semibold transition-all shadow-xs active:scale-95 min-h-[36px] sm:min-h-[40px]",
               isSettings
                 ? "border-primary/60 bg-primary/15 text-primary font-bold ring-1 ring-primary/30"
                 : "border-border bg-surface/80 text-muted-foreground hover:text-foreground hover:border-primary/40"
             )}
           >
-            <Settings size={14} className={isSettings ? "text-primary" : "text-muted-foreground"} />
+            <Settings size={15} className={isSettings ? "text-primary" : "text-muted-foreground"} />
             <span className="hidden sm:inline">{t("nav.settings", locale)}</span>
           </Link>
         </div>
@@ -221,14 +227,14 @@ export function BottomNav() {
   const NAV_BOTTOM = [
     { href: "/match", label: t("nav.match", locale), icon: Timer },
     { href: "/settlement", label: t("nav.settlement", locale), icon: Coins },
-    { href: "/solve", label: "Simulator", icon: Zap },
     { href: "/stats", label: t("nav.stats", locale), icon: BarChart3 },
+    { href: "/solve", label: "Simulator", icon: Zap },
     { href: "/settings", label: t("nav.settings", locale), icon: Settings },
   ];
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border/80 bg-surface/90 pb-safe backdrop-blur-xl md:hidden">
-      <div className="mx-auto flex max-w-md items-center justify-around px-2 py-1.5">
+    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border/80 bg-surface/95 pb-safe backdrop-blur-xl md:hidden shadow-lg">
+      <div className="mx-auto flex max-w-md items-center justify-around px-2 py-1.5 sm:py-2">
         {NAV_BOTTOM.map((item) => {
           const active =
             item.href === "/match"
@@ -239,20 +245,22 @@ export function BottomNav() {
             <Link
               key={item.href}
               href={item.href}
-              className="flex flex-1 flex-col items-center gap-0.5 py-1"
+              className="flex flex-1 flex-col items-center gap-1 py-1 transition-all active:scale-95"
             >
               <motion.span
-                animate={{ scale: active ? 1.06 : 1, y: active ? -2 : 0 }}
+                animate={{ scale: active ? 1.08 : 1, y: active ? -2 : 0 }}
                 className={cn(
-                  "rounded-full p-2 transition-colors",
-                  active ? "bg-primary/20 text-primary border border-primary/30" : "text-muted-foreground"
+                  "rounded-full px-3 py-1.5 transition-colors flex items-center justify-center",
+                  active
+                    ? "bg-primary/20 text-primary border border-primary/35 shadow-xs"
+                    : "text-muted-foreground hover:text-foreground"
                 )}
               >
-                <item.icon size={18} />
+                <item.icon size={19} className={active ? "stroke-[2.2]" : "stroke-[1.8]"} />
               </motion.span>
               <span
                 className={cn(
-                  "text-[10px] tracking-tight leading-tight",
+                  "text-[11px] tracking-tight leading-tight transition-colors",
                   active ? "text-primary font-bold" : "text-muted-foreground"
                 )}
               >

@@ -71,22 +71,6 @@ export default function HomePage() {
       iconBg: "bg-primary/15 border-primary/30 text-primary",
     },
     {
-      titleTh: "ซิมูเลเตอร์ & โค้ช",
-      titleEn: "AI Coach & Simulator",
-      tagTh: "แก้สนุ๊กเกอร์ 1–3 ชิ่ง",
-      tagEn: "Tactical Solver",
-      descTh: "คำนวณวิถีหนีสนุ๊กเกอร์ด้วยเรขาคณิต 2D จุดสัมผัสหัวคิว (Cue Tip) และมุมกระทบชิ่งแม่นยำ",
-      descEn: "2D raycasting escape solver, cue tip contact picker, 1–3 cushion bank shot calculator.",
-      href: "/solve",
-      icon: Zap,
-      badgeTh: "วิเคราะห์",
-      badgeEn: "Analyze",
-      color: "from-sky-500/20 to-sky-600/5",
-      border: "hover:border-sky-500/50",
-      accent: "text-sky-400",
-      iconBg: "bg-sky-500/15 border-sky-500/30 text-sky-400",
-    },
-    {
       titleTh: "ระบบเคลียร์บัญชี",
       titleEn: "Financial Settlement",
       tagTh: "หักลบหนี้รอบวงขั้นต่ำ",
@@ -101,6 +85,22 @@ export default function HomePage() {
       border: "hover:border-amber-500/50",
       accent: "text-amber-400",
       iconBg: "bg-amber-500/15 border-amber-500/30 text-amber-400",
+    },
+    {
+      titleTh: "ซิมูเลเตอร์ & โค้ช",
+      titleEn: "AI Coach & Simulator",
+      tagTh: "แก้สนุ๊กเกอร์ 1–3 ชิ่ง",
+      tagEn: "Tactical Solver",
+      descTh: "คำนวณวิถีหนีสนุ๊กเกอร์ด้วยเรขาคณิต 2D จุดสัมผัสหัวคิว (Cue Tip) และมุมกระทบชิ่งแม่นยำ",
+      descEn: "2D raycasting escape solver, cue tip contact picker, 1–3 cushion bank shot calculator.",
+      href: "/solve",
+      icon: Zap,
+      badgeTh: "วิเคราะห์",
+      badgeEn: "Analyze",
+      color: "from-sky-500/20 to-sky-600/5",
+      border: "hover:border-sky-500/50",
+      accent: "text-sky-400",
+      iconBg: "bg-sky-500/15 border-sky-500/30 text-sky-400",
     },
   ];
 
@@ -150,7 +150,7 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="space-y-10 sm:space-y-14 animate-in fade-in duration-300 pb-12">
+    <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-300 pb-12">
       {/* ── LIVE SESSION ALERT BANNER ───────────────────────────────────── */}
       {isLive && (
         <motion.div
@@ -199,115 +199,63 @@ export default function HomePage() {
         </motion.div>
       )}
 
-      {/* ── HERO SECTION ─────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden rounded-3xl border border-border/80 bg-gradient-to-b from-card/90 via-surface/80 to-background p-6 sm:p-10 md:p-12 shadow-2xl backdrop-blur-2xl text-center">
-        {/* Ambient Warm Golden Lounge Glow Background */}
-        <div className="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 h-72 w-[90%] max-w-3xl rounded-full bg-gradient-to-b from-amber-500/15 via-primary/10 to-transparent blur-3xl" />
-        
-        <div className="relative z-10 max-w-3xl mx-auto space-y-4 sm:space-y-6">
-          {/* Eyebrow Pill */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-3.5 py-1 text-xs font-semibold text-amber-400 shadow-xs">
-            <Sparkles size={14} className="text-amber-400" />
-            <span className="font-mono tracking-wide">MESNOOKER 2026 PRO EDITION</span>
+      {/* ── TOP COMPACT COMMAND TOOLBAR ─────────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-border/60">
+        <div>
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-[11px] font-mono font-semibold text-primary">
+              <Sparkles size={12} className="text-primary" />
+              <span>MESNOOKER PRO</span>
+            </span>
+            <span className="hidden sm:inline text-border">·</span>
+            <div className="flex items-center gap-1.5 text-muted-foreground font-mono text-[11px]">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+              <span>{locale === "th" ? "บันทึก" : "Saved"}:</span>
+              <span className="font-bold text-foreground">{mounted ? history.length : 0}</span>
+            </div>
+            <span className="text-border">·</span>
+            <div className="flex items-center gap-1 text-muted-foreground font-mono text-[11px]">
+              <span>{locale === "th" ? "เรท" : "Rate"}:</span>
+              <span className="font-bold text-amber-400">฿{moneyRate}/{moneyPer}</span>
+            </div>
           </div>
-
-          {/* Main Title */}
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-foreground leading-[1.15]">
-            {locale === "th" ? (
-              <>
-                ยกระดับการแข่งขันสนุ๊กเกอร์ <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-primary to-amber-300">
-                  และบัญชีเดิมพันระดับมืออาชีพ
-                </span>
-              </>
-            ) : (
-              <>
-                Precision Snooker Scoring &amp; <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-primary to-amber-300">
-                  Financial Settlement Engine
-                </span>
-              </>
-            )}
+          <h1 className="text-lg sm:text-xl font-bold tracking-tight text-foreground flex items-center gap-2 mt-1.5">
+            <Crosshair size={20} className="text-primary" />
+            <span>{locale === "th" ? "เมนูการใช้งานหลัก" : "Core Command Center"}</span>
           </h1>
-
-          {/* Description */}
-          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-            {locale === "th"
-              ? "ระบบจัดการโต๊ะสนุ๊กเกอร์ที่สมบูรณ์แบบที่สุด รองรับทั้งการนับแต้มสากลและนับลูกไทย คำนวณตัดหนี้รอบวงอัตโนมัติ พร้อมระบบฟิสิกส์ 2D วิเคราะห์วิถีหนีสนุ๊กเกอร์ 1–3 ชิ่ง"
-              : "The definitive companion for competitive Thai snooker. Realtime ballpad scoring, automated minimal-transfer money settlement, and 2D physics cushion escape solver."}
-          </p>
-
-          {/* Hero Action Buttons */}
-          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-            <Link
-              href="/setup"
-              className="inline-flex items-center gap-2 rounded-xl border border-primary/60 border-t-white/25 bg-primary px-6 py-3 text-sm font-bold text-primary-foreground shadow-lg transition-all hover:bg-primary-hover active:scale-95"
-            >
-              <Play size={16} className="fill-current" />
-              <span>{locale === "th" ? "เริ่มเกมใหม่" : "Start New Game"}</span>
-            </Link>
-
-            <Link
-              href="/match"
-              className="inline-flex items-center gap-2 rounded-xl border border-border/80 bg-surface/90 px-6 py-3 text-sm font-semibold text-foreground transition-all hover:border-primary/40 hover:bg-card active:scale-95 shadow-xs"
-            >
-              <Timer size={16} className="text-primary" />
-              <span>{locale === "th" ? "กระดานคะแนนสด" : "Open Scoreboard"}</span>
-            </Link>
-
-            <Link
-              href="/settlement"
-              className="inline-flex items-center gap-2 rounded-xl border border-border/80 bg-surface/90 px-6 py-3 text-sm font-semibold text-muted-foreground hover:text-foreground transition-all hover:border-amber-500/40 hover:bg-card active:scale-95 shadow-xs"
-            >
-              <Coins size={16} className="text-amber-400" />
-              <span>{locale === "th" ? "สรุปยอดเงิน" : "Settlement"}</span>
-            </Link>
-          </div>
-
-          {/* Quick Metrics Bar */}
-          <div className="pt-4 flex flex-wrap items-center justify-center gap-4 sm:gap-8 border-t border-border/60 text-xs text-muted-foreground">
-            <div className="flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-emerald-400" />
-              <span>{locale === "th" ? "เกมที่บันทึกแล้ว" : "Archived Games"}:</span>
-              <span className="font-mono font-bold text-foreground">{mounted ? history.length : 0}</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span>{locale === "th" ? "อัตราเดิมพันตั้งต้น" : "Default Rate"}:</span>
-              <span className="font-mono font-bold text-amber-400">
-                ฿{moneyRate}/{moneyPer}
-              </span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <ShieldCheck size={14} className="text-primary" />
-              <span>{locale === "th" ? "ระบบเข้ารหัสปลอดภัย" : "Hardened & Protected"}</span>
-            </div>
-          </div>
         </div>
-      </section>
 
-      {/* ── CORE 4 QUICK-ACTIONS GRID ────────────────────────────────────── */}
-      <section className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-lg sm:text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
-              <Crosshair size={20} className="text-primary" />
-              <span>{locale === "th" ? "เมนูการใช้งานหลัก" : "Core Command Center"}</span>
-            </h2>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              {locale === "th"
-                ? "เลือกฟังก์ชันที่ต้องการเพื่อเริ่มต้นใช้งานได้ทันที"
-                : "Direct access to live match scoring, solvers, and settlement ledger"}
-            </p>
-          </div>
+        {/* Compact Quick Actions Toolbar */}
+        <div className="flex items-center gap-2 shrink-0">
+          <Link
+            href="/setup"
+            className="inline-flex items-center gap-2 rounded-full border border-primary/60 bg-primary px-4 py-2 text-xs sm:text-sm font-bold text-primary-foreground shadow-md transition-all hover:bg-primary-hover active:scale-95"
+          >
+            <Play size={14} className="fill-current" />
+            <span>{locale === "th" ? "เริ่มเกมใหม่" : "Start New Game"}</span>
+          </Link>
+
+          <Link
+            href="/match"
+            className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-surface/90 px-3.5 py-2 text-xs sm:text-sm font-semibold text-foreground transition-all hover:border-primary/40 hover:bg-card active:scale-95 shadow-xs"
+          >
+            <Timer size={14} className="text-primary" />
+            <span>{locale === "th" ? "กระดานสด" : "Live Board"}</span>
+          </Link>
 
           <Link
             href="/settings"
-            className="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-primary transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-surface/90 px-3 py-2 text-xs sm:text-sm font-semibold text-muted-foreground hover:text-foreground transition-all hover:border-primary/40 hover:bg-card active:scale-95 shadow-xs"
+            title={locale === "th" ? "ตั้งค่าระบบ" : "Preferences"}
           >
             <Sliders size={14} />
-            <span>{locale === "th" ? "ตั้งค่าระบบ" : "Preferences"}</span>
+            <span className="hidden md:inline">{locale === "th" ? "ตั้งค่า" : "Settings"}</span>
           </Link>
         </div>
+      </div>
+
+      {/* ── CORE 4 QUICK-ACTIONS GRID ────────────────────────────────────── */}
+      <section className="space-y-4">
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
           {QUICK_ACTIONS.map((item, idx) => {
