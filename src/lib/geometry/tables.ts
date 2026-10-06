@@ -1,3 +1,4 @@
+import { BALL_HEX } from "../rules";
 import type { Vec } from "./types";
 
 /**
@@ -43,14 +44,8 @@ export const POCKET_MAP: Record<string, PocketInfo> = Object.fromEntries(
 
 export const CUE_COLOR: string = "#f2ead8";
 export const BALL_COLORS: Record<string, string> = {
-  cue: "#f2ead8",
-  red: "#c1121f",
-  yellow: "#f7d44c",
-  green: "#1a9e5c",
-  brown: "#8a4b2a",
-  blue: "#1d5dc4",
-  pink: "#e26a9d",
-  black: "#171310",
+  cue: CUE_COLOR,
+  ...BALL_HEX,
 };
 
 export function ballLabel(color: string): string {

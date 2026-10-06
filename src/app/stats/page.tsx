@@ -30,7 +30,7 @@ import { t } from "@/lib/i18n";
 import type { Player } from "@/types";
 
 const COLORS = {
-  emerald: "#cc785c", // terracotta primary voltage
+  primary: "#cc785c", // terracotta primary voltage
   gold: "#f59e0b",
   red: "#ef4444",
   blue: "#3b82f6",
@@ -234,7 +234,7 @@ export default function StatsPage() {
                     />
                     <Bar dataKey="net" radius={[8, 8, 0, 0]} maxBarSize={36}>
                       {netData.map((d, i) => (
-                        <Cell key={i} fill={d.net > 0 ? COLORS.emerald : COLORS.red} />
+                        <Cell key={i} fill={d.net > 0 ? COLORS.primary : COLORS.red} />
                       ))}
                     </Bar>
                   </BarChart>
@@ -267,9 +267,9 @@ export default function StatsPage() {
                         type="monotone"
                         dataKey={r.player.id}
                         name={r.player.nickname}
-                        stroke={[COLORS.emerald, COLORS.gold, COLORS.blue, COLORS.pink, COLORS.red][i % 5]}
+                        stroke={[COLORS.primary, COLORS.gold, COLORS.blue, COLORS.pink, COLORS.red][i % 5]}
                         strokeWidth={2}
-                        dot={{ r: 3, fill: [COLORS.emerald, COLORS.gold, COLORS.blue, COLORS.pink, COLORS.red][i % 5], strokeWidth: 0 }}
+                        dot={{ r: 3, fill: [COLORS.primary, COLORS.gold, COLORS.blue, COLORS.pink, COLORS.red][i % 5], strokeWidth: 0 }}
                         activeDot={{ r: 5 }}
                       />
                     ))}

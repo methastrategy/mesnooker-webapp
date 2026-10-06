@@ -141,6 +141,7 @@ export function SettlementPanel({
                 </motion.div>
               );
             })}
+            {transfers.length > 0 && <PaymentActions transfers={transfers} />}
           </div>
         )}
       </div>
@@ -159,19 +160,22 @@ export function PaymentActions({ transfers }: { transfers: SettlementInstruction
     } catch {}
   }
   return (
-    <div className="flex flex-wrap gap-2">
-      {transfers.map((t) => (
-        <Button
-          key={t.fromPlayerId + t.toPlayerId}
-          variant="glass"
-          size="sm"
-          className="rounded-full text-xs font-mono"
-          onClick={() => copy(`${t.fromName} pays ${t.toName} ${formatNumber(t.amount)}฿`, t.fromPlayerId)}
-        >
-          {copied === t.fromPlayerId ? <Check size={13} /> : <Copy size={13} />}
-          <span>Copy line</span>
-        </Button>
-      ))}
+    <div className="flex flex-wrap gap-2 pt-2">
+      {transfers.map((t) => {
+        const key = `${t.fromPlayerId}->${t.toPlayerId}`;
+        return (
+          <Button
+            key={key}
+            variant="glass"
+            size="sm"
+            className="rounded-full text-xs font-mono"
+            onClick={() => copy(`${t.fromName} pays ${t.toName} ${formatNumber(t.amount)}฿`, key)}
+          >
+            {copied === key ? <Check size={13} className="text-primary" /> : <Copy size={13} />}
+            <span>Copy {t.fromName} → {t.toName}</span>
+          </Button>
+        );
+      })}
     </div>
   );
 }

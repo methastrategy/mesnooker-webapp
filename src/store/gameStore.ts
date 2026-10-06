@@ -110,6 +110,7 @@ interface PersistShape {
   startCounts: BallCounts;
   history: ArchivedGame[];
   customRules: CustomRulesConfig;
+  paidTransfers: string[];
   /** undo/redo stacks (in-memory only, not persisted) */
   undoStack: StateSnapshot[];
   redoStack: StateSnapshot[];
@@ -162,6 +163,9 @@ interface GameStore extends PersistShape {
   setMissPenalty: (mode: GameMode, value: number) => void;
   resetCustomRules: (mode?: GameMode) => void;
   clearHistory: () => void;
+  markTransferPaid: (key: string) => void;
+  undoTransferPayment: (key: string) => void;
+  clearPaidTransfers: () => void;
 }
 
 /** A full state snapshot used for undo/redo. Deep-copied because frames/events
@@ -221,6 +225,7 @@ export const useGameStore = create<GameStore>()(
       undoStack: [],
       redoStack: [],
       settingsOpen: false,
+      paidTransfers: [],
 
       startSession: ({ players, mode, moneyRate, moneyPer, redCount = 15, tableFee = 0 }) => {
         if (players.length < 2) return;
@@ -256,6 +261,7 @@ export const useGameStore = create<GameStore>()(
           reverse: false,
           frames: [frame],
           events: [],
+          paidTransfers: [],
         });
       },
 
@@ -365,6 +371,7 @@ export const useGameStore = create<GameStore>()(
           undoStack: [],
           redoStack: [],
           settingsOpen: false,
+          paidTransfers: [],
         });
         return archived;
       },
@@ -692,6 +699,7 @@ export const useGameStore = create<GameStore>()(
         const st = get();
         const f = st.frames[st.frames.length - 1];
         if (!f || !st.session) return;
+        if (f.endedAt) return;
         f.endedAt = Date.now();
 
         // Per-frame money: count balls potted in THIS frame only.
@@ -899,6 +907,17 @@ export const useGameStore = create<GameStore>()(
         }
       },
       clearHistory: () => set({ history: [] }),
+      markTransferPaid: (key: string) =>
+        set((s) => ({
+          paidTransfers: (s.paidTransfers ?? []).includes(key)
+            ? (s.paidTransfers ?? [])
+            : [...(s.paidTransfers ?? []), key],
+        })),
+      undoTransferPayment: (key: string) =>
+        set((s) => ({
+          paidTransfers: (s.paidTransfers ?? []).filter((k) => k !== key),
+        })),
+      clearPaidTransfers: () => set({ paidTransfers: [] }),
     }),
     {
       name: "smoke-master-v1",
@@ -920,6 +939,7 @@ export const useGameStore = create<GameStore>()(
         startCounts: s.startCounts,
         history: s.history,
         customRules: s.customRules,
+        paidTransfers: s.paidTransfers ?? [],
       }),
       version: 1,
     }

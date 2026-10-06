@@ -8,6 +8,17 @@ import { SESSION_COOKIE, verifySession } from "@/lib/auth/session";
 export default async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
+  // Allow PWA assets and service workers to load unauthenticated
+  if (
+    pathname === "/manifest.webmanifest" ||
+    pathname === "/sw.js" ||
+    pathname === "/apple-touch-icon.png" ||
+    pathname === "/icon.svg" ||
+    pathname.startsWith("/icons/")
+  ) {
+    return NextResponse.next();
+  }
+
   if (pathname === "/login") {
     const token = req.cookies.get(SESSION_COOKIE)?.value;
     if (token && (await verifySession(token))) {
@@ -27,12 +38,15 @@ export default async function middleware(req: NextRequest) {
     if (pathname.startsWith("/api/")) {
       return NextResponse.json({ error: "unauthorized" }, { status: 401 });
     }
-    return NextResponse.redirect(new URL("/login", req.url));
+    const nextParam = encodeURIComponent(req.nextUrl.pathname + req.nextUrl.search);
+    return NextResponse.redirect(new URL(`/login?next=${nextParam}`, req.url));
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|robots.txt).*)"],
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|robots.txt|manifest\\.webmanifest|sw\\.js|apple-touch-icon\\.png|icons/|icon\\.svg).*)",
+  ],
 };

@@ -30,7 +30,7 @@ import { cn } from "@/lib/utils";
 import type { GameMode } from "@/types";
 
 const THEMES = [
-  { id: "mono", name: "Raycast Dark", swatch: ["#57c1ff", "#ffc533", "#07080a"] },
+  { id: "mono", name: "Raycast Dark", swatch: ["#cc785c", "#f59e0b", "#0c0a09"] },
   { id: "emerald", name: "Emerald Noir", swatch: ["#16c784", "#f59e0b", "#050505"] },
   { id: "ember", name: "Ember", swatch: ["#f97316", "#f59e0b", "#100a06"] },
   { id: "forest", name: "Forest", swatch: ["#22c55e", "#eab308", "#05080a"] },
@@ -248,7 +248,7 @@ function SettingsContent() {
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-bold text-foreground">{me.email}</span>
+                      <span className="text-sm font-bold text-foreground">{me.username || me.email}</span>
                       <span className="rounded-[4px] bg-primary/20 px-2 py-0.5 text-[10px] font-mono font-bold text-primary">
                         Cloud Account
                       </span>

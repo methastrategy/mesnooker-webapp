@@ -7,19 +7,26 @@ import { useGameStore, useRunningBalance } from "@/store/gameStore";
 import { SettlementPanel, type PaymentRecord } from "@/components/settlement/SettlementPanel";
 import { GlassCard, Button, Badge } from "@/components/ui";
 import { optimizeTransfers } from "@/lib/money";
-import { formatMoney } from "@/lib/utils";
+import { formatMoney, cn } from "@/lib/utils";
 
 export default function SettlementPage() {
   const session = useGameStore((s) => s.session);
   const players = useGameStore((s) => s.players);
-  const running = useRunningBalance();
-  const [paidSet, setPaidSet] = useState<Set<string>>(new Set());
+  const history = useGameStore((s) => s.history);
+  const sessionRunning = useRunningBalance();
+  const paidTransfers = useGameStore((s) => s.paidTransfers ?? []);
+  const markTransferPaid = useGameStore((s) => s.markTransferPaid);
+  const undoTransferPayment = useGameStore((s) => s.undoTransferPayment);
   const [copied, setCopied] = useState(false);
 
-  const transfers = optimizeTransfers(running, players);
-  // Derive the panel's payment records from the actual paid set — previously
-  // `payments` was an unused empty useState, so the panel's Pay→Undo toggle
-  // and its "outstanding" badge could never update after tapping Pay.
+  const isHistoryFallback = !session && history.length > 0;
+  const targetMatch = session ?? (isHistoryFallback ? history[0] : null);
+  const targetPlayers = session ? players : (history[0]?.players ?? []);
+  const targetRunning = session ? sessionRunning : (history[0]?.balances ?? history[0]?.rawBalances ?? {});
+
+  const paidSet = new Set(paidTransfers);
+  const transfers = optimizeTransfers(targetRunning, targetPlayers);
+  // Derive the panel's payment records from the actual persisted paid set.
   const payments: PaymentRecord[] = transfers.map((t) => ({
     id: `${t.fromPlayerId}->${t.toPlayerId}`,
     fromPlayerId: t.fromPlayerId,
@@ -28,17 +35,13 @@ export default function SettlementPage() {
     status: paidSet.has(`${t.fromPlayerId}->${t.toPlayerId}`) ? "paid" : "pending",
   }));
   const outstanding = transfers.filter((t) => !paidSet.has(`${t.fromPlayerId}->${t.toPlayerId}`));
-  const allPaid = transfers.length > 0 && outstanding.length === 0;
+  const allPaid = transfers.length === 0 || outstanding.length === 0;
 
   function markPaid(key: string) {
-    setPaidSet((prev) => new Set(prev).add(key));
+    markTransferPaid(key);
   }
   function undoPayment(key: string) {
-    setPaidSet((prev) => {
-      const next = new Set(prev);
-      next.delete(key);
-      return next;
-    });
+    undoTransferPayment(key);
   }
 
   async function exportSummary() {
@@ -74,20 +77,25 @@ export default function SettlementPage() {
         </p>
       </motion.div>
 
-      {!session ? (
+      {!targetMatch ? (
         <GlassCard className="rounded-[22px] p-8 text-center text-muted-foreground font-mono text-sm">
-          No active session found. Start a match first from the Match board.
+          No active session or match history found. Start a match first from the Match board.
         </GlassCard>
       ) : (
         <div className="flex flex-col gap-5">
           <GlassCard glow={allPaid ? "emerald" : "gold"} className="rounded-[24px] p-5 sm:p-7 shadow-xl">
             <div className="mb-4 flex items-center justify-between border-b border-border/70 pb-3">
               <div>
-                <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground">
-                  Session Ledger & Transfers
+                <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                  <span>{isHistoryFallback ? "Match Ledger & Transfers" : "Session Ledger & Transfers"}</span>
+                  {isHistoryFallback && (
+                    <Badge variant="neutral" className="text-[10px] py-0 px-1.5 font-normal">
+                      Ended Match
+                    </Badge>
+                  )}
                 </h3>
                 <span className="text-[11px] font-mono text-muted-foreground">
-                  {players.length} players involved
+                  {targetPlayers.length} players involved
                 </span>
               </div>
               {allPaid ? (
@@ -101,15 +109,19 @@ export default function SettlementPage() {
               )}
             </div>
             <SettlementPanel
-              runningBalance={running}
-              players={players}
+              runningBalance={targetRunning}
+              players={targetPlayers}
               payments={payments}
               onMarkPaid={(key) => markPaid(key)}
               onUndoPayment={(key) => undoPayment(key)}
             />
-            {allPaid && (
-              <Button variant="gold" className="mt-5 w-full h-12 rounded-full font-bold shadow-md shadow-gold/20" onClick={exportSummary}>
-                <Download size={16} /> {copied ? "Copied summary to clipboard!" : "Export Settlement Summary"}
+            {transfers.length > 0 && (
+              <Button
+                variant={allPaid ? "gold" : "default"}
+                className={cn("mt-5 w-full h-12 rounded-full font-bold shadow-md", allPaid && "shadow-gold/20")}
+                onClick={exportSummary}
+              >
+                <Download size={16} /> {copied ? "Copied summary to clipboard!" : allPaid ? "Export Settlement Summary (All Settled)" : "Copy Settlement Summary"}
               </Button>
             )}
           </GlassCard>

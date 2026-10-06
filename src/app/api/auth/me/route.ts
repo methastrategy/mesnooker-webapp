@@ -9,5 +9,10 @@ export async function GET(req: NextRequest) {
   if (!token) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
   const session = await verifySession(token);
   if (!session) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
-  return NextResponse.json({ email: session.email, id: session.sub });
+  return NextResponse.json({
+    username: session.username,
+    email: session.email ?? session.username,
+    id: session.sub,
+  });
 }
+

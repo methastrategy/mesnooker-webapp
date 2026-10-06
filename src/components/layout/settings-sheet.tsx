@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { apiSignOut, fetchMe } from "@/lib/auth-client";
 
 const THEMES: { id: string; name: string; swatch: string[] }[] = [
-  { id: "mono", name: "Raycast Dark", swatch: ["#57c1ff", "#ffc533", "#07080a"] },
+  { id: "mono", name: "Raycast Dark", swatch: ["#cc785c", "#f59e0b", "#0c0a09"] },
   { id: "emerald", name: "Emerald Noir", swatch: ["#16c784", "#f59e0b", "#050505"] },
   { id: "ember", name: "Ember", swatch: ["#f97316", "#f59e0b", "#100a06"] },
   { id: "forest", name: "Forest", swatch: ["#22c55e", "#eab308", "#05080a"] },
@@ -80,7 +80,7 @@ export function SettingsSheet() {
 
   const [accountEmail, setAccountEmail] = useState<string | null>(null);
   useEffect(() => {
-    if (open) fetchMe().then((me) => setAccountEmail(me ? me.email : null));
+    if (open) fetchMe().then((me) => setAccountEmail(me ? (me.username || me.email || null) : null));
   }, [open]);
 
   const signOut = async () => {

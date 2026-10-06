@@ -108,4 +108,60 @@ describe("Snooker Money Engine", () => {
     expect(potMoney("brown", "balls", "ball", 20)).toBe(40);
     expect(potMoney("black", "balls", "ball", 20)).toBe(40);
   });
+
+  it("calculates moneyPer === ball using ballCounts.total or potted balls correctly", () => {
+    const players = [pA, pB];
+    const targetCycle = { pA: "pB", pB: "pA" };
+    const scores = { pA: 0, pB: 0 }; // scores ignored when ballCounts given
+
+    // Case 1: ballCounts with total property
+    const res1 = computeFrameMoney({
+      mode: "balls",
+      players,
+      scores,
+      ballCounts: {
+        pA: { total: 5 },
+        pB: { total: 2 },
+      },
+      targetCycle,
+      moneyPer: "ball",
+      moneyRate: 10,
+    });
+    // pA earns 5*10=50 from pB, pays 2*10=20 to pB => Net pA = +30, Net pB = -30
+    expect(res1.net.pA).toBe(30);
+    expect(res1.net.pB).toBe(-30);
+
+    // Case 2: ballCounts with BallCounts colors
+    const res2 = computeFrameMoney({
+      mode: "balls",
+      players,
+      scores,
+      ballCounts: {
+        pA: { red: 3, yellow: 1, green: 0, brown: 0, blue: 0, pink: 0, black: 1 },
+        pB: { red: 1, yellow: 0, green: 0, brown: 0, blue: 0, pink: 0, black: 0 },
+      },
+      targetCycle,
+      moneyPer: "ball",
+      moneyRate: 10,
+    });
+    // pA potted 5 balls => earns 50, pB potted 1 ball => earns 10 => Net pA = +40, Net pB = -40
+    expect(res2.net.pA).toBe(40);
+    expect(res2.net.pB).toBe(-40);
+
+    // Case 3: ballCounts overrides points scores when moneyPer === "ball"
+    const res3 = computeFrameMoney({
+      mode: "balls",
+      players,
+      scores: { pA: 100, pB: 50 }, // point scores overridden by ballCounts
+      ballCounts: {
+        pA: { total: 0 },
+        pB: { total: 0 },
+      },
+      targetCycle,
+      moneyPer: "ball",
+      moneyRate: 10,
+    });
+    expect(res3.net.pA).toBe(0);
+    expect(res3.net.pB).toBe(0);
+  });
 });

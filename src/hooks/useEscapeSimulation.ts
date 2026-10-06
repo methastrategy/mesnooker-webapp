@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { useCoachStore, COACH_CUE_ID } from "@/store/coachStore";
+import { useGameStore } from "@/store/gameStore";
 import { SPOTS, type Ball } from "@/lib/geometry";
 import {
   playStrikeSound,
@@ -98,7 +99,9 @@ export function useEscapeSimulation(): UseEscapeSimulationReturn {
 
     if (!ok) return;
 
-    playCueStrikeSound(power);
+    if (useGameStore.getState().sound) {
+      playCueStrikeSound(power);
+    }
     setIsSimulating(true);
 
     let prevCushionCount = 0;
@@ -113,17 +116,18 @@ export function useEscapeSimulation(): UseEscapeSimulationReturn {
       const stillMoving = engine.update(dt);
 
       // Sound triggers
+      const soundEnabled = useGameStore.getState().sound;
       if (engine.cushionEvents.length > prevCushionCount) {
         const latest = engine.cushionEvents[engine.cushionEvents.length - 1];
-        playCushionSound(latest.speed);
+        if (soundEnabled) playCushionSound(latest.speed);
         prevCushionCount = engine.cushionEvents.length;
       }
       if (engine.collisionEvents.length > prevCollisionCount) {
-        playStrikeSound(0.2);
+        if (soundEnabled) playStrikeSound(0.2);
         prevCollisionCount = engine.collisionEvents.length;
       }
       if (engine.potEvents.length > prevPotCount) {
-        playPotSound(0.25);
+        if (soundEnabled) playPotSound(0.25);
         prevPotCount = engine.potEvents.length;
       }
 
@@ -136,10 +140,12 @@ export function useEscapeSimulation(): UseEscapeSimulationReturn {
         setShotOutcome(outcome);
         setIsSimulating(false);
 
-        if (outcome.foul) {
-          playPenaltySound(0.18);
-        } else if (outcome.success) {
-          playPotSound(0.2);
+        if (soundEnabled) {
+          if (outcome.foul) {
+            playPenaltySound(0.18);
+          } else if (outcome.success) {
+            playPotSound(0.2);
+          }
         }
 
         // Sync final resting ball positions back into coach store

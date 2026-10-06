@@ -14,6 +14,7 @@ import {
   SlidersHorizontal,
   Database,
   Crosshair,
+  Coins,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useGameStore } from "@/store/gameStore";
@@ -74,6 +75,7 @@ export function TopDockNav() {
 
   const NAV_ITEMS = [
     { href: "/match", label: t("nav.match", locale), icon: Timer },
+    { href: "/settlement", label: t("nav.settlement", locale), icon: Coins },
     { href: "/solve", label: "Simulator", icon: Zap },
     { href: "/stats", label: t("nav.stats", locale), icon: BarChart3 },
   ];
@@ -218,6 +220,7 @@ export function BottomNav() {
 
   const NAV_BOTTOM = [
     { href: "/match", label: t("nav.match", locale), icon: Timer },
+    { href: "/settlement", label: t("nav.settlement", locale), icon: Coins },
     { href: "/solve", label: "Simulator", icon: Zap },
     { href: "/stats", label: t("nav.stats", locale), icon: BarChart3 },
     { href: "/settings", label: t("nav.settings", locale), icon: Settings },

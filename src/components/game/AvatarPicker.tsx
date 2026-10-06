@@ -1,9 +1,55 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Camera, Images } from "lucide-react";
 import { avatarSource } from "@/lib/avatar";
+
+function compressImage(file: File, maxDim = 128, quality = 0.85): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error("File read error"));
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error("Image load error"));
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+        if (width > maxDim || height > maxDim) {
+          if (width > height) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          } else {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.max(1, width);
+        canvas.height = Math.max(1, height);
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          resolve(reader.result as string);
+          return;
+        }
+        ctx.drawImage(img, 0, 0, width, height);
+        try {
+          const webp = canvas.toDataURL("image/webp", quality);
+          if (webp.startsWith("data:image/webp")) {
+            resolve(webp);
+            return;
+          }
+        } catch {
+          /* fall back */
+        }
+        const fallbackMime = file.type === "image/png" ? "image/png" : "image/jpeg";
+        resolve(canvas.toDataURL(fallbackMime, quality));
+      };
+      img.src = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+  });
+}
 
 /** Standalone avatar bubble — used in player cards / picker. */
 export function AvatarBubble({
@@ -55,28 +101,48 @@ export function AvatarPicker({
   const GAL = gallery ?? ["😎", "🤠", "😈", "🤖", "🐉", "🦄", "🍺", "👑", "💀", "🐺"];
   const [open, setOpen] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  function readFile(file?: File) {
-    if (!file) return;
-    // FileReader.readAsDataURL is not a shipped browser API — read via
-    // arrayBuffer() + base64 so uploaded avatars become data: URLs that
-    // avatarSource() renders as images (and that survive reloads).
-    if (!file.arrayBuffer) return;
-    file
-      .arrayBuffer()
-      .then((buf) => {
-        const bytes = new Uint8Array(buf);
-        let bin = "";
-        for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
-        onChange(`data:${file.type};base64,${btoa(bin)}`);
+  useEffect(() => {
+    if (!open) return;
+    function handleClickOutside(e: MouseEvent | TouchEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setOpen(false);
-      })
-      .catch(() => {});
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
+  }, [open]);
+
+  async function readFile(file?: File) {
+    if (!file) return;
+    try {
+      const compressed = await compressImage(file);
+      onChange(compressed);
+      setOpen(false);
+    } catch {
+      // Fallback: direct arrayBuffer if canvas fails
+      if (!file.arrayBuffer) return;
+      file
+        .arrayBuffer()
+        .then((buf) => {
+          const bytes = new Uint8Array(buf);
+          let bin = "";
+          for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+          onChange(`data:${file.type};base64,${btoa(bin)}`);
+          setOpen(false);
+        })
+        .catch(() => {});
+    }
   }
 
   return (
-    <div className="relative inline-block">
-      <button type="button" onClick={() => setOpen(true)} aria-label="Choose avatar">
+    <div ref={containerRef} className="relative inline-block">
+      <button type="button" onClick={() => setOpen((prev) => !prev)} aria-label="Choose avatar">
         <AvatarBubble avatar={value} size={44} />
       </button>
       <input
@@ -88,13 +154,19 @@ export function AvatarPicker({
       />
       <AnimatePresence>
         {open && (
-          <motion.div
-            className="absolute z-50 w-64 rounded-[20px] border border-primary/20 bg-surface/95 p-3.5 backdrop-blur-xl shadow-2xl"
-            initial={{ opacity: 0, scale: 0.9, y: -6 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            transition={{ type: "spring", stiffness: 320, damping: 26 }}
-          >
+          <>
+            <div
+              className="fixed inset-0 z-40 bg-transparent"
+              onClick={() => setOpen(false)}
+              aria-hidden="true"
+            />
+            <motion.div
+              className="absolute z-50 w-64 rounded-[20px] border border-primary/20 bg-surface/95 p-3.5 backdrop-blur-xl shadow-2xl"
+              initial={{ opacity: 0, scale: 0.9, y: -6 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ type: "spring", stiffness: 320, damping: 26 }}
+            >
             <div className="mb-1 text-[10px] uppercase font-mono tracking-widest text-muted-foreground">Quick</div>
             <div className="mb-2 flex flex-wrap gap-2">
               {PRE.map((a) => (
@@ -135,6 +207,7 @@ export function AvatarPicker({
               Done
             </button>
           </motion.div>
+          </>
         )}
       </AnimatePresence>
     </div>

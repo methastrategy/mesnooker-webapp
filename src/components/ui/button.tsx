@@ -12,7 +12,7 @@ const buttonVariants = cva(
       variant: {
         default:
           "bg-primary text-primary-foreground font-bold border-primary/50 border-t-white/25 hover:bg-primary-hover shadow-sm",
-        gold: "bg-gold text-primary-foreground font-bold border-gold/50 border-t-white/25 hover:opacity-90 shadow-sm",
+        gold: "bg-gold text-zinc-950 font-black border-gold/50 border-t-white/25 hover:opacity-90 shadow-sm",
         violation:
           "bg-violation/15 text-violation border-violation/35 border-t-violation/50 hover:bg-violation/25",
         secondary: "bg-secondary text-secondary-foreground border-border border-t-white/12 hover:bg-card-solid",

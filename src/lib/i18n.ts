@@ -15,6 +15,7 @@ export const translations = {
     "nav.tools": "เครื่องมือ",
     "nav.history": "ประวัติการแข่ง",
     "nav.stats": "สถิติรวม",
+    "nav.settlement": "เคลียร์เงิน",
     "nav.settings": "ตั้งค่า",
 
     // Dashboard
@@ -143,6 +144,7 @@ export const translations = {
     "nav.tools": "Tools",
     "nav.history": "History",
     "nav.stats": "Stats",
+    "nav.settlement": "Settlement",
     "nav.settings": "Settings",
 
     // Dashboard

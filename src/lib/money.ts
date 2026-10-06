@@ -44,21 +44,36 @@ export function computeFrameMoney(args: {
   mode: GameMode;
   players: Player[];
   scores: Record<string, number>;
-  ballCounts?: Record<string, BallCounts>;
+  ballCounts?: Record<string, (BallCounts & { total?: number }) | { total: number }>;
   targetCycle: Record<string, string>;
   moneyPer: MoneyRateUnit;
   moneyRate: number;
 }): MoneyResult {
-  const { players, scores, targetCycle, moneyRate } = args;
-  const net: Record<string, number> = {};
+  const { players, scores, targetCycle, moneyRate, moneyPer, ballCounts } = args;
+  const net: Record<string, number> = Object.fromEntries(players.map((p) => [p.id, 0]));
   const flows: MoneyResult["flows"] = [];
 
   for (const p of players) {
     const id = p.id;
-    // In both "points" (Point Count) and "balls" (Ball Count) modes, scores[id]
-    // represents the net points or net balls won by player (including Brown/Black=2 balls,
-    // Foul=-2 balls, Miss=-1, Hit=+1 in ball mode).
-    const value = (scores[id] ?? 0) * moneyRate;
+    let units = scores[id] ?? 0;
+    if (moneyPer === "ball" && ballCounts) {
+      const bc = ballCounts[id] as (BallCounts & { total?: number }) | undefined;
+      if (typeof bc?.total === "number") {
+        units = bc.total;
+      } else if (bc) {
+        units =
+          (bc.red ?? 0) +
+          (bc.yellow ?? 0) +
+          (bc.green ?? 0) +
+          (bc.brown ?? 0) +
+          (bc.blue ?? 0) +
+          (bc.pink ?? 0) +
+          (bc.black ?? 0);
+      } else {
+        units = 0;
+      }
+    }
+    const value = units * moneyRate;
 
     if (Math.abs(value) < 1e-9) continue;
 

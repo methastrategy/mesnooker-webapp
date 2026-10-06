@@ -39,7 +39,7 @@
   --color-neg-soft: rgba(239, 68, 68, 0.15);
   --color-rail: #141210;
 
-  --font-sans: "Plus Jakarta Sans", "Inter Variable", "Inter", -apple-system, BlinkMacSystemFont,
+  --font-sans: var(--font-inter), "Plus Jakarta Sans", "Inter Variable", "Inter", -apple-system, BlinkMacSystemFont,
     "SF Pro Display", "SF Pro Text", system-ui, sans-serif;
   --font-mono: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
 }

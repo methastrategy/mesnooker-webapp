@@ -129,7 +129,9 @@ export default function SolvePage() {
       if (el2 < objDur) {
         if (!hasStruck) {
           hasStruck = true;
-          playStrikeSound(0.18);
+          if (useGameStore.getState().sound) {
+            playStrikeSound(0.18);
+          }
         }
         const objT = el2 / objDur;
         const easeOut = 1 - Math.pow(1 - objT, 2.2);

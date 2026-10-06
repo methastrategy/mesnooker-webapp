@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { Timer, ArrowRight, Zap, Trophy } from "lucide-react";
 import type { Player } from "@/types";
 import { AnimatedNumber } from "@/components/ui";
@@ -100,7 +101,10 @@ export function TurnHeader({
 
           {/* Top Line: Avatar + Nickname + Matchup + Live Status Pills */}
           <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2.5 min-w-0">
+            <Link
+              href={`/player?id=${shooter.id}`}
+              className="flex items-center gap-2.5 min-w-0 group hover:opacity-90 transition-opacity"
+            >
               <div className="relative shrink-0">
                 <AvatarBubble avatar={shooter.avatar} size={30} />
                 <span className="absolute -bottom-0.5 -right-0.5 flex h-3 w-3 items-center justify-center rounded-full bg-primary ring-2 ring-card">
@@ -109,7 +113,7 @@ export function TurnHeader({
               </div>
               <div className="flex flex-col min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <span className="truncate text-base sm:text-lg font-black tracking-tight text-foreground leading-tight">
+                  <span className="truncate text-base sm:text-lg font-black tracking-tight text-foreground leading-tight group-hover:text-primary transition-colors">
                     {shooter.nickname}
                   </span>
                   {isShooterLeading && (
@@ -125,7 +129,7 @@ export function TurnHeader({
                   </span>
                 )}
               </div>
-            </div>
+            </Link>
 
             {/* Turn & Break Badges */}
             <div className="flex items-center gap-1.5 shrink-0">
@@ -220,12 +224,15 @@ export function TurnHeader({
               >
                 {/* Top line: Avatar + Name + Badges */}
                 <div className="flex items-center justify-between gap-1.5">
-                  <div className="flex items-center gap-2 min-w-0">
+                  <Link
+                    href={`/player?id=${p.id}`}
+                    className="flex items-center gap-2 min-w-0 group hover:opacity-90 transition-opacity"
+                  >
                     <AvatarBubble avatar={p.avatar} size={22} />
-                    <span className="truncate font-bold tracking-tight text-xs sm:text-sm text-foreground/90">
+                    <span className="truncate font-bold tracking-tight text-xs sm:text-sm text-foreground/90 group-hover:text-primary transition-colors">
                       {p.nickname}
                     </span>
-                  </div>
+                  </Link>
 
                   <div className="flex items-center gap-1 shrink-0">
                     {isLeading && (

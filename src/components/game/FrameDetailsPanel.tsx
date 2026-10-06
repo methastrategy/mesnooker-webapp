@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import type { Player } from "@/types";
 import { BallCounts, GameEvent, GameMode } from "@/types";
 import { AnimatedNumber, Badge } from "@/components/ui";
@@ -110,15 +111,20 @@ export function FrameDetailsPanel({
                         >
                           {rank}
                         </span>
-                        <AvatarBubble avatar={p.avatar} size={22} />
-                        <span
-                          className={cn(
-                            "truncate font-medium",
-                            active && "text-primary font-bold"
-                          )}
+                        <Link
+                          href={`/player?id=${p.id}`}
+                          className="flex items-center gap-1.5 min-w-0 group hover:opacity-90 transition-opacity"
                         >
-                          {p.nickname}
-                        </span>
+                          <AvatarBubble avatar={p.avatar} size={22} />
+                          <span
+                            className={cn(
+                              "truncate font-medium group-hover:text-primary transition-colors",
+                              active && "text-primary font-bold"
+                            )}
+                          >
+                            {p.nickname}
+                          </span>
+                        </Link>
                         {active && <ActiveShooterDot />}
                         {isLeading && !active && (
                           <Trophy size={12} className="text-gold shrink-0 ml-0.5" />

@@ -14,7 +14,7 @@ const TONE_CLASS: Record<Tone, string> = {
   violation:
     "bg-violation/15 text-violation hover:bg-violation/25 border border-violation/35 border-t-violation/50",
   gold:
-    "bg-gold text-primary-foreground font-bold hover:opacity-90 border border-gold/50 border-t-white/30 shadow-md shadow-gold/25",
+    "bg-gold text-zinc-950 font-black hover:opacity-90 border border-gold/50 border-t-white/30 shadow-md shadow-gold/25",
   outline:
     "bg-card/85 text-foreground border border-border border-t-white/12 hover:bg-card-solid",
 };
