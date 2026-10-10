@@ -81,11 +81,11 @@ export function NewSession({
   }
 
   return (
-    <div className="glass-strong rounded-[24px] border border-border/80 shadow-2xl backdrop-blur-2xl p-5 sm:p-7 flex flex-col gap-5 select-none relative overflow-hidden">
+    <div className="glass-strong rounded-[24px] border border-border/80 shadow-2xl backdrop-blur-2xl p-4 sm:p-7 flex flex-col gap-5 select-none relative">
       {/* Ambient Radial Glow */}
       <div
         aria-hidden
-        className="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full bg-primary/10 blur-3xl"
+        className="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full bg-primary/10 blur-3xl overflow-hidden"
       />
 
       <div className="flex items-start justify-between gap-3 border-b border-border/70 pb-3">

@@ -156,16 +156,16 @@ export function AvatarPicker({
         {open && (
           <>
             <div
-              className="fixed inset-0 z-40 bg-transparent"
+              className="fixed inset-0 z-40 bg-black/60 backdrop-blur-xs"
               onClick={() => setOpen(false)}
               aria-hidden="true"
             />
             <motion.div
-              className="absolute z-50 w-64 rounded-[20px] border border-primary/20 bg-surface/95 p-3.5 backdrop-blur-xl shadow-2xl"
-              initial={{ opacity: 0, scale: 0.9, y: -6 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ type: "spring", stiffness: 320, damping: 26 }}
+              className="fixed sm:absolute z-50 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 sm:left-0 sm:top-full sm:translate-x-0 sm:translate-y-2 w-72 max-w-[calc(100vw-2rem)] max-h-[85dvh] overflow-y-auto overscroll-contain rounded-[22px] border border-primary/30 bg-card/95 p-4 backdrop-blur-2xl shadow-2xl"
+              initial={{ opacity: 0, scale: 0.94 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.94 }}
+              transition={{ type: "spring", stiffness: 350, damping: 28 }}
             >
             <div className="mb-1 text-[10px] uppercase font-mono tracking-widest text-muted-foreground">Quick</div>
             <div className="mb-2 flex flex-wrap gap-2">

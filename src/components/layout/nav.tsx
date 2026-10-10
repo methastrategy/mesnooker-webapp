@@ -82,17 +82,20 @@ export function TopDockNav() {
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/70 bg-background/85 backdrop-blur-xl transition-all">
-      <div className="mx-auto flex h-14 sm:h-16 landscape:h-11 max-w-6xl items-center justify-between gap-1.5 sm:gap-4 px-2.5 sm:px-6">
+      <div className="mx-auto flex h-14 sm:h-16 landscape:h-11 max-w-6xl items-center justify-between gap-1 sm:gap-4 px-2 sm:px-6">
         
         {/* Brand Zone: Squircle Icon + Name + HUD Badge */}
-        <Link href="/" className="flex items-center gap-2 group select-none shrink-0" title="Mesnooker Home">
+        <Link href="/" className="flex items-center gap-1.5 sm:gap-2 group select-none shrink-0" title="Mesnooker Home">
           <div className="relative flex h-8 w-8 sm:h-10 sm:w-10 landscape:h-7 landscape:w-7 items-center justify-center rounded-xl bg-primary/15 text-primary border border-primary/30 group-hover:border-primary/60 transition-colors shadow-xs">
             <Crosshair size={18} className="text-primary transition-transform duration-200 group-hover:rotate-45" />
           </div>
           <div className="flex flex-col">
             <div className="flex items-center gap-1.5">
-              <span className="text-xs sm:text-sm font-black tracking-tight text-foreground font-mono">
+              <span className="hidden min-[380px]:inline text-xs sm:text-sm font-black tracking-tight text-foreground font-mono">
                 MESNOOKER
+              </span>
+              <span className="inline min-[380px]:hidden text-xs font-black tracking-tight text-foreground font-mono">
+                ME
               </span>
               <span className="hidden xs:inline-flex rounded-full bg-primary/20 border border-primary/35 px-1.5 py-0.2 text-[9px] font-mono font-bold text-primary tracking-widest uppercase">
                 PRO

@@ -105,36 +105,36 @@ export function SettlementPanel({
                   initial={{ opacity: 0, x: -8 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.04 }}
-                  className={`rounded-[18px] border border-border/80 bg-card/90 backdrop-blur-md flex items-center justify-between gap-3 p-3.5 shadow-sm transition-all ${
+                  className={`rounded-[18px] border border-border/80 bg-card/90 backdrop-blur-md flex items-center justify-between gap-2 sm:gap-3 p-3 sm:p-3.5 shadow-sm transition-all ${
                     paid ? "opacity-60 bg-surface/50 line-through" : ""
                   }`}
                 >
-                  <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                    <div className="flex items-center gap-1.5 min-w-0">
+                  <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0 flex-1">
+                    <div className="flex items-center gap-1 sm:gap-1.5 min-w-0">
                       {fromP && <AvatarBubble avatar={fromP.avatar} size={22} />}
-                      <span className="font-bold text-xs sm:text-sm text-foreground truncate">{t.fromName}</span>
+                      <span className="font-bold text-xs sm:text-sm text-foreground truncate max-w-[65px] xs:max-w-[90px] sm:max-w-none">{t.fromName}</span>
                     </div>
 
-                    <ArrowRight size={13} className="text-gold shrink-0" />
+                    <ArrowRight size={12} className="text-gold shrink-0" />
 
-                    <div className="flex items-center gap-1.5 min-w-0">
+                    <div className="flex items-center gap-1 sm:gap-1.5 min-w-0">
                       {toP && <AvatarBubble avatar={toP.avatar} size={22} />}
-                      <span className="font-bold text-xs sm:text-sm text-foreground truncate">{t.toName}</span>
+                      <span className="font-bold text-xs sm:text-sm text-foreground truncate max-w-[65px] xs:max-w-[90px] sm:max-w-none">{t.toName}</span>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 shrink-0">
-                    <span className="rounded-full bg-gold/15 border border-gold/35 px-3 py-1 font-mono font-bold tabular-nums text-gold text-xs sm:text-sm">
+                  <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                    <span className="rounded-full bg-gold/15 border border-gold/35 px-2 sm:px-3 py-0.5 sm:py-1 font-mono font-bold tabular-nums text-gold text-xs sm:text-sm">
                       {formatMoney(t.amount)}
                     </span>
 
                     <Button
                       variant={paid ? "outline" : "default"}
                       size="sm"
-                      className="rounded-full h-8 px-3 text-xs"
+                      className="rounded-full h-7 sm:h-8 px-2.5 sm:px-3 text-[11px] sm:text-xs font-semibold"
                       onClick={() => (paid ? onUndoPayment(key) : onMarkPaid(key))}
                     >
-                      {paid ? <Check size={13} /> : <CreditCard size={13} />}
+                      {paid ? <Check size={12} /> : <CreditCard size={12} />}
                       <span>{paid ? "Paid" : "Pay"}</span>
                     </Button>
                   </div>

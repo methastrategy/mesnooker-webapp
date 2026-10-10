@@ -69,46 +69,11 @@ The **target-player** settlement core:
 - `formatNumber`, `formatTime`, `formatDateTime` — display formatting.
 - `uid()` — collision-resistant id generator.
 
-### The Snooker Coach Engine (`src/lib/geometry/` + `src/lib/coach/`)
+### Streamlined Core Focus (Commit `1485bd0`)
 
-A self-contained module for practice and escape-solver work — **fully isolated from the
-scoring/money system** (no imports from `rules.ts`/`money.ts`, own store, own routes).
+The experimental geometric table simulator and AI coach modules were pruned in commit `1485bd0` (`chore: remove simulator and coach features, retain core scoring and history system`) to streamline the codebase into a high-performance, distraction-free snooker match scoring and instant settlement engine.
 
-| File | Responsibility |
-|------|----------------|
-| `types.ts` | Shared data contracts: `Ball`, `Vec`, `SolvePath`, `Drill`, `ShotAnalysis`, `CounselNote`. All coordinates in table units (1200 × 600 playing area). |
-| `vector.ts` | Pure 2D vector math (dot/cross/normalize/lerp/angle). |
-| `tables.ts` | 12ft table constants: pockets, ball radius, baulk line/spots, dockets, `clampToTable()`. |
-| `collision.ts` | Line–circle collision: closest point on segment, segment-hit test, ray–circle intersection. |
-| `reflection.ts` | **Reflection / Mirror Method**: `unfoldStraight()` mirrors a target across cushion planes (BFS over `Side[]` sequences) and recovers legal bounce points. |
-| `solver.ts` | **Escape Solver**: ghost-ball computation, Cushion Reflection Tree (BFS over ≤6 bounces), legal bounces/pocket-mouth/blocker checks, `difficultyScore()` (1–10) and the Path Ranking Algorithm. |
-| `coach.ts` | **AI Coach**: deterministic coaching from a solved path — aim point/angle, hit thickness, power suggestion, per-cushion explanation. |
-| `src/lib/coach/analysis.ts` | **Shot Analyzer**: compares a user-drawn aim line with the best path (error angle, contact offset in ball radii, will-contact test). |
-| `src/lib/coach/drills.ts` | **Practice Generator**: 4 drill types (safety / escape / thin contact / position) at difficulty 1–10; every generated pose is verified solvable by the engine. localStorage persistence + JSON share/handoff. |
-
-UI lives in `src/components/coach/` (`CoachTable` — SVG table with drag & drop, path
-overlays, ghost ball, bounce markers, replay; `AiCoachPanel` — right sidebar) and the
-routes `app/solve/page.tsx` + `app/practice/page.tsx`. State is in `src/store/coachStore.ts`
-(a separate Zustand store — deliberately NOT persisted into the game store).
-
-**Invariants:** pure math (no React in `lib/geometry`), theme tokens only (Emerald Noir
-re-skins the module automatically), and the match/money tracker is untouched.
-
-The Reflection Tree unfolds **all four cushions** (bottom / top / left / right); the
-2026-09 side-cushion fix added `l`/`r` to the BFS with per-side segment-legality and
-rebound-angle math. The highlighted cue line is drawn out to the object's **contact
-point** (midpoint ghost↔object), and the replay ends at that contact point.
-
-### Engine tests (`src/lib/**/__tests__/`, `npm test` — vitest)
-
-- `geometry/__tests__/solver.test.ts` — straight pot, cut angle, blocking, 4-cushion
-  tree generation, depth cap, ranking, off-cloth ghost.
-- `geometry/__tests__/physics.test.ts` — property test: 300 seeded random configs,
-  every non-blocked path re-checked against physical invariants (reflection law at
-  each bounce, on-cushion/in-segment bounce points, cloth containment, blocker
-  clearance beyond the 0.5u graze margin).
-- `coach/__tests__/drills.test.ts` — generator produces on-cloth solvable poses for
-  all 4 kinds, difficulty clamped to 1–10.
+All active unit and property tests reside in `src/lib/__tests__/money.test.ts`, `src/store/__tests__/gameStore.test.ts`, and `src/lib/auth/__tests__/auth.test.ts`.
 
 ### Authentication (`src/lib/auth/` + `src/app/api/auth/` + `src/middleware.ts`)
 
@@ -194,23 +159,15 @@ persist(…, { name: "smoke-master-v1", version: 1, partialize: … })
 
 ---
 
-## 5. Supabase Layer — `src/supabase/`
+## 5. Realtime Sync Layer — `src/lib/supabase.ts` & `src/hooks/useRealtime.ts`
 
-Optional and additive. Realtime sync mirrors store actions to other devices.
+Optional and additive. Realtime sync mirrors store actions to other devices when Supabase environment variables are configured (`NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY`), gracefully falling back to local-only offline mode when absent.
 
-```
-src/supabase/
-├── client.ts              # createBrowserClient(url, anonKey)
-└── services/
-    ├── rooms.ts           # CRUD for shared rooms
-    ├── events.ts          # append/stream GameEvents
-    ├── frames.ts          # frame documents + realtime subscribe
-    └── payments.ts        # settlement records + realtime subscribe
-```
+- `src/lib/supabase.ts`: Client factory with memoized instance (`getSupabaseCached()`) and offline detection (`supabaseConfigured()`).
+- `src/hooks/useRealtime.ts`: `useRealtimeSubscription` subscribes via `supabase.channel("snooker-room:...").on("postgres_changes", ...)` to mirror remote frame/event updates.
+- `useRoom()`: Generates short 6-character room codes for live multiplayer synchronization.
 
-- `client.ts` reads `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
-- Services subscribe via `supabase.channel(...).on('postgres_changes', …)` to `frames`, `events`, and `payments` and dispatch into the Zustand store.
-- The store remains the authority; Supabase is a sync fabric.
+The Zustand store remains the authority; Supabase acts as an event sync fabric.
 
 > See [`SUPABASE_SETUP.md`](./SUPABASE_SETUP.md) for the full schema, RLS policies, and realtime configuration.
 

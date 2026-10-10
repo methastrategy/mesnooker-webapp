@@ -21,7 +21,7 @@ export default function MatchPage() {
   // ─── No active session ───────────────────────────────────────────────────
   if (!session || frames.length === 0) {
     return (
-      <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-5 pb-20 md:pb-8">
         {/* If a game just finished, show its summary above the landing */}
         {justFinished ? (
           <FrameCompleteSummary
@@ -46,13 +46,15 @@ export default function MatchPage() {
   const lastFrame = frames[frames.length - 1];
   if (paused && lastFrame?.endedAt) {
     return (
-      <FramePauseSummary
-        onResume={() => setPaused(false)}
-        onFinish={(a) => {
-          setPaused(false);
-          setJustFinished(a);
-        }}
-      />
+      <div className="pb-20 md:pb-8">
+        <FramePauseSummary
+          onResume={() => setPaused(false)}
+          onFinish={(a) => {
+            setPaused(false);
+            setJustFinished(a);
+          }}
+        />
+      </div>
     );
   }
 

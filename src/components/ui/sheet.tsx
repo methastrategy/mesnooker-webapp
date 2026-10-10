@@ -40,14 +40,14 @@ export function Sheet({
       {open && (
         <motion.div
           className={cn(
-            "fixed z-50 glass-strong flex flex-col border-border/80 shadow-2xl backdrop-blur-2xl",
+            "fixed z-50 glass-strong flex flex-col border-border/80 shadow-2xl backdrop-blur-2xl overscroll-contain",
             side === "bottom"
-              ? "inset-x-0 bottom-0 max-h-[88vh] rounded-t-[24px] border-t pb-safe"
+              ? "inset-x-0 bottom-0 max-h-[88dvh] max-h-[88vh] rounded-t-[24px] border-t pb-safe"
               : "top-0 right-0 h-full w-full max-w-md rounded-l-[24px] border-l"
           )}
           initial={side === "bottom" ? { y: "100%" } : { x: "100%" }}
           animate={side === "bottom" ? { y: 0 } : { x: 0 }}
-          transition={{ type: "spring", stiffness: 320, damping: 32 }}
+          transition={{ type: "spring", stiffness: 340, damping: 32 }}
         >
           {/* Mobile Top Drag Indicator */}
           {side === "bottom" && (
@@ -59,13 +59,13 @@ export function Sheet({
             <button
               type="button"
               onClick={onClose}
-              className="flex h-7 w-7 items-center justify-center rounded-full border border-border/80 bg-surface/80 text-muted-foreground hover:bg-card hover:text-foreground transition-all cursor-pointer shadow-xs active:scale-90"
+              className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full border border-border/80 bg-surface/80 text-muted-foreground hover:bg-card hover:text-foreground transition-all cursor-pointer shadow-xs active:scale-90"
               aria-label="Close"
             >
-              <X size={15} />
+              <X size={16} />
             </button>
           </div>
-          <div className="flex-1 overflow-y-auto no-scrollbar px-4 sm:px-6 pt-3 pb-8">{children}</div>
+          <div className="flex-1 overflow-y-auto overscroll-contain no-scrollbar px-4 sm:px-6 pt-3 pb-8">{children}</div>
         </motion.div>
       )}
     </>
