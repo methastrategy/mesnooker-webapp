@@ -30,12 +30,12 @@ import { t } from "@/lib/i18n";
 import type { Player } from "@/types";
 
 const COLORS = {
-  primary: "#cc785c", // terracotta primary voltage
-  gold: "#f59e0b",
-  red: "#ef4444",
+  primary: "var(--primary)",
+  gold: "var(--gold)",
+  red: "var(--destructive)",
   blue: "#3b82f6",
   pink: "#ec4899",
-  grey: "#a8a29e",
+  grey: "#8a8f8c",
 };
 
 interface AggRow {
@@ -230,7 +230,7 @@ export default function StatsPage() {
                     <YAxis stroke={COLORS.grey} fontSize={11} tickLine={false} axisLine={false} />
                     <Tooltip
                       cursor={{ fill: "rgba(255,255,255,0.04)" }}
-                      contentStyle={{ background: "#101312", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, color: "#f3f7f4", fontSize: 12 }}
+                      contentStyle={{ background: "var(--card-solid, var(--card))", border: "1px solid var(--border)", borderRadius: 14, color: "var(--foreground)", fontSize: 12, boxShadow: "0 8px 24px -4px rgba(0,0,0,0.5)" }}
                     />
                     <Bar dataKey="net" radius={[8, 8, 0, 0]} maxBarSize={36}>
                       {netData.map((d, i) => (
@@ -259,7 +259,7 @@ export default function StatsPage() {
                     <XAxis dataKey="game" stroke={COLORS.grey} fontSize={11} tickLine={false} axisLine={false} />
                     <YAxis stroke={COLORS.grey} fontSize={11} tickLine={false} axisLine={false} />
                     <Tooltip
-                      contentStyle={{ background: "#101312", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, color: "#f3f7f4", fontSize: 12 }}
+                      contentStyle={{ background: "var(--card-solid, var(--card))", border: "1px solid var(--border)", borderRadius: 14, color: "var(--foreground)", fontSize: 12, boxShadow: "0 8px 24px -4px rgba(0,0,0,0.5)" }}
                     />
                     {trendLines.map((r, i) => (
                       <Line

@@ -1,41 +1,44 @@
-# Design System — Mesnooker ("Raycast Precision")
+# Design System — Mesnooker ("Tactile Lounge v2.0")
 
-Mesnooker's visual identity is built on the **Raycast Design System**: a high-density, macOS-inspired dark workspace engineered for zero-latency snooker match scoring, live money tracking, and tactical shot analysis.
+Mesnooker's visual identity is built on **Tactile Lounge**: a private snooker club atmosphere calibrated with warm espresso undertones, golden terracotta action accents, bottle-green felt highlights, and precision mechanical ergonomics.
 
 ## Core Design Principles
 
-1. **Zero Drop Shadows & Zero Glows**: Elevation is communicated strictly through a 4-step dark surface color ladder and `1px solid` hairline borders (`#242728`). All `box-shadow` and `drop-shadow` utilities are globally neutralized.
-2. **Mechanical Keycap Tactility**: Interactive controls (`SnookerBall`, `ActionButton`, `Button`, `.action-key`) use physical Y-axis keycap depression (`translateY: 2px`), top-edge anodized border highlights (`border-t-white/25`), and subtle brightness compression (`brightness(0.82–0.88)`) rather than 2D scale shrinking.
-3. **Mobile-First Ergonomics (320px–430px)**:
-   - **Scroll-Linked Compact Mode (`TurnHeader.tsx`)**: Sticky live scoreboard automatically compresses vertical padding, scales down typography, and condenses the shooter/up-next bar when scrolling down on mobile.
-   - **Single-Row Non-Jumping `BallPad.tsx`**: Always renders all 7 snooker balls in a single horizontal row with dynamic left/right gradient fade hints for 320px screens.
+1. **Ambient Precision Depth**: Elevation is communicated through warm dark surface ladders (`#0c0a09` -> `#141210` -> `#1c1917` -> `#24201d`), frosted hairline borders (`rgba(204, 120, 92, 0.16)`), and subtle ambient specular glows.
+2. **Mechanical Keycap Tactility**: Interactive controls (`SnookerBall`, `ActionButton`, `Button`, `.action-key`) feature tactile physical press feedback (`translateY: 2px` + `scale(0.98)`), top-edge rim highlights (`border-t-white/16`), and area-proportional scaling.
+3. **Contrast-Safe Theme Science**: Dynamic contrast tokens (`--accent-on-primary`) ensure all action buttons achieve WCAG AA/AAA compliance across all selectable themes (`mono`, `emerald`, `forest`, `midnight`, `ember`, `violet`).
+4. **Mobile & Large-Screen Ergonomics**:
+   - **Sticky HUD (`TurnHeader.tsx`)**: Compresses smoothly on mobile scroll without layout jumps.
+   - **Single-Row Non-Jumping `BallPad.tsx`**: Renders all 7 balls in a clean horizontal rack with tactile feedback.
+   - **Asymmetric 8:4 Bento Grid (`src/app/page.tsx`)**: Balanced cockpit view for wide screens and clean single-column flow on mobile.
 
 ---
 
 ## 1. Surface & Color Tokens (`src/app/globals.css`)
 
-| Token | Value | Usage |
-| :--- | :--- | :--- |
-| `--color-background` / `--background` | `#07080a` | Deepest canvas background |
-| `--color-surface` / `--muted` | `#0d0d0d` | Recessed or secondary surface (ball rack, inputs, pills) |
-| `--color-card-solid` | `#101111` | Elevated modal / sheet surface (`.glass-strong`) |
-| `--color-card` / `--card` | `#121212` | Primary card & panel surface (`.glass`) |
-| `--color-line` / `--border` | `#242728` | `1px solid` structural hairline border |
-| `--color-foreground` / `--foreground` | `#f4f4f6` | Primary crisp text |
-| `--color-muted` / `--muted-foreground` | `#9c9c9d` | Secondary / muted labels (with `#d3d3d4` for high-contrast sublabels) |
-| `--color-primary` / `--primary` | `#57c1ff` | Raycast Accent Blue — primary CTA, active shooter, positive money |
-| `--color-primary-hover` | `#3ca2de` | Primary CTA hover state |
-| `--color-gold` / `--gold` | `#ffc533` | Raycast Warm Gold — leader badges, break counters, solve snooker |
-| `--color-danger` / `--destructive` | `#ff6161` | Raycast Coral Red — fouls, negative money, destructive actions |
+| Token | Default (Mono / Lounge) | Emerald (Lounge) | Usage |
+| :--- | :--- | :--- | :--- |
+| `--color-background` / `--background` | `#0c0a09` | `#050505` | Deepest canvas background |
+| `--color-surface` / `--muted` | `#141210` | `#0b0f0e` | Recessed surface (ball rack, inputs, pills) |
+| `--color-card` / `--card` | `#1c1917` | `#111614` | Primary card & panel surface (`.glass`) |
+| `--color-card-solid` | `#24201d` | `#111614` | Elevated modal / sheet surface (`.glass-strong`) |
+| `--color-line` / `--border` | `rgba(204, 120, 92, 0.16)` | `rgba(22, 199, 132, 0.16)` | Hairline border |
+| `--color-foreground` / `--foreground` | `#f5f5f4` | `#f3f7f4` | Primary crisp text |
+| `--color-muted-foreground` | `#a8a29e` | `#8a8f8c` | Secondary / muted labels |
+| `--color-primary` / `--primary` | `#cc785c` | `#16c784` | Primary action accent, active shooter |
+| `--primary-foreground` / `--accent-on-primary` | `#ffffff` | `#042f1e` (AAA) | High-contrast ink on primary backgrounds |
+| `--color-gold` / `--gold` | `#f59e0b` | `#f59e0b` | Warm Gold — break counters, leader badges, solve snooker |
+| `--color-danger` / `--destructive` | `#ef4444` | `#ef4444` | Deep Red — fouls, negative money, destructive actions |
 
 ---
 
 ## 2. Typography & Radii
 
-- **Font Stack**: `Inter Variable`, `Inter`, `-apple-system`, `SF Pro Display`, system sans-serif with OpenType features `"calt", "kern", "liga", "ss03"`.
-- **Numeric Discipline**: All scores, clocks, and money balances use `font-mono tabular-nums`.
-- **Corner Radii**:
-  - Cards & Containers: `8px`–`10px` (`rounded-[8px]`, `rounded-[10px]`, `rounded-lg`)
-  - Keycap Buttons: `8px` (`rounded-[8px]`)
-  - Badges & Micro-Pills: `4px`–`6px` (`rounded-[4px]`, `rounded-[6px]`)
-  - Snooker Balls: `9999px` (`rounded-full`)
+- **Display Headings**: `Fraunces` serif display (`font-heading`) with `text-wrap: balance`.
+- **UI Body Font**: `Plus Jakarta Sans`, system sans-serif with OpenType features `"calt", "kern", "liga", "ss03"`.
+- **Numeric Discipline**: All scores, clocks, and currency balances use `Geist Mono` (`font-mono tabular-nums`).
+- **Corner Radii Hierarchy**:
+  - Command Panels & Cards: `18px`–`24px` (`rounded-[20px]`, `rounded-2xl`)
+  - Keycap Buttons: `12px`–`14px` (`rounded-[14px]`, `rounded-xl`)
+  - Badges & Micro-Pills: `6px`–`8px` (`rounded-md`, `rounded-lg`)
+  - Snooker Balls: `9999px` (`rounded-full`) with Aramith Oklab radial gradients

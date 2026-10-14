@@ -1,11 +1,23 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Fraunces, Plus_Jakarta_Sans, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AppShell } from "@/components/layout/app-shell";
 
-const inter = Inter({
+const fraunces = Fraunces({
   subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--font-heading",
+  display: "swap",
+});
+
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+});
+
+const geistMono = Geist_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
   display: "swap",
 });
 
@@ -24,7 +36,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#07080a",
+  themeColor: "#0c0a09",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -34,8 +46,12 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
-      <body className={`${inter.variable} font-sans antialiased`}>
+    <html
+      lang="th"
+      suppressHydrationWarning
+      className={`${fraunces.variable} ${jakarta.variable} ${geistMono.variable}`}
+    >
+      <body className="min-h-[100dvh] bg-background font-sans text-foreground antialiased selection:bg-primary/20 selection:text-foreground">
         <AppShell>{children}</AppShell>
       </body>
     </html>

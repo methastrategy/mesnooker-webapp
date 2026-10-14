@@ -64,24 +64,32 @@ export function ControlDock({
           tone="outline"
           onClick={onUndo}
           disabled={!canUndo}
-          aria-label="Undo last action"
-          title="Undo last action"
+          aria-label="Undo last action (Press U)"
+          title="Undo last action (Press U)"
           className="h-13 min-[380px]:h-14 sm:h-14 md:h-16 px-2.5 sm:px-4 min-w-[58px] sm:min-w-[80px] rounded-2xl flex-col sm:flex-row gap-0.5 sm:gap-1.5 border-border/80"
         >
           <Undo2 size={18} className={canUndo ? "text-primary" : "text-muted-foreground"} />
-          <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider">Undo</span>
+          <div className="flex items-center gap-1">
+            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider">Undo</span>
+            <kbd className="hidden sm:inline-flex items-center justify-center text-[9px] font-mono px-1 py-0.5 rounded bg-black/40 text-foreground/70 border border-white/10 leading-none">
+              U
+            </kbd>
+          </div>
         </ActionButton>
 
         {/* Primary TURN Action Button — Dominant, tactile thumb target */}
         <ActionButton
           tone="primary"
           onClick={onEndTurn}
-          aria-label="Pass turn to next player"
-          className="h-13 min-[380px]:h-14 sm:h-14 md:h-16 flex-1 px-4 sm:px-8 gap-2.5 rounded-2xl bg-gradient-to-r from-amber-500 via-primary to-amber-600 text-stone-950 font-black shadow-lg shadow-primary/25 hover:brightness-110 transition-all cursor-pointer"
+          aria-label="Pass turn to next player (Press Space)"
+          className="h-13 min-[380px]:h-14 sm:h-14 md:h-16 flex-1 px-4 sm:px-8 gap-2 sm:gap-2.5 rounded-2xl bg-gradient-to-r from-amber-500 via-primary to-amber-600 text-stone-950 font-black shadow-lg shadow-primary/25 hover:brightness-110 transition-all cursor-pointer"
         >
           <span className="text-sm sm:text-base md:text-lg font-black tracking-widest uppercase">
             TURN
           </span>
+          <kbd className="hidden sm:inline-flex items-center justify-center text-[10px] font-mono px-1.5 py-0.5 rounded bg-black/25 text-stone-950 border border-black/20 font-bold leading-none">
+            Space
+          </kbd>
           <ArrowRight size={20} className="stroke-[2.8]" />
         </ActionButton>
 

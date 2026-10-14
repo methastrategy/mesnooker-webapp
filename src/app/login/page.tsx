@@ -101,10 +101,10 @@ function LoginForm() {
     <div className="flex min-h-[100dvh] w-full items-center justify-center bg-background p-4">
       <div className="relative w-full max-w-[400px]">
         <div className="mb-6 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-[10px] border border-primary/25 bg-primary/10 text-xl">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-primary/30 bg-primary/10 text-2xl shadow-sm">
             🎱
           </div>
-          <h1 className="mt-4 text-2xl font-semibold tracking-tight text-foreground">
+          <h1 className="mt-4 text-2xl font-bold tracking-tight text-foreground font-heading">
             Mes<span className="text-primary">nooker</span>
           </h1>
           <p className="mt-1 text-xs font-mono uppercase tracking-[0.2em] text-muted-foreground">
@@ -112,17 +112,17 @@ function LoginForm() {
           </p>
         </div>
 
-        <form onSubmit={submit} className="glass p-4 sm:p-6">
+        <form onSubmit={submit} className="glass-strong p-6 sm:p-8 rounded-[24px]">
           {/* Sign in / Sign up tabs */}
-          <div className="mb-5 grid grid-cols-2 gap-1 rounded-[8px] border border-border bg-surface p-1">
+          <div className="mb-5 grid grid-cols-2 gap-1 rounded-xl border border-border bg-surface p-1">
             {(["signin", "signup"] as const).map((m) => (
               <button
                 key={m}
                 type="button"
                 onClick={() => switchMode(m)}
-                className={`rounded-[6px] px-3 py-1.5 text-sm transition-colors cursor-pointer ${
+                className={`rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors cursor-pointer ${
                   mode === m
-                    ? "bg-primary/15 font-medium text-primary border border-primary/30"
+                    ? "bg-primary/20 font-bold text-primary border border-primary/35 shadow-xs"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
@@ -135,7 +135,7 @@ function LoginForm() {
             Username
           </label>
           <div className="relative mt-1.5">
-            <User size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/60" />
+            <User size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/60" />
             <input
               id="login-username"
               value={username}
@@ -146,7 +146,7 @@ function LoginForm() {
               inputMode="text"
               autoFocus
               ref={userRef}
-              className="w-full rounded-[8px] border border-border bg-surface py-2.5 pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/30"
+              className="w-full rounded-xl border border-border bg-surface py-2.5 pl-10 pr-3 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/30"
             />
           </div>
 
@@ -154,7 +154,7 @@ function LoginForm() {
             Password
           </label>
           <div className="relative mt-1.5">
-            <Lock size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/60" />
+            <Lock size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/60" />
             <input
               id="login-pass"
               value={password}
@@ -162,13 +162,13 @@ function LoginForm() {
               placeholder="At least 6 characters"
               type={show ? "text" : "password"}
               autoComplete={mode === "signin" ? "current-password" : "new-password"}
-              className="w-full rounded-[8px] border border-border bg-surface py-2.5 pl-9 pr-10 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/30"
+              className="w-full rounded-xl border border-border bg-surface py-2.5 pl-10 pr-10 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/30"
             />
             <button
               type="button"
               onClick={() => setShow(!show)}
               aria-label={show ? "Hide password" : "Show password"}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground/70 hover:text-foreground cursor-pointer"
+              className="absolute right-3 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground/70 hover:text-foreground cursor-pointer"
             >
               {show ? <EyeOff size={15} /> : <Eye size={15} />}
             </button>
@@ -180,7 +180,7 @@ function LoginForm() {
                 Confirm password
               </label>
               <div className="relative mt-1.5">
-                <Lock size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/60" />
+                <Lock size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/60" />
                 <input
                   id="login-confirm-pass"
                   value={confirmPassword}
@@ -188,13 +188,13 @@ function LoginForm() {
                   placeholder="Re-enter password"
                   type={showConfirm ? "text" : "password"}
                   autoComplete="new-password"
-                  className="w-full rounded-[8px] border border-border bg-surface py-2.5 pl-9 pr-10 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  className="w-full rounded-xl border border-border bg-surface py-2.5 pl-10 pr-10 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/30"
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirm(!showConfirm)}
                   aria-label={showConfirm ? "Hide password confirmation" : "Show password confirmation"}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground/70 hover:text-foreground cursor-pointer"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground/70 hover:text-foreground cursor-pointer"
                 >
                   {showConfirm ? <EyeOff size={15} /> : <Eye size={15} />}
                 </button>
@@ -203,8 +203,8 @@ function LoginForm() {
           )}
 
           {error && (
-            <p role="alert" aria-live="polite" className="mt-3 flex items-center gap-1.5 rounded-[8px] border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive">
-              <AlertCircle size={13} className="shrink-0" />
+            <p role="alert" aria-live="polite" className="mt-3.5 flex items-center gap-1.5 rounded-xl border border-destructive/30 bg-destructive/10 px-3.5 py-2.5 text-xs text-destructive">
+              <AlertCircle size={14} className="shrink-0" />
               {error}
             </p>
           )}
@@ -212,7 +212,7 @@ function LoginForm() {
           <button
             type="submit"
             disabled={busy}
-            className="mt-6 flex w-full items-center justify-center gap-2 rounded-[8px] border border-primary/50 border-t-white/25 bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground transition-all hover:bg-primary-hover active:translate-y-[2px] active:brightness-90 disabled:pointer-events-none disabled:opacity-40 cursor-pointer"
+            className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl border border-primary/50 border-t-white/25 bg-primary px-4 py-3 text-sm font-bold text-primary-foreground transition-all hover:bg-primary-hover active:translate-y-[2px] active:scale-[0.98] active:brightness-90 disabled:pointer-events-none disabled:opacity-40 cursor-pointer shadow-md"
           >
             {busy ? (
               <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground/40 border-t-primary-foreground" />

@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
   Play,
   Trophy,
   Timer,
-  RotateCcw,
   Coins,
   BarChart3,
   ShieldCheck,
@@ -16,13 +15,21 @@ import {
   Crosshair,
   Sliders,
   ChevronRight,
-  Smartphone,
+  Calculator,
+  Flame,
+  ArrowUpRight,
+  History,
+  CheckCircle2,
 } from "lucide-react";
 import { useGameStore } from "@/store/gameStore";
-import { cn } from "@/lib/utils";
+import { cn, formatMoney, formatDateTime } from "@/lib/utils";
+import { BallDot } from "@/components/ui/snooker-ball";
+import type { BallColor } from "@/types";
 
 export default function HomePage() {
   const [mounted, setMounted] = useState(false);
+  const [calcUnits, setCalcUnits] = useState<number>(20);
+
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -36,171 +43,35 @@ export default function HomePage() {
 
   const isLive = mounted && session && session.status === "live" && frames.length > 0;
   const currentFrame = frames[frames.length - 1];
+  const recentGame = mounted && history.length > 0 ? history[0] : null;
 
-  const QUICK_ACTIONS = [
-    {
-      titleTh: "เริ่มเกมใหม่",
-      titleEn: "Start New Game",
-      tagTh: "ตั้งค่าโต๊ะ & ผู้เล่น",
-      tagEn: "Setup Wizard",
-      descTh: "กำหนดผู้เล่น 2–8 คน เลือกระบบแต้มสากลหรือนับลูกไทย ตั้งอัตราเดิมพันและจำนวนลูกแดง",
-      descEn: "Configure 2–8 players, select points or ball count mode, and set stakes per unit.",
-      href: "/setup",
-      icon: Play,
-      badgeTh: "เริ่มเล่น",
-      badgeEn: "Start",
-      color: "from-amber-500/20 to-amber-600/5",
-      border: "hover:border-amber-500/50",
-      accent: "text-amber-400",
-      iconBg: "bg-amber-500/15 border-amber-500/30 text-amber-400",
-    },
-    {
-      titleTh: "กระดานคะแนนสด",
-      titleEn: "Live Scoreboard",
-      tagTh: "ระบบนับแต้มสรีรศาสตร์",
-      tagEn: "Precision Ballpad",
-      descTh: "Ballpad 7 สีแถวเดียวไม่บังจอ บันทึกทุกช็อต สถิติเบรกสูงสุด พร้อมระบบ Undo ย้อนหลังไม่จำกัด",
-      descEn: "Single-row 7-ball keypad, live break counters, highest break badges, and full undo replay.",
-      href: "/match",
-      icon: Timer,
-      badgeTh: "กระดานสด",
-      badgeEn: "Live Board",
-      color: "from-primary/20 to-primary/5",
-      border: "hover:border-primary/50",
-      accent: "text-primary",
-      iconBg: "bg-primary/15 border-primary/30 text-primary",
-    },
-    {
-      titleTh: "ระบบเคลียร์บัญชี",
-      titleEn: "Financial Settlement",
-      tagTh: "หักลบหนี้รอบวงขั้นต่ำ",
-      tagEn: "Minimal Transfers",
-      descTh: "คำนวณยอดได้เสียรอบวง (Cycle) อัตโนมัติ รวบหนี้เหลือโอนน้อยที่สุด พร้อมสร้าง PromptPay QR",
-      descEn: "Automated Thai snooker money ledger, minimal-transfer net settlement, PromptPay QR generator.",
-      href: "/settlement",
-      icon: Coins,
-      badgeTh: "คิดเงิน",
-      badgeEn: "Settlement",
-      color: "from-amber-500/20 to-amber-600/5",
-      border: "hover:border-amber-500/50",
-      accent: "text-amber-400",
-      iconBg: "bg-amber-500/15 border-amber-500/30 text-amber-400",
-    },
-    {
-      titleTh: "สถิติและประวัติย้อนหลัง",
-      titleEn: "Stats & Match History",
-      tagTh: "บันทึกผลและวิเคราะห์",
-      tagEn: "Performance Analytics",
-      descTh: "เก็บบันทึกประวัติการแข่งขัน สถิติการชนะ เบรกสูงสุด และยอดเงินสะสมของผู้เล่นแต่ละคนอย่างละเอียด",
-      descEn: "Lifetime match archives, break milestones, win rates, and individual player financial ledger.",
-      href: "/stats",
-      icon: BarChart3,
-      badgeTh: "สถิติ",
-      badgeEn: "Analytics",
-      color: "from-sky-500/20 to-sky-600/5",
-      border: "hover:border-sky-500/50",
-      accent: "text-sky-400",
-      iconBg: "bg-sky-500/15 border-sky-500/30 text-sky-400",
-    },
-  ];
+  // Quick calculator computation
+  const calculatedBaht = useMemo(() => {
+    return calcUnits * (moneyRate || 1);
+  }, [calcUnits, moneyRate]);
 
-  const FEATURES = [
-    {
-      titleTh: "นับคะแนน 2 รูปแบบสมบูรณ์",
-      titleEn: "Dual Game Modes",
-      descTh: "รองรับทั้งกติกาแต้มสากล (Point Scoring) และกติกานับลูกแบบไทย (Ball Count) สลับได้ทันที",
-      descEn: "Full support for international points rules and traditional Thai ball count matches.",
-      icon: Trophy,
-    },
-    {
-      titleTh: "อัลกอริทึมเคลียร์เงินขั้นต่ำ",
-      titleEn: "Minimal Debt Transfers",
-      descTh: "คำนวณยอดสุทธิและรวบรายการโอนเงินระหว่างผู้เล่นให้เหลือจำนวนครั้งน้อยที่สุด ลดความวุ่นวาย",
-      descEn: "Greedy graph simplification algorithm reduces group debts into the fewest possible bank transfers.",
-      icon: Coins,
-    },
-    {
-      titleTh: "ระบบย้อนแก้ช็อต (Undo)",
-      titleEn: "Instant Reversible History",
-      descTh: "ย้อนหลังการลงคะแนน ช็อตฟาวล์ หรือเปลี่ยนคิวได้ไม่จำกัด หมดกังวลปัญหากดคะแนนผิดพลาด",
-      descEn: "Unlimited shot and turn undo stack safeguards every frame from accidental scoring taps.",
-      icon: RotateCcw,
-    },
-    {
-      titleTh: "ทำงานออฟไลน์ 100%",
-      titleEn: "Offline-First Reliability",
-      descTh: "ข้อมูลทั้งหมดถูกบันทึกในอุปกรณ์ทันที ใช้งานได้แม้ไม่มีสัญญาณอินเทอร์เน็ตบนโต๊ะสนุ๊กเกอร์",
-      descEn: "Instant local persistence means zero lost frames, even with poor venue connectivity.",
-      icon: Smartphone,
-    },
-    {
-      titleTh: "ความปลอดภัยระดับสูง",
-      titleEn: "Enterprise Security",
-      descTh: "ระบบยืนยันตัวตนเข้ารหัส scrypt, Rate Limiting ป้องกัน Brute-force และ HTTP Security Headers",
-      descEn: "Scrypt password hashing, adaptive per-IP brute-force throttling, and strict HTTP security headers.",
-      icon: ShieldCheck,
-    },
-    {
-      titleTh: "สถิติและประวัติย้อนหลัง",
-      titleEn: "Lifetime Ledger & Stats",
-      descTh: "เก็บบันทึกประวัติทุกแมตช์ ทุกเฟรม สถิติเบรกสูงสุด และยอดเงินสะสมของผู้เล่นแต่ละคน",
-      descEn: "Comprehensive match history, highest break records, and individual player financial stats.",
-      icon: BarChart3,
-    },
-  ];
+  // Extract recent game top winner
+  const recentWinnerInfo = useMemo(() => {
+    if (!recentGame) return null;
+    let topPlayerId = "";
+    let maxBalance = -Infinity;
+    for (const [pId, bal] of Object.entries(recentGame.balances || {})) {
+      if (bal > maxBalance) {
+        maxBalance = bal;
+        topPlayerId = pId;
+      }
+    }
+    const player = recentGame.players.find((p) => p.id === topPlayerId);
+    return {
+      player,
+      balance: maxBalance,
+    };
+  }, [recentGame]);
 
   return (
-    <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-300 pb-12">
-      {/* ── LIVE SESSION ALERT BANNER ───────────────────────────────────── */}
-      {isLive && (
-        <motion.div
-          initial={{ opacity: 0, y: -12 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="relative overflow-hidden rounded-2xl border border-primary/50 bg-surface/90 p-4 sm:p-5 shadow-xl backdrop-blur-xl"
-        >
-          <div className="absolute top-0 right-0 -mr-16 -mt-16 h-40 w-40 rounded-full bg-primary/10 blur-3xl" />
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3.5">
-              <div className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/20 text-primary border border-primary/40 shadow-xs">
-                <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-primary" />
-                </span>
-                <Timer size={22} className="text-primary" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-mono font-bold uppercase tracking-wider text-primary">
-                    {locale === "th" ? "กำลังแข่งขันสด" : "Live Match in Progress"}
-                  </span>
-                  <span className="rounded-full bg-primary/20 border border-primary/30 px-2 py-0.2 text-[10px] font-mono font-bold text-primary">
-                    Frame {frames.length}
-                  </span>
-                </div>
-                <div className="text-sm font-semibold text-foreground mt-0.5">
-                  {session?.players ? session.players.map((p) => p.nickname).filter(Boolean).join(" vs ") : "Active Match"}
-                  {currentFrame && (
-                    <span className="text-xs font-mono text-muted-foreground ml-2">
-                      ({locale === "th" ? "โหมด" : "Mode"}: {session?.mode === "balls" ? "Ball Count" : "Points"})
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <Link
-              href="/match"
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-primary/60 bg-primary px-5 py-2.5 text-xs font-bold text-primary-foreground shadow-md transition-all hover:bg-primary-hover active:scale-95 shrink-0"
-            >
-              <span>{locale === "th" ? "กลับสู่เกมทันที" : "Resume Match"}</span>
-              <ArrowRight size={15} />
-            </Link>
-          </div>
-        </motion.div>
-      )}
-
+    <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-300 pb-16">
       {/* ── TOP COMPACT COMMAND TOOLBAR ─────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-border/60">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border/60">
         <div>
           <div className="flex flex-wrap items-center gap-2 text-xs">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/35 bg-amber-500/10 px-3 py-0.5 text-[11px] font-mono font-semibold text-amber-300">
@@ -209,23 +80,25 @@ export default function HomePage() {
             </span>
             <span className="hidden sm:inline text-border">·</span>
             <div className="flex items-center gap-1.5 text-muted-foreground font-mono text-[11px]">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-              <span>{locale === "th" ? "บันทึก" : "Saved"}:</span>
+              <span className="h-2 w-2 rounded-full bg-emerald-400" />
+              <span>{locale === "th" ? "ประวัติ" : "Saved"}:</span>
               <span className="font-bold text-foreground">{mounted ? history.length : 0}</span>
             </div>
             <span className="text-border">·</span>
             <div className="flex items-center gap-1 text-muted-foreground font-mono text-[11px]">
-              <span>{locale === "th" ? "เรท" : "Rate"}:</span>
-              <span className="font-bold text-amber-400">฿{moneyRate}/{moneyPer}</span>
+              <span>{locale === "th" ? "เรทเดิมพัน" : "Rate"}:</span>
+              <span className="font-bold text-amber-400 font-mono">
+                ฿{moneyRate}/{moneyPer === "ball" ? (locale === "th" ? "ลูก" : "ball") : (locale === "th" ? "แต้ม" : "point")}
+              </span>
             </div>
           </div>
-          <h1 className="text-lg sm:text-xl font-bold tracking-tight text-foreground flex items-center gap-2 mt-2">
-            <Crosshair size={20} className="text-amber-400" />
-            <span>{locale === "th" ? "เมนูการใช้งานหลัก" : "Core Command Center"}</span>
+
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-foreground font-heading mt-2.5 [text-wrap:balance]">
+            {locale === "th" ? "ศูนย์ควบคุมการแข่งขันและเคลียร์เงิน" : "Match Cockpit & Settlement Center"}
           </h1>
         </div>
 
-        {/* Compact Quick Actions Toolbar */}
+        {/* Action pills */}
         <div className="flex flex-wrap items-center gap-2 shrink-0">
           <Link
             href="/setup"
@@ -237,9 +110,9 @@ export default function HomePage() {
 
           <Link
             href="/match"
-            className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-surface/90 px-3.5 py-2.5 text-xs sm:text-sm font-semibold text-foreground transition-all hover:border-amber-400/40 hover:bg-card active:scale-[0.97] shadow-xs min-h-[42px]"
+            className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-surface/90 px-3.5 py-2.5 text-xs sm:text-sm font-semibold text-foreground transition-all hover:border-primary/40 hover:bg-card active:scale-[0.97] shadow-xs min-h-[42px]"
           >
-            <Timer size={14} className="text-amber-400" />
+            <Timer size={14} className="text-primary" />
             <span>{locale === "th" ? "กระดานสด" : "Live Board"}</span>
           </Link>
 
@@ -248,168 +121,429 @@ export default function HomePage() {
             className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-surface/90 px-3.5 py-2.5 text-xs sm:text-sm font-semibold text-foreground transition-all hover:border-amber-400/40 hover:bg-card active:scale-[0.97] shadow-xs min-h-[42px]"
           >
             <Coins size={14} className="text-amber-400" />
-            <span>{locale === "th" ? "สรุปยอดเงิน" : "Settlement"}</span>
+            <span>{locale === "th" ? "เคลียร์เงิน" : "Settle"}</span>
           </Link>
 
           <Link
             href="/settings"
-            className="inline-flex items-center justify-center rounded-full border border-border/80 bg-surface/90 px-3 py-2.5 text-xs sm:text-sm font-semibold text-muted-foreground hover:text-foreground transition-all hover:border-amber-400/40 hover:bg-card active:scale-[0.97] shadow-xs min-h-[42px]"
+            className="inline-flex items-center justify-center rounded-full border border-border/80 bg-surface/90 px-3 py-2.5 text-xs sm:text-sm font-semibold text-muted-foreground hover:text-foreground transition-all hover:border-primary/40 hover:bg-card active:scale-[0.97] shadow-xs min-h-[42px]"
             title={locale === "th" ? "ตั้งค่าระบบ" : "Preferences"}
           >
             <Sliders size={14} />
-            <span className="hidden md:inline ml-1.5">{locale === "th" ? "ตั้งค่า" : "Settings"}</span>
           </Link>
         </div>
       </div>
 
-      {/* ── CORE 4 QUICK-ACTIONS GRID ────────────────────────────────────── */}
-      <section className="space-y-4">
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
-          {QUICK_ACTIONS.map((item, idx) => {
-            const Icon = item.icon;
-            return (
-              <Link
-                key={idx}
-                href={item.href}
-                className={cn(
-                  "group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-border/80 bg-card/85 p-5 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl",
-                  item.border
-                )}
-              >
-                <div className={cn("pointer-events-none absolute -top-12 -right-12 h-28 w-28 rounded-full bg-gradient-to-br opacity-50 blur-2xl transition-opacity group-hover:opacity-80", item.color)} />
-                
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className={cn("flex h-10 w-10 items-center justify-center rounded-xl border shadow-xs transition-transform group-hover:scale-105", item.iconBg)}>
-                      <Icon size={20} />
-                    </div>
-                    <span className="rounded-full bg-surface border border-border px-2.5 py-0.5 text-[10px] font-mono font-bold text-muted-foreground group-hover:text-foreground">
-                      {locale === "th" ? item.badgeTh : item.badgeEn}
+      {/* ── ASYMMETRIC 8:4 BENTO COMMAND CENTER ─────────────────────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5">
+        {/* ── LEFT COLUMN (8 OF 12): TELEMETRY + ACTION PODS + RECENT STREAM ── */}
+        <div className="lg:col-span-8 space-y-4 sm:space-y-5">
+          {/* 1. TELEMETRY POD (Live Session OR Fast Match Launcher) */}
+          {isLive ? (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="relative overflow-hidden rounded-[22px] border border-primary/50 bg-surface/95 p-5 sm:p-6 shadow-xl backdrop-blur-xl"
+            >
+              <div className="absolute top-0 right-0 -mr-16 -mt-16 h-48 w-48 rounded-full bg-primary/15 blur-3xl pointer-events-none" />
+              
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="relative flex h-2.5 w-2.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary" />
+                    </span>
+                    <span className="text-xs font-mono font-bold uppercase tracking-wider text-primary">
+                      {locale === "th" ? "แมตช์กำลังดำเนินอยู่" : "Live Session Telemetry"}
+                    </span>
+                    <span className="rounded-full bg-primary/20 border border-primary/30 px-2 py-0.2 text-[10px] font-mono font-bold text-primary">
+                      Frame {frames.length}
                     </span>
                   </div>
 
-                  <div>
-                    <div className="text-[10px] font-mono font-bold uppercase tracking-wider text-muted-foreground">
-                      {locale === "th" ? item.tagTh : item.tagEn}
-                    </div>
-                    <h3 className="text-base font-bold text-foreground mt-0.5 group-hover:text-primary transition-colors">
-                      {locale === "th" ? item.titleTh : item.titleEn}
-                    </h3>
-                    <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed line-clamp-3">
-                      {locale === "th" ? item.descTh : item.descEn}
-                    </p>
+                  <h2 className="text-lg sm:text-xl font-bold text-foreground font-heading">
+                    {session?.players
+                      ? session.players.map((p) => p.nickname).filter(Boolean).join(" vs ")
+                      : "Active Snooker Match"}
+                  </h2>
+
+                  <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground font-mono">
+                    <span>
+                      {locale === "th" ? "โหมด" : "Mode"}:{" "}
+                      <strong className="text-foreground">
+                        {session?.mode === "balls" ? "Ball Count (ไทย)" : "International Points"}
+                      </strong>
+                    </span>
+                    <span>·</span>
+                    <span>
+                      {locale === "th" ? "ลูกแดง" : "Reds"}:{" "}
+                      <strong className="text-foreground">{session?.redCount || 15}</strong>
+                    </span>
+                    {currentFrame && (
+                      <>
+                        <span>·</span>
+                        <span>
+                          {locale === "th" ? "เบรกสูงสุด" : "High Break"}:{" "}
+                          <strong className="text-amber-400 font-bold">{currentFrame.highestBreak || 0}</strong>
+                        </span>
+                      </>
+                    )}
                   </div>
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-between text-xs font-bold text-foreground group-hover:text-primary transition-colors">
-                  <span>{locale === "th" ? "เปิดใช้งาน" : "Open Workspace"}</span>
-                  <ChevronRight size={16} className="transition-transform group-hover:translate-x-1" />
-                </div>
-              </Link>
-            );
-          })}
-        </div>
-      </section>
+                <Link
+                  href="/match"
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-primary/60 bg-primary px-6 py-3.5 text-sm font-bold text-primary-foreground shadow-lg transition-all hover:bg-primary-hover active:scale-[0.98] shrink-0"
+                >
+                  <span>{locale === "th" ? "กลับสู่กระดานแข่ง" : "Resume Scoring"}</span>
+                  <ArrowRight size={16} />
+                </Link>
+              </div>
+            </motion.div>
+          ) : (
+            <div className="relative overflow-hidden rounded-[22px] border border-border/80 bg-gradient-to-br from-card/90 to-surface/90 p-5 sm:p-6 shadow-md">
+              <div className="absolute top-0 right-0 -mr-16 -mt-16 h-40 w-40 rounded-full bg-amber-500/10 blur-3xl pointer-events-none" />
 
-      {/* ── 3-STEP GAME WORKFLOW STRIP ──────────────────────────────────── */}
-      <section className="rounded-2xl border border-border/80 bg-surface/70 p-5 sm:p-7 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="space-y-1.5 max-w-lg">
+                  <div className="flex items-center gap-2">
+                    <Crosshair size={16} className="text-amber-400" />
+                    <span className="text-[11px] font-mono uppercase tracking-wider text-amber-400 font-bold">
+                      {locale === "th" ? "พร้อมเริ่มเกมใหม่" : "Ready for Break-Off"}
+                    </span>
+                  </div>
+                  <h2 className="text-lg sm:text-xl font-bold text-foreground font-heading [text-wrap:balance]">
+                    {locale === "th" ? "ตั้งค่าโต๊ะ เลือกผู้เล่น และเริ่มแข่งขัน" : "Launch Match Wizard"}
+                  </h2>
+                  <p className="text-xs text-muted-foreground leading-relaxed [text-wrap:pretty]">
+                    {locale === "th"
+                      ? "รองรับผู้เล่น 2–8 คน ระบบนับแต้มสากลหรือนับลูก พร้อมคำนวณเงินรางวัลและหักลบหนี้รอบวงอัตโนมัติ"
+                      : "Configure 2–8 players with point or ball rules, custom red ball counts, and money reconciliation."}
+                  </p>
+                </div>
+
+                <Link
+                  href="/setup"
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-amber-500/50 bg-gradient-to-r from-amber-500 to-amber-600 px-6 py-3.5 text-sm font-bold text-stone-950 shadow-md transition-all hover:brightness-110 active:scale-[0.98] shrink-0"
+                >
+                  <Play size={16} className="fill-current" />
+                  <span>{locale === "th" ? "สร้างเกมทันที" : "Configure Table"}</span>
+                </Link>
+              </div>
+            </div>
+          )}
+
+          {/* 2. BENTO SUBGRID: 2 TACTICAL ACTION CARDS */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* B1: Live Scoreboard Card */}
+            <Link
+              href="/match"
+              className="group relative flex flex-col justify-between overflow-hidden rounded-[20px] border border-border/80 bg-card/85 p-5 transition-all duration-200 hover:-translate-y-1 hover:border-primary/50 hover:shadow-xl"
+            >
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-primary/30 bg-primary/15 text-primary shadow-xs transition-transform group-hover:scale-105">
+                    <Timer size={22} />
+                  </div>
+                  <span className="rounded-full bg-surface border border-border px-2.5 py-0.5 text-[10px] font-mono font-bold text-muted-foreground group-hover:text-primary transition-colors">
+                    {locale === "th" ? "กระดานสด" : "Live Board"}
+                  </span>
+                </div>
+
+                <div>
+                  <h3 className="text-base font-bold text-foreground font-heading group-hover:text-primary transition-colors">
+                    {locale === "th" ? "กระดานคะแนนและแป้นช็อต" : "Tactical Scoreboard"}
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed [text-wrap:pretty]">
+                    {locale === "th"
+                      ? "แป้นลูกสนุ๊กเกอร์ 7 สีแถวเดียวไม่บังจอ บันทึกฟาวล์ หลุดสนุ๊กเกอร์ พร้อมระบบ Undo ย้อนหลังไม่จำกัด"
+                      : "Ergonomic 7-ball keypad, live break counters, full undo replay, and penalty controls."}
+                  </p>
+                </div>
+
+                {/* Micro preview rack */}
+                <div className="flex items-center gap-1.5 pt-1">
+                  {(["red", "yellow", "green", "brown", "blue", "pink", "black"] as BallColor[]).map((c) => (
+                    <BallDot key={c} color={c} size={10} />
+                  ))}
+                  <span className="text-[10px] font-mono text-muted-foreground ml-1">7 Balls</span>
+                </div>
+              </div>
+
+              <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-between text-xs font-bold text-foreground group-hover:text-primary transition-colors">
+                <span>{locale === "th" ? "เข้าสู่กระดาน" : "Open Board"}</span>
+                <ChevronRight size={16} className="transition-transform group-hover:translate-x-1" />
+              </div>
+            </Link>
+
+            {/* B2: Stats & Archive Analytics */}
+            <Link
+              href="/stats"
+              className="group relative flex flex-col justify-between overflow-hidden rounded-[20px] border border-border/80 bg-card/85 p-5 transition-all duration-200 hover:-translate-y-1 hover:border-sky-500/50 hover:shadow-xl"
+            >
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-sky-500/30 bg-sky-500/15 text-sky-400 shadow-xs transition-transform group-hover:scale-105">
+                    <BarChart3 size={22} />
+                  </div>
+                  <span className="rounded-full bg-surface border border-border px-2.5 py-0.5 text-[10px] font-mono font-bold text-muted-foreground group-hover:text-sky-400 transition-colors">
+                    {locale === "th" ? "สถิติ & ประวัติ" : "Analytics"}
+                  </span>
+                </div>
+
+                <div>
+                  <h3 className="text-base font-bold text-foreground font-heading group-hover:text-sky-400 transition-colors">
+                    {locale === "th" ? "สถิติและประวัติการแข่งขัน" : "Match History & Ledger"}
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed [text-wrap:pretty]">
+                    {locale === "th"
+                      ? "เก็บบันทึกประวัติแมตช์ สถิติเบรกสูงสุด อัตราชนะ และยอดเงินสุทธิสะสมของผู้เล่นทุกคน"
+                      : "Lifetime match archives, highest break milestones, win rates, and financial trends."}
+                  </p>
+                </div>
+
+                {/* Micro metric display */}
+                <div className="flex items-center gap-3 pt-1 text-xs font-mono">
+                  <div className="flex items-center gap-1 text-muted-foreground">
+                    <Trophy size={13} className="text-amber-400" />
+                    <span>{mounted ? history.length : 0} {locale === "th" ? "แมตช์" : "matches"}</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-muted-foreground">
+                    <Flame size={13} className="text-orange-400" />
+                    <span>{locale === "th" ? "บันทึกถาวร" : "Persistent"}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-between text-xs font-bold text-foreground group-hover:text-sky-400 transition-colors">
+                <span>{locale === "th" ? "ดูบทวิเคราะห์" : "View Analytics"}</span>
+                <ChevronRight size={16} className="transition-transform group-hover:translate-x-1" />
+              </div>
+            </Link>
+          </div>
+
+          {/* 3. RECENT MATCH ACTIVITY STREAM */}
+          <div className="rounded-[20px] border border-border/80 bg-surface/75 p-5 sm:p-6 space-y-3.5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <History size={17} className="text-primary" />
+                <h3 className="text-sm font-bold text-foreground uppercase tracking-wider font-mono">
+                  {locale === "th" ? "ประวัติการแข่งขันล่าสุด" : "Recent Match Stream"}
+                </h3>
+              </div>
+              <Link
+                href="/history"
+                className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
+              >
+                <span>{locale === "th" ? "ดูทั้งหมด" : "View All"}</span>
+                <ArrowUpRight size={13} />
+              </Link>
+            </div>
+
+            {recentGame ? (
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl border border-border/70 bg-card/80">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="rounded-md bg-primary/20 text-primary border border-primary/30 px-2 py-0.5 text-[10px] font-mono font-bold">
+                      {recentGame.mode === "balls" ? "Ball Count" : "Points"}
+                    </span>
+                    <span className="text-xs font-mono text-muted-foreground">
+                      {formatDateTime(recentGame.endedAt)}
+                    </span>
+                  </div>
+                  <div className="text-sm font-bold text-foreground">
+                    {recentGame.players.map((p) => p.nickname).join(" vs ")}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {recentGame.frames} {locale === "th" ? "เฟรม" : "frames"} · {recentGame.totalPoints || 0} {locale === "th" ? "แต้มรวม" : "total points"}
+                  </div>
+                </div>
+
+                {recentWinnerInfo?.player && (
+                  <div className="flex sm:flex-col items-center sm:items-end justify-between gap-1 border-t sm:border-t-0 pt-2 sm:pt-0 border-border/50">
+                    <span className="text-[11px] text-muted-foreground">
+                      {locale === "th" ? "ผู้ชนะอันดับ 1" : "Top Earner"}
+                    </span>
+                    <div className="flex items-center gap-1.5 font-bold text-emerald-400 font-mono text-sm">
+                      <span>{recentWinnerInfo.player.nickname}</span>
+                      <span>+{formatMoney(recentWinnerInfo.balance)}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="py-6 text-center text-xs text-muted-foreground font-mono">
+                {locale === "th"
+                  ? "ยังไม่มีประวัติการแข่งขันที่จบ — เริ่มต้นแมตช์แรกเพื่อดูสถิติ"
+                  : "No finished match records yet. Start a match to populate the stream."}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── RIGHT COLUMN (4 OF 12): FINANCIAL SETTLEMENT + RATE CALCULATOR ── */}
+        <div className="lg:col-span-4 space-y-4 sm:space-y-5">
+          {/* 1. TABLE NET BALANCE & SETTLEMENT CARD */}
+          <div className="relative overflow-hidden rounded-[20px] border border-border/80 bg-card/90 p-5 space-y-4 shadow-md">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-amber-500/30 bg-amber-500/15 text-amber-400">
+                  <Coins size={18} />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-foreground font-heading">
+                    {locale === "th" ? "ระบบเคลียร์เงินรอบวง" : "Net Settlement"}
+                  </h3>
+                  <span className="text-[10px] font-mono text-muted-foreground">
+                    PromptPay QR Minimal Transfers
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <p className="text-xs text-muted-foreground leading-relaxed [text-wrap:pretty]">
+              {locale === "th"
+                ? "คำนวณยอดได้เสียรอบวง (Cycle) อัตโนมัติ รวบหนี้เหลือโอนน้อยที่สุด พร้อมสร้าง PromptPay QR ทันที"
+                : "Greedy graph algorithm collapses group debts into minimal peer-to-peer bank transfers."}
+            </p>
+
+            <Link
+              href="/settlement"
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-amber-500/40 bg-amber-500/15 hover:bg-amber-500/25 px-4 py-2.5 text-xs font-bold text-amber-300 transition-all active:scale-[0.98]"
+            >
+              <span>{locale === "th" ? "เปิดหน้าเคลียร์เงิน" : "Open Settlement Ledger"}</span>
+              <ArrowRight size={14} />
+            </Link>
+          </div>
+
+          {/* 2. QUICK MONEY RATE CALCULATOR POD */}
+          <div className="rounded-[20px] border border-border/80 bg-surface/80 p-5 space-y-3.5 shadow-xs">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Calculator size={17} className="text-primary" />
+                <h3 className="text-xs font-bold uppercase tracking-wider text-foreground font-mono">
+                  {locale === "th" ? "คำนวณแต้มเป็นเงินสด" : "Quick Stake Calculator"}
+                </h3>
+              </div>
+              <span className="text-[11px] font-mono font-bold text-amber-400">
+                ฿{moneyRate}/{moneyPer === "ball" ? (locale === "th" ? "ลูก" : "ball") : (locale === "th" ? "แต้ม" : "pt")}
+              </span>
+            </div>
+
+            {/* Quick unit chips */}
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {[5, 10, 20, 35, 50, 75].map((val) => (
+                <button
+                  key={val}
+                  type="button"
+                  onClick={() => setCalcUnits(val)}
+                  className={cn(
+                    "px-2.5 py-1 rounded-lg text-xs font-mono font-semibold transition-all cursor-pointer",
+                    calcUnits === val
+                      ? "bg-primary text-primary-foreground font-bold border border-primary/50 shadow-xs"
+                      : "bg-surface border border-border text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  {val} {moneyPer === "ball" ? (locale === "th" ? "ลูก" : "b") : (locale === "th" ? "แต้ม" : "pt")}
+                </button>
+              ))}
+            </div>
+
+            {/* Result display */}
+            <div className="rounded-xl border border-border/60 bg-card/90 p-3.5 flex items-center justify-between">
+              <div className="text-xs text-muted-foreground font-mono">
+                {calcUnits} × ฿{moneyRate} =
+              </div>
+              <div className="text-lg font-black font-mono text-amber-400">
+                ฿{calculatedBaht.toLocaleString()}
+              </div>
+            </div>
+          </div>
+
+          {/* 3. ENGINE CAPABILITY BADGES */}
+          <div className="rounded-[20px] border border-border/80 bg-card/60 p-4.5 space-y-2.5">
+            <div className="flex items-center gap-2 text-xs font-bold text-foreground">
+              <ShieldCheck size={16} className="text-emerald-400" />
+              <span>{locale === "th" ? "มาตรฐานระบบ Mesnooker" : "System Architecture"}</span>
+            </div>
+            <ul className="space-y-1.5 text-[11px] text-muted-foreground">
+              <li className="flex items-center gap-2">
+                <CheckCircle2 size={12} className="text-emerald-400 shrink-0" />
+                <span>{locale === "th" ? "ทำงานออฟไลน์ 100% ไม่ต้องใช้อินเทอร์เน็ต" : "100% Offline-First Local Storage"}</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <CheckCircle2 size={12} className="text-emerald-400 shrink-0" />
+                <span>{locale === "th" ? "เข้ารหัสรหัสผ่าน scrypt และ Throttling" : "Scrypt Passwords & Rate Throttling"}</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <CheckCircle2 size={12} className="text-emerald-400 shrink-0" />
+                <span>{locale === "th" ? "ปุ่มกดสรีรศาสตร์แบบ Keycap เด้งรับนิ้ว" : "Tactile Mechanical Keycap Ergonomics"}</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      {/* ── 3-STEP STREAMLINED WORKFLOW ─────────────────────────────────── */}
+      <section className="rounded-[22px] border border-border/80 bg-surface/70 p-5 sm:p-7 space-y-4">
         <div className="text-center max-w-xl mx-auto">
           <span className="text-[11px] font-mono uppercase tracking-wider text-primary font-bold">
             {locale === "th" ? "ขั้นตอนการทำงานง่ายๆ" : "Streamlined Snooker Workflow"}
           </span>
-          <h2 className="text-lg sm:text-xl font-bold tracking-tight text-foreground mt-1">
+          <h2 className="text-lg sm:text-xl font-bold tracking-tight text-foreground font-heading mt-1 [text-wrap:balance]">
             {locale === "th" ? "เล่นสนุ๊กเกอร์และเคลียร์เงินใน 3 ขั้นตอน" : "From Break-Off to Bank Transfer"}
           </h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 pt-2">
-          <div className="rounded-xl border border-border/70 bg-card/70 p-4 space-y-2">
+          <div className="rounded-2xl border border-border/70 bg-card/70 p-4 space-y-2">
             <div className="flex items-center gap-2">
               <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/20 text-primary font-mono text-xs font-bold">
                 1
               </span>
-              <span className="text-xs font-bold text-foreground">
+              <span className="text-xs font-bold text-foreground font-heading">
                 {locale === "th" ? "ตั้งโต๊ะและผู้เล่น" : "Configure Roster & Stakes"}
               </span>
             </div>
-            <p className="text-xs text-muted-foreground leading-relaxed">
+            <p className="text-xs text-muted-foreground leading-relaxed [text-wrap:pretty]">
               {locale === "th"
                 ? "เลือกจำนวนผู้เล่น 2–8 คน กำหนดระบบการคิดแต้ม (แต้มสากลหรือนับลูก) และระบุอัตราเงินต่อแต้ม/ลูก"
                 : "Add players with custom colors, pick point or ball count rules, and set money stakes."}
             </p>
           </div>
 
-          <div className="rounded-xl border border-border/70 bg-card/70 p-4 space-y-2">
+          <div className="rounded-2xl border border-border/70 bg-card/70 p-4 space-y-2">
             <div className="flex items-center gap-2">
               <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-500/20 text-amber-400 font-mono text-xs font-bold">
                 2
               </span>
-              <span className="text-xs font-bold text-foreground">
+              <span className="text-xs font-bold text-foreground font-heading">
                 {locale === "th" ? "นับแต้มแบบเรียลไทม์" : "Scoring via Tactical Ballpad"}
               </span>
             </div>
-            <p className="text-xs text-muted-foreground leading-relaxed">
+            <p className="text-xs text-muted-foreground leading-relaxed [text-wrap:pretty]">
               {locale === "th"
                 ? "กดแต้มตามจริงผ่านปุ่มลูกสนุ๊กเกอร์ 7 สี พร้อมปุ่มฟาวล์ หลุดสนุ๊กเกอร์ และปุ่ม Undo ย้อนหลังได้ทันที"
                 : "Tap the 7-color ergonomic pad, log fouls and misses, with unlimited full undo protection."}
             </p>
           </div>
 
-          <div className="rounded-xl border border-border/70 bg-card/70 p-4 space-y-2">
+          <div className="rounded-2xl border border-border/70 bg-card/70 p-4 space-y-2">
             <div className="flex items-center gap-2">
               <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400 font-mono text-xs font-bold">
                 3
               </span>
-              <span className="text-xs font-bold text-foreground">
+              <span className="text-xs font-bold text-foreground font-heading">
                 {locale === "th" ? "ตัดยอดหนี้ & สแกนจ่าย" : "Minimal Settlement & QR"}
               </span>
             </div>
-            <p className="text-xs text-muted-foreground leading-relaxed">
+            <p className="text-xs text-muted-foreground leading-relaxed [text-wrap:pretty]">
               {locale === "th"
                 ? "เมื่อจบเกม ระบบจะคำนวณหักลบหนี้รอบวงอัตโนมัติ รวบยอดให้โอนน้อยที่สุด พร้อมสร้าง PromptPay QR"
                 : "Instant cycle calculation produces minimal bank transfer instructions with PromptPay QR."}
             </p>
           </div>
-        </div>
-      </section>
-
-      {/* ── KEY FEATURES SHOWCASE ───────────────────────────────────────── */}
-      <section className="space-y-4">
-        <div>
-          <h2 className="text-lg sm:text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
-            <Sparkles size={20} className="text-amber-400" />
-            <span>{locale === "th" ? "ฟีเจอร์ระดับพรีเมียม" : "Engine Capabilities"}</span>
-          </h2>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            {locale === "th"
-              ? "ออกแบบเพื่อความแม่นยำ รวดเร็ว และเป็นธรรมสำหรับผู้เล่นทุกคน"
-              : "Engineered for zero-latency competition and bulletproof money reconciliation"}
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
-          {FEATURES.map((f, i) => {
-            const Icon = f.icon;
-            return (
-              <div
-                key={i}
-                className="flex items-start gap-3.5 rounded-2xl border border-border/80 bg-card/60 p-4.5 transition-all hover:bg-card/90 hover:border-primary/30"
-              >
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-surface border border-border text-primary shadow-xs">
-                  <Icon size={18} />
-                </div>
-                <div>
-                  <h3 className="text-xs font-bold text-foreground">
-                    {locale === "th" ? f.titleTh : f.titleEn}
-                  </h3>
-                  <p className="text-[11px] text-muted-foreground mt-1 leading-relaxed">
-                    {locale === "th" ? f.descTh : f.descEn}
-                  </p>
-                </div>
-              </div>
-            );
-          })}
         </div>
       </section>
 
