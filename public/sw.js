@@ -8,7 +8,9 @@
    the activate purge so everyone gets the current build.                      */
 /* v5 (2026-09): Golden Lounge re-theme + Settings cleanup (Language removed).
    Chunks changed again — bump or installed phones keep the old look.        */
-const CACHE = "smoke-cache-v5";
+/* v6 (2026-10): Tactile Lounge v2.0, Asymmetric 8:4 Bento Command Center,
+   WCAG AAA dynamic theme contrast, Aramith Oklab balls. Bump clears v5 cache. */
+const CACHE = "smoke-cache-v6";
 const STATIC = ["/manifest.webmanifest", "/icon.svg"];
 
 self.addEventListener("install", (e) => {
