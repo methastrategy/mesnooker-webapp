@@ -193,7 +193,7 @@ test.describe("Full Snooker Frame Match Simulation (E2E)", () => {
     // ─── 10. Frame Complete Summary & Match Ledger ─────────────────────────────
     // Verify final settlement modal appears
     await expect(page.getByRole("heading", { name: /Match Concluded & Settled/i })).toBeVisible({ timeout: 5000 });
-    await expect(page.getByText(/Standings & Financial Net/i)).toBeVisible();
+    await expect(page.getByText("Final Standings")).toBeVisible();
     await expect(page.getByText(/Settlement Matrix · Who Pays Whom/i)).toBeVisible();
     await expect(page.getByRole("button", { name: /Copy Report/i })).toBeVisible();
     await expect(page.getByRole("button", { name: /Start New Game/i })).toBeVisible();
