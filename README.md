@@ -102,16 +102,29 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000). The app works fully offline/local using the built-in Zustand persistence — **no database is required to score frames and settle money** in a single device.
 
-### 3. Build for production / start
+### 3. Build & Quality Verification
 
 ```bash
-npm run build     # type-checks + production build (PWA service worker is generated)
-npm run start     # serves the production build
+npm run build          # type-checks + production build (PWA service worker generated)
+npm run start          # serves the production build
+npm run lint           # ESLint inspection
 ```
 
+### 4. Automated Testing Suite
+
+MeSnooker features a two-tier testing pipeline ensuring financial, scoring, and UI integrity:
+
 ```bash
-npm run lint      # eslint
+# 🧪 Tier 1: Unit & Domain Tests (Vitest)
+npm test               # runs all 54 unit tests (money engine, rules, target cycle, wake-lock)
+
+# 🎭 Tier 2: End-to-End Match Simulations (Playwright)
+npm run test:e2e       # headless full-frame match simulation, mobile layout, and auth
+npm run test:e2e:ui    # interactive Playwright UI cockpit with timeline scrubber
+npm run test:e2e:headed # headed Chromium browser playback
 ```
+
+> **Full-Frame E2E Highlights:** The Playwright test suite (`e2e/full-frame-match.spec.ts`) automatically spins up a production server, navigates through the Setup Wizard, simulates a realistic full 6-red snooker frame (turn rotation, fouls, miss penalties, table clearance from yellow to black), verifies the auto-frame conclusion hook, checks the financial settlement matrix (Who Pays Whom), and verifies one-tap report copying.
 
 ---
 
