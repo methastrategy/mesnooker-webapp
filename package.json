@@ -9,6 +9,9 @@
     "dev": "next dev",
     "build": "next build",
     "test": "vitest run",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
     "start": "next start",
     "lint": "eslint",
     "reset-auth": "tsx scripts/reset-auth-users.ts"
@@ -29,6 +32,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@playwright/test": "^1.64.1",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^20.19.43",
     "@types/pg": "^8.11.0",
