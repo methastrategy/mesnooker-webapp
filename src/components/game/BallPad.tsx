@@ -51,7 +51,7 @@ export function BallPad({
   }
   const legalSet = new Set(legal);
   return (
-    <div className="relative mx-auto w-full max-w-3xl rounded-[20px] sm:rounded-[22px] border border-primary/20 bg-surface/85 backdrop-blur-xl shadow-lg p-2 min-[380px]:p-2.5 sm:p-4 ring-1 ring-white/5 select-none">
+    <div className="relative mx-auto w-full max-w-3xl rounded-[20px] sm:rounded-[22px] border border-primary/20 bg-surface/85 backdrop-blur-xl shadow-lg p-1.5 min-[380px]:p-2.5 sm:p-4 ring-1 ring-white/5 select-none">
       {clearingColours ? (
         /* Pro HUD Clear Rack Tracker */
         <div className="relative mb-2 flex items-center justify-center gap-1.5 sm:gap-3 rounded-full bg-card/70 border border-border/60 p-1.5 shadow-inner">
@@ -106,13 +106,13 @@ export function BallPad({
           onScroll={updateScrollHints}
           className="w-full overflow-x-auto no-scrollbar py-0.5"
         >
-          <div className="mx-auto flex w-full max-w-full justify-between sm:justify-center items-center gap-0.5 min-[360px]:gap-1 min-[375px]:gap-1.5 min-[390px]:gap-2 sm:gap-3 px-0.5">
+          <div className="mx-auto flex w-full max-w-full justify-between sm:justify-center items-center gap-0.5 min-[360px]:gap-1 min-[420px]:gap-2 sm:gap-3 px-0.5">
             {BALL_ORDER.map((c) => {
               const isLegal = legalSet.has(c);
               const value = ballValues[c];
               const left = showCount ? showCount(c) : 0;
               return (
-                <div key={c} className="relative flex flex-col items-center gap-1.5 shrink-0">
+                <div key={c} className="relative flex flex-col items-center gap-1 shrink-0">
                   <SnookerBall
                     color={c}
                     value={value}
@@ -120,8 +120,8 @@ export function BallPad({
                     selected={isLegal}
                     onClick={() => onPot(c)}
                   />
-                  <div className="flex items-center gap-0.5 min-[380px]:gap-1 rounded-full bg-card/90 px-1 min-[375px]:px-1.5 min-[390px]:px-2 py-0.5 border border-border/80 shadow-xs">
-                    <span className="text-[9px] sm:text-[10px] font-semibold text-foreground/85 leading-tight">
+                  <div className="flex items-center justify-center gap-0.5 rounded-full bg-card/90 px-1.5 min-[420px]:px-2 py-0.5 border border-border/80 shadow-xs">
+                    <span className="text-[9px] sm:text-[10px] font-semibold text-foreground/85 leading-tight hidden min-[420px]:inline">
                       {BALL_NAME[c]}
                     </span>
                     {left > 0 ? (

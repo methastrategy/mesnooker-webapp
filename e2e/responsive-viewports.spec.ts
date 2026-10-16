@@ -46,6 +46,32 @@ test.describe("UI/UX Multi-Device Viewports & Ergonomics (E2E)", () => {
     await expect(page).toHaveURL("/match");
 
     // ─── 2. BallPad on iPhone SE 2 (375px) ───
+    const ballPadScroll = page.locator('div.w-full.overflow-x-auto.no-scrollbar');
+    const ballPadMetrics = await ballPadScroll.evaluate((el) => {
+      const row = el.firstElementChild as HTMLElement;
+      const children = Array.from(row.children).map((c) => {
+        const h = c as HTMLElement;
+        const ball = h.querySelector('button') as HTMLElement;
+        const badge = h.querySelector('div') as HTMLElement;
+        return {
+          colWidth: h.offsetWidth,
+          ballWidth: ball?.offsetWidth,
+          badgeWidth: badge?.offsetWidth,
+          badgeText: badge?.innerText?.replace(/\n/g, ' '),
+        };
+      });
+      return {
+        scrollWidth: el.scrollWidth,
+        clientWidth: el.clientWidth,
+        rowGap: window.getComputedStyle(row).gap,
+        children,
+      };
+    });
+    console.log("BALLPAD_METRICS_375:", JSON.stringify(ballPadMetrics, null, 2));
+
+    // Check that BallPad has zero horizontal overflow/drag on 375px
+    expect(ballPadMetrics.scrollWidth).toBeLessThanOrEqual(ballPadMetrics.clientWidth);
+
     // Check that table container has zero horizontal overflow
     const matchOverflow = await page.evaluate(() => {
       return document.documentElement.scrollWidth > document.documentElement.clientWidth;
@@ -85,7 +111,32 @@ test.describe("UI/UX Multi-Device Viewports & Ergonomics (E2E)", () => {
     await expect(page.getByText(/F2:/)).toBeVisible();
   });
 
-  test("iPad Landscape (1024x768) & Desktop (1280x800): 4-player opponent card names clientWidth > 60px", async ({
+  test("Compact Mobile (360x640) & iPhone SE 2 Landscape (667x375): zero horizontal drag and overflow", async ({
+    page,
+  }) => {
+    // 360x640 viewport (Galaxy S8 / small Android)
+    await page.setViewportSize({ width: 360, height: 640 });
+    await page.goto("/setup");
+    await page.getByRole("button", { name: /proceed to players & rate/i }).click();
+    await page.getByRole("button", { name: /start match session/i }).click();
+    await expect(page).toHaveURL("/match");
+
+    const ballPad360 = page.locator("div.w-full.overflow-x-auto.no-scrollbar");
+    const metrics360 = await ballPad360.evaluate((el) => ({
+      scrollWidth: el.scrollWidth,
+      clientWidth: el.clientWidth,
+    }));
+    expect(metrics360.scrollWidth).toBeLessThanOrEqual(metrics360.clientWidth);
+
+    // iPhone SE 2 Landscape (667x375)
+    await page.setViewportSize({ width: 667, height: 375 });
+    const landscape375Overflow = await page.evaluate(() => {
+      return document.documentElement.scrollWidth > document.documentElement.clientWidth;
+    });
+    expect(landscape375Overflow).toBe(false);
+  });
+
+  test("iPad Landscape (1024x768) & Desktop (1280x800) & Ultra-Wide (1920x1080): opponent cards and container scaling", async ({
     page,
   }) => {
     // Test iPad Landscape
@@ -132,9 +183,17 @@ test.describe("UI/UX Multi-Device Viewports & Ergonomics (E2E)", () => {
       const clientWidth = await opponentNicknames.nth(i).evaluate((el) => el.clientWidth);
       expect(clientWidth).toBeGreaterThan(60);
     }
+
+    // Now test Ultra-Wide Desktop (1920x1080) for 2xl:max-w-7xl scaling
+    await page.setViewportSize({ width: 1920, height: 1080 });
+    const mainContainer = page.locator("main > div");
+    const mainBox = await mainContainer.boundingBox();
+    expect(mainBox).not.toBeNull();
+    // 2xl:max-w-7xl is 80rem = 1280px (with 16px root font size)
+    expect(mainBox!.width).toBeCloseTo(1280, -1);
   });
 
-  test("Home Stake Calculator & Settlement Button Ergonomics", async ({ page }) => {
+  test("Home Stake Calculator & Settlement Button Ergonomics (Pay & Copy >= 36-40px)", async ({ page }) => {
     await page.goto("/");
     await expect(page).toHaveURL("/");
 
@@ -145,12 +204,61 @@ test.describe("UI/UX Multi-Device Viewports & Ergonomics (E2E)", () => {
     expect(chipBox).not.toBeNull();
     expect(chipBox!.height).toBeGreaterThanOrEqual(38);
 
+    // Seed match history with outstanding debt to render SettlementPanel Pay & Copy buttons
+    await page.addInitScript(() => {
+      const state = {
+        state: {
+          history: [
+            {
+              id: "archived-e2e-settlement",
+              startedAt: Date.now() - 3600000,
+              endedAt: Date.now(),
+              players: [
+                { id: "p1", nickname: "Metha", avatar: "🎱", color: "red" },
+                { id: "p2", nickname: "Oum", avatar: "🍀", color: "yellow" }
+              ],
+              rawBalances: { p1: 100, p2: -100 },
+              balances: { p1: 100, p2: -100 },
+              mode: "balls",
+              moneyRate: 10,
+              moneyPer: "ball",
+              tableFee: 0,
+              redCount: 15,
+              frames: 1,
+              totalPoints: 50
+            }
+          ],
+          paidTransfers: []
+        },
+        version: 1
+      };
+      try {
+        localStorage.setItem("smoke-master-v1", JSON.stringify(state));
+      } catch {}
+    });
+
     // Navigate to settlement
     await page.goto("/settlement");
     await expect(page).toHaveURL("/settlement");
 
-    // In empty settlement, container renders cleanly
-    await expect(page.getByRole("heading", { name: /Table Settlement Matrix/i })).toBeVisible();
-    await expect(page.getByText(/No active session or match history found/i)).toBeVisible();
+    // Pay button touch target check (>= 36px height and width)
+    const payBtn = page.getByRole("button", { name: /^pay$/i });
+    await expect(payBtn).toBeVisible();
+    const payBox = await payBtn.boundingBox();
+    expect(payBox).not.toBeNull();
+    expect(payBox!.height).toBeGreaterThanOrEqual(36);
+    expect(payBox!.width).toBeGreaterThanOrEqual(36);
+
+    // Copy transfer button touch target check (>= 36px height and width)
+    const copyBtn = page.getByRole("button", { name: /copy\s+oum\s*→\s*metha/i });
+    await expect(copyBtn).toBeVisible();
+    const copyBox = await copyBtn.boundingBox();
+    expect(copyBox).not.toBeNull();
+    expect(copyBox!.height).toBeGreaterThanOrEqual(36);
+    expect(copyBox!.width).toBeGreaterThanOrEqual(36);
+
+    // Mark paid interactive flow
+    await payBtn.click();
+    await expect(page.getByRole("button", { name: /^paid$/i })).toBeVisible();
   });
 });
