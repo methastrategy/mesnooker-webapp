@@ -1,11 +1,15 @@
 import { defineConfig, devices } from "@playwright/test";
 import { loadEnvConfig } from "@next/env";
+import { runPreE2E } from "./scripts/pre-e2e";
 
 // Load environment variables from .env.local and .env
 loadEnvConfig(process.cwd());
 
 const PORT = process.env.PORT || 3005;
 const BASE_URL = process.env.BASE_URL || `http://127.0.0.1:${PORT}`;
+
+// Run pre-flight cleanup in the main runner process before workers spawn
+runPreE2E();
 
 export default defineConfig({
   testDir: "./e2e",
@@ -36,10 +40,13 @@ export default defineConfig({
   ],
   webServer: {
     command: `npx next start -p ${PORT} -H 127.0.0.1`,
-    url: BASE_URL,
+    url: `http://127.0.0.1:${PORT}`,
     reuseExistingServer: false,
     timeout: 120 * 1000,
+    stdout: "pipe",
+    stderr: "pipe",
     env: {
+      HOSTNAME: "127.0.0.1",
       PORT: String(PORT),
       AUTH_SECRET: process.env.AUTH_SECRET || "68f7854474e1b40796d17d84d6ae231a8c6319d30aaf144e0b2ecd6e92966afe",
     },

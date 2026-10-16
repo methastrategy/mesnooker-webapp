@@ -22,5 +22,9 @@ test.describe("Authentication Gate & Navigation", () => {
     await page.goto("/setup");
     await expect(page).toHaveURL("/setup");
     await expect(page.getByRole("heading", { name: /new game/i })).toBeVisible();
+
+    // Authenticated user navigating to /login should be bounced to /
+    await page.goto("/login");
+    await expect(page).toHaveURL(/\/$/);
   });
 });

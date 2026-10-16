@@ -9,6 +9,7 @@
     "dev": "next dev",
     "build": "next build",
     "test": "vitest run",
+    "pretest:e2e": "tsx scripts/pre-e2e.ts",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",

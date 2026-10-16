@@ -5,6 +5,12 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { SESSION_COOKIE, verifySession } from "@/lib/auth/session";
 
+function redirectUrl(pathAndQuery: string, req: NextRequest): URL {
+  const host = req.headers.get("host") || req.nextUrl.host;
+  const proto = req.headers.get("x-forwarded-proto") || req.nextUrl.protocol.replace(":", "") || "http";
+  return new URL(pathAndQuery, `${proto}://${host}`);
+}
+
 export default async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
@@ -22,7 +28,7 @@ export default async function middleware(req: NextRequest) {
   if (pathname === "/login") {
     const token = req.cookies.get(SESSION_COOKIE)?.value;
     if (token && (await verifySession(token))) {
-      return NextResponse.redirect(new URL("/", req.url));
+      return NextResponse.redirect(redirectUrl("/", req));
     }
     return NextResponse.next();
   }
@@ -39,7 +45,7 @@ export default async function middleware(req: NextRequest) {
       return NextResponse.json({ error: "unauthorized" }, { status: 401 });
     }
     const nextParam = encodeURIComponent(req.nextUrl.pathname + req.nextUrl.search);
-    return NextResponse.redirect(new URL(`/login?next=${nextParam}`, req.url));
+    return NextResponse.redirect(redirectUrl(`/login?next=${nextParam}`, req));
   }
 
   return NextResponse.next();
