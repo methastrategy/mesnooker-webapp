@@ -43,6 +43,7 @@
   --font-sans: var(--font-sans), "Plus Jakarta Sans", "Inter Variable", "Inter", -apple-system, BlinkMacSystemFont,
     "SF Pro Display", "SF Pro Text", system-ui, sans-serif;
   --font-mono: var(--font-mono), "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
+  --breakpoint-xs: 380px;
 }
 
 :root {

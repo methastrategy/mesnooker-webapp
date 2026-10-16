@@ -102,4 +102,65 @@ describe("4-Player Target Cycle & Snooker Payment Flow", () => {
     // Net p1 = 75 - (-30) = 105
     expect(result.net.p1).toBe(105);
   });
+
+  it("handles 2-player head-to-head reciprocal target cycle", () => {
+    const twoPlayers = [p1, p2];
+    const cycleIndices = buildTargetCycle(2);
+    expect(cycleIndices).toEqual([1, 0]);
+
+    const targetCycle: Record<string, string> = {
+      p1: "p2", // p1 targets p2
+      p2: "p1", // p2 targets p1
+    };
+
+    const res = computeFrameMoney({
+      mode: "balls",
+      players: twoPlayers,
+      scores: { p1: 4, p2: 1 },
+      targetCycle,
+      moneyPer: "ball",
+      moneyRate: 20,
+    });
+
+    // p1 scored 4 -> p2 pays p1 80
+    // p2 scored 1 -> p1 pays p2 20
+    // Net: p1 = +60, p2 = -60
+    expect(res.net.p1).toBe(60);
+    expect(res.net.p2).toBe(-60);
+    expect(res.net.p1 + res.net.p2).toBe(0);
+  });
+
+  it("handles 3-player triangle target cycle", () => {
+    const threePlayers = [p1, p2, p3];
+    const cycleIndices = buildTargetCycle(3);
+    // 0->2, 1->0, 2->1
+    expect(cycleIndices).toEqual([2, 0, 1]);
+
+    const targetCycle: Record<string, string> = {
+      p1: "p3", // p1 targets p3 (p3 pays p1)
+      p2: "p1", // p2 targets p1 (p1 pays p2)
+      p3: "p2", // p3 targets p2 (p2 pays p3)
+    };
+
+    const res = computeFrameMoney({
+      mode: "points",
+      players: threePlayers,
+      scores: { p1: 10, p2: 20, p3: 30 },
+      targetCycle,
+      moneyPer: "point",
+      moneyRate: 1,
+    });
+
+    // p1 scores 10 -> p3 pays p1 10
+    // p2 scores 20 -> p1 pays p2 20
+    // p3 scores 30 -> p2 pays p3 30
+    // Net p1: +10 (from p3) - 20 (to p2) = -10
+    // Net p2: +20 (from p1) - 30 (to p3) = -10
+    // Net p3: +30 (from p2) - 10 (to p1) = +20
+    expect(res.net.p1).toBe(-10);
+    expect(res.net.p2).toBe(-10);
+    expect(res.net.p3).toBe(20);
+    expect(res.net.p1 + res.net.p2 + res.net.p3).toBe(0);
+  });
 });
+

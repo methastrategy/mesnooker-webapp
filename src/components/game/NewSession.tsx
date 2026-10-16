@@ -9,6 +9,7 @@ import { AvatarPicker } from "@/components/game/AvatarPicker";
 import { useGameStore } from "@/store/gameStore";
 import type { GameMode, MoneyRateUnit, Player } from "@/types";
 import { uid, cn } from "@/lib/utils";
+import { shuffleRoster } from "@/lib/roster";
 
 const STEPS = [
   { id: "table", label: "The Table", icon: Table2 },
@@ -48,7 +49,6 @@ export function NewSession({
   const [isShuffling, setIsShuffling] = useState(false);
 
   const shown = names.slice(0, count);
-  const validPlayers = shown.filter((n) => n.trim());
 
   // Money unit follows the game mode automatically
   const moneyPer: MoneyRateUnit = mode === "points" ? "point" : "ball";
@@ -83,22 +83,7 @@ export function NewSession({
       } catch {}
     }
 
-    const currentNames = [...names];
-    const currentAvatars = [...avatars];
-    const activeIndices = Array.from({ length: count }, (_, i) => i);
-
-    for (let i = activeIndices.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [activeIndices[i], activeIndices[j]] = [activeIndices[j], activeIndices[i]];
-    }
-
-    const nextNames = [...names];
-    const nextAvatars = [...avatars];
-    for (let i = 0; i < count; i++) {
-      nextNames[i] = currentNames[activeIndices[i]];
-      nextAvatars[i] = currentAvatars[activeIndices[i]];
-    }
-
+    const { names: nextNames, avatars: nextAvatars } = shuffleRoster(names, avatars, count);
     setNames(nextNames);
     setAvatars(nextAvatars);
 
@@ -480,13 +465,13 @@ export function NewSession({
             </Button>
             <Button
               onClick={start}
-              disabled={validPlayers.length < 2}
+              disabled={count < 2}
               size="lg"
               className="flex-1 h-12 rounded-full font-bold shadow-lg shadow-primary/25 gap-2 text-sm"
             >
               <span>Start Match Session</span>
               <span className="text-xs font-normal opacity-85">
-                ({validPlayers.length} Players)
+                ({count} Players)
               </span>
             </Button>
           </div>

@@ -156,16 +156,19 @@ export function TurnHeader({
                 {shooterTarget ? (
                   <div className="flex flex-wrap items-center gap-1 text-[10px] font-mono mt-0.5">
                     <span className="flex items-center gap-0.5 px-1.5 py-0.2 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 font-bold">
-                      <span>🎯 {locale === "th" ? "กิน" : "vs"}:</span>
+                      <span>🎯 {locale === "th" ? (players.length === 2 ? "คู่แข่ง" : "เป้าเรา") : "Target"}:</span>
                       <strong className="text-foreground">{shooterTarget.nickname}</strong>
                       <span className="text-[9px] text-muted-foreground hidden min-[400px]:inline">
                         {locale === "th" ? "(คนจ่าย)" : "(pays)"}
                       </span>
                     </span>
-                    {shooterPayer && (
+                    {shooterPayer && players.length > 2 && shooterPayer.id !== shooterTarget.id && (
                       <span className="flex items-center gap-0.5 px-1.5 py-0.2 rounded-md bg-amber-500/15 border border-amber-500/30 text-amber-400 font-medium">
-                        <span>💸 {locale === "th" ? "จ่าย" : "pays"}:</span>
+                        <span>🛡️ {locale === "th" ? "คนกินเรา" : "Hunts us"}:</span>
                         <strong className="text-foreground">{shooterPayer.nickname}</strong>
+                        <span className="text-[9px] text-muted-foreground hidden min-[400px]:inline">
+                          {locale === "th" ? "(ตาเขา)" : "(next)"}
+                        </span>
                       </span>
                     )}
                   </div>
@@ -254,7 +257,6 @@ export function TurnHeader({
             const isLeading = maxScore > 0 && score === maxScore;
             const isNext = queue[0]?.id === p.id;
             const isTargetOfShooter = p.id === shooterTarget?.id;
-            const isPayerOfShooter = p.id === shooterPayer?.id;
 
             const balColor =
               bal === 0
@@ -267,63 +269,65 @@ export function TurnHeader({
               <div
                 key={p.id}
                 className={cn(
-                  "relative flex flex-col justify-between rounded-[16px] sm:rounded-2xl border p-2 sm:p-3 transition-all duration-150 select-none shadow-md backdrop-blur-md",
+                  "relative flex flex-col justify-between rounded-[16px] sm:rounded-2xl border p-1.5 min-[380px]:p-2 sm:p-2.5 transition-all duration-150 select-none shadow-md backdrop-blur-md overflow-hidden",
                   isTargetOfShooter
-                    ? "border-emerald-500/35 bg-surface/90 ring-1 ring-emerald-500/20"
+                    ? "border-emerald-500/45 bg-emerald-950/20 ring-1 ring-emerald-500/30 shadow-xs"
                     : isNext
-                      ? "border-primary/40 bg-surface/90 ring-1 ring-primary/20"
+                      ? "border-primary/45 bg-primary/10 ring-1 ring-primary/30 shadow-xs"
                       : "border-border/80 bg-surface/75 hover:border-primary/30"
                 )}
               >
-                {/* Top line: Avatar + Name + Badges */}
-                <div className="flex items-center justify-between gap-1">
+                {/* Top line: Avatar + Name + Single prioritized badge */}
+                <div className="flex items-center justify-between gap-1 min-w-0">
                   <Link
                     href={`/player?id=${p.id}`}
-                    className="flex items-center gap-1.5 min-w-0 group hover:opacity-90 transition-opacity"
+                    className="flex items-center gap-1 min-[380px]:gap-1.5 min-w-0 flex-1 group hover:opacity-90 transition-opacity"
                   >
                     <AvatarBubble avatar={p.avatar} size={18} />
-                    <span className="truncate font-bold tracking-tight text-[11px] sm:text-xs text-foreground/90 group-hover:text-primary transition-colors max-w-[55px] sm:max-w-[75px]">
+                    <span className="truncate font-bold tracking-tight text-[11px] sm:text-xs text-foreground/90 group-hover:text-primary transition-colors">
                       {p.nickname}
                     </span>
                   </Link>
 
                   <div className="flex items-center gap-0.5 shrink-0">
-                    {/* Target / Payer Badge relative to active turn */}
+                    {/* Prioritized Role Badge: Target > Next > Leader */}
                     {isTargetOfShooter ? (
                       <span
-                        className="rounded-full px-1.5 py-0.2 bg-emerald-500/20 border border-emerald-500/40 text-[8px] sm:text-[9px] font-mono font-bold text-emerald-400 uppercase tracking-wide shrink-0"
-                        title={locale === "th" ? "คนจ่ายเงินให้คุณเมื่อตบลง" : "Target: pays turn shooter"}
+                        className="rounded-full px-1.5 py-0.2 bg-emerald-500/25 border border-emerald-500/50 text-[8px] sm:text-[9px] font-mono font-bold text-emerald-400 uppercase tracking-wide shrink-0 shadow-xs"
+                        title={locale === "th" ? "เป้าหมาย: จ่ายเงินเมื่อคุณตบลง" : "Target: pays turn shooter"}
                       >
-                        {locale === "th" ? "🎯 จ่าย" : "Target"}
+                        {locale === "th" ? "🎯 เป้า" : "Target"}
                       </span>
-                    ) : isPayerOfShooter ? (
+                    ) : isNext ? (
                       <span
-                        className="rounded-full px-1.5 py-0.2 bg-amber-500/20 border border-amber-500/40 text-[8px] sm:text-[9px] font-mono font-bold text-amber-400 uppercase tracking-wide shrink-0"
-                        title={locale === "th" ? "คนรับเงินจากคุณเมื่อเขาตบลง" : "You pay this player"}
+                        className="rounded-full px-1.5 py-0.2 bg-primary/20 border border-primary/40 text-[8px] sm:text-[9px] font-mono font-bold text-primary uppercase tracking-wide shrink-0 shadow-xs"
+                        title={locale === "th" ? "คิวถัดไป" : "Next shooter"}
                       >
-                        {locale === "th" ? "💸 รับ" : "You Pay"}
-                      </span>
-                    ) : null}
-
-                    {isLeading && (
-                      <span className="flex items-center gap-0.5 rounded-full px-1 py-0.2 bg-gold/15 border border-gold/30 text-[8px] sm:text-[9px] font-mono font-bold text-gold uppercase tracking-wider shrink-0">
-                        <Trophy size={8} />
-                      </span>
-                    )}
-                    {isNext && (
-                      <span className="rounded-full px-1.5 py-0.2 bg-white/10 border border-white/20 text-[8px] sm:text-[9px] font-mono font-bold text-foreground/80 uppercase tracking-wider shrink-0">
                         Next
                       </span>
-                    )}
+                    ) : isLeading ? (
+                      <span
+                        className="flex items-center gap-0.5 rounded-full px-1 py-0.2 bg-gold/15 border border-gold/30 text-[8px] sm:text-[9px] font-mono font-bold text-gold uppercase tracking-wider shrink-0"
+                        title={locale === "th" ? "ผู้นำเฟรม" : "Leader"}
+                      >
+                        <Trophy size={8} />
+                      </span>
+                    ) : null}
                   </div>
                 </div>
 
                 {/* Score & Money */}
                 <div className="flex items-baseline justify-between gap-1 mt-1.5 pt-1 border-t border-border/70">
-                  <div className="font-mono font-black tracking-tight text-foreground tabular-nums text-xl min-[380px]:text-2xl sm:text-3xl leading-none">
-                    <AnimatedNumber value={score} />
+                  <div className="flex items-baseline gap-1 min-w-0">
+                    <span className="font-mono font-black tracking-tight text-foreground tabular-nums text-xl min-[380px]:text-2xl sm:text-3xl leading-none">
+                      <AnimatedNumber value={score} />
+                    </span>
+                    {/* Leader trophy icon if player already has Target or Next badge */}
+                    {isLeading && (isTargetOfShooter || isNext) && (
+                      <Trophy size={10} className="text-gold shrink-0 self-center" />
+                    )}
                   </div>
-                  <div className="text-right">
+                  <div className="text-right shrink-0">
                     <span className={cn("font-mono font-bold tabular-nums text-[10px] min-[380px]:text-xs sm:text-sm leading-none", balColor)}>
                       {bal > 0 ? "+" : ""}
                       <AnimatedNumber value={bal} prefix="฿" decimals={0} />
@@ -339,72 +343,142 @@ export function TurnHeader({
       {/* ═════════════ 2. TARGET CYCLE RIBBON (แถบแสดงใครจ่ายใคร) ═════════════ */}
       {players.length >= 2 && (
         <div className="flex items-center justify-between gap-1.5 sm:gap-2 rounded-2xl border border-gold/30 bg-surface/90 px-2.5 sm:px-3.5 py-1 text-xs shadow-md backdrop-blur-md overflow-hidden">
-          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 min-w-0">
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 min-w-0 flex-1">
             <div className="flex items-center gap-1 shrink-0 text-gold font-mono font-bold text-[10px] uppercase tracking-wider pr-1">
               <Coins size={12} className="text-gold shrink-0" />
               <span>{locale === "th" ? "ใครจ่ายใคร:" : "Target Cycle:"}</span>
             </div>
 
-            <div className="flex items-center gap-1 shrink-0">
-              {players.map((p, idx) => {
-                const isShooter = p.id === shooter.id;
-                const isTarget = p.id === shooterTarget?.id;
-                const isPayer = p.id === shooterPayer?.id;
+            {players.length === 2 ? (
+              /* 2-Player Head-to-Head Flow */
+              <div className="flex items-center gap-1.5 shrink-0 text-[10px] font-mono">
+                <div
+                  className={cn(
+                    "flex items-center gap-1 rounded-full px-2 py-0.5 font-medium shadow-xs shrink-0",
+                    players[0].id === shooter.id
+                      ? "bg-primary text-primary-foreground font-bold ring-1 ring-primary/40"
+                      : "bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 font-semibold"
+                  )}
+                >
+                  <AvatarBubble avatar={players[0].avatar} size={12} />
+                  <span className="max-w-[70px] truncate">{players[0].nickname}</span>
+                  {players[0].id === shooter.id && (
+                    <span className="text-[8px] uppercase tracking-wider ml-0.5 font-bold opacity-90">
+                      {locale === "th" ? "(แทง)" : "(Turn)"}
+                    </span>
+                  )}
+                </div>
 
-                return (
-                  <React.Fragment key={p.id}>
-                    {idx > 0 && (
-                      <span className="flex items-center gap-0.5 text-[9px] font-mono text-muted-foreground/80 shrink-0 px-0.5">
-                        <span>{locale === "th" ? "จ่าย" : "pays"}</span>
-                        <ArrowRight size={9} className="text-gold/70" />
-                      </span>
-                    )}
-                    <div
-                      className={cn(
-                        "flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium transition-all shadow-xs shrink-0",
-                        isShooter
-                          ? "bg-primary text-primary-foreground font-bold shadow-xs ring-1 ring-primary/40"
-                          : isTarget
-                            ? "bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 font-semibold"
-                            : isPayer
-                              ? "bg-amber-500/15 border border-amber-500/40 text-amber-400 font-semibold"
-                              : "bg-surface/90 border border-border/80 text-foreground"
-                      )}
-                    >
-                      <AvatarBubble avatar={p.avatar} size={12} />
-                      <span className="max-w-[65px] truncate">{p.nickname}</span>
-                      {isShooter && (
-                        <span className="text-[8px] uppercase tracking-wider ml-0.5 opacity-90 font-bold">
-                          {locale === "th" ? "(แทง)" : "(Turn)"}
+                <span className="flex items-center gap-0.5 text-[9px] font-mono text-gold shrink-0 px-1 font-bold">
+                  <span>⇄</span>
+                  <span>{locale === "th" ? "ผลัดกันจ่ายตามแต้ม" : "head-to-head"}</span>
+                  <span>⇄</span>
+                </span>
+
+                <div
+                  className={cn(
+                    "flex items-center gap-1 rounded-full px-2 py-0.5 font-medium shadow-xs shrink-0",
+                    players[1].id === shooter.id
+                      ? "bg-primary text-primary-foreground font-bold ring-1 ring-primary/40"
+                      : "bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 font-semibold"
+                  )}
+                >
+                  <AvatarBubble avatar={players[1].avatar} size={12} />
+                  <span className="max-w-[70px] truncate">{players[1].nickname}</span>
+                  {players[1].id === shooter.id && (
+                    <span className="text-[8px] uppercase tracking-wider ml-0.5 font-bold opacity-90">
+                      {locale === "th" ? "(แทง)" : "(Turn)"}
+                    </span>
+                  )}
+                </div>
+              </div>
+            ) : (
+              /* 3+ Players Circular Payment Chain */
+              <div className="flex items-center gap-1 shrink-0">
+                {players.map((p, idx) => {
+                  const isShooter = p.id === shooter.id;
+                  const isTarget = p.id === shooterTarget?.id;
+                  const prevPlayer = players[(idx - 1 + players.length) % players.length];
+                  // Link where target pays shooter
+                  const isTurnPaymentLink = p.id === shooter.id && prevPlayer.id === shooterTarget?.id;
+
+                  return (
+                    <React.Fragment key={p.id}>
+                      {idx > 0 && (
+                        <span
+                          className={cn(
+                            "flex items-center gap-0.5 text-[9px] font-mono shrink-0 px-0.5 transition-colors",
+                            isTurnPaymentLink
+                              ? "text-emerald-400 font-bold"
+                              : "text-muted-foreground/80"
+                          )}
+                        >
+                          <span>{locale === "th" ? (isTurnPaymentLink ? "จ่ายตานี้" : "จ่าย") : (isTurnPaymentLink ? "pays now" : "pays")}</span>
+                          <ArrowRight size={9} className={isTurnPaymentLink ? "text-emerald-400" : "text-gold/70"} />
                         </span>
                       )}
-                    </div>
-                  </React.Fragment>
-                );
-              })}
+                      <div
+                        className={cn(
+                          "flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium transition-all shadow-xs shrink-0",
+                          isShooter
+                            ? "bg-primary text-primary-foreground font-bold shadow-xs ring-1 ring-primary/40"
+                            : isTarget
+                              ? "bg-emerald-500/15 border border-emerald-500/45 text-emerald-400 font-semibold ring-1 ring-emerald-500/30"
+                              : "bg-surface/90 border border-border/80 text-foreground"
+                        )}
+                      >
+                        <AvatarBubble avatar={p.avatar} size={12} />
+                        <span className="max-w-[65px] truncate">{p.nickname}</span>
+                        {isShooter ? (
+                          <span className="text-[8px] uppercase tracking-wider ml-0.5 opacity-90 font-bold">
+                            {locale === "th" ? "(แทง)" : "(Turn)"}
+                          </span>
+                        ) : isTarget ? (
+                          <span className="text-[8px] uppercase tracking-wider ml-0.5 text-emerald-400 font-bold">
+                            {locale === "th" ? "(คนจ่าย)" : "(Pays)"}
+                          </span>
+                        ) : null}
+                      </div>
+                    </React.Fragment>
+                  );
+                })}
 
-              {players.length > 2 && (
-                <span className="flex items-center gap-0.5 text-[9px] font-mono text-muted-foreground/70 shrink-0 pl-1">
-                  <span>{locale === "th" ? "จ่าย" : "pays"}</span>
-                  <ArrowRight size={9} className="text-gold/50" />
-                  <span>↺</span>
-                </span>
-              )}
-            </div>
+                {/* Return arrow back to start of circle */}
+                {(() => {
+                  const lastPlayer = players[players.length - 1];
+                  const firstPlayer = players[0];
+                  const isReturnTurnPaymentLink = firstPlayer.id === shooter.id && lastPlayer.id === shooterTarget?.id;
+                  return (
+                    <span
+                      className={cn(
+                        "flex items-center gap-0.5 text-[9px] font-mono shrink-0 pl-1 transition-colors",
+                        isReturnTurnPaymentLink
+                          ? "text-emerald-400 font-bold"
+                          : "text-muted-foreground/70"
+                      )}
+                    >
+                      <span>{locale === "th" ? (isReturnTurnPaymentLink ? "จ่ายตานี้" : "จ่าย") : (isReturnTurnPaymentLink ? "pays now" : "pays")}</span>
+                      <ArrowRight size={9} className={isReturnTurnPaymentLink ? "text-emerald-400" : "text-gold/50"} />
+                      <span>↺</span>
+                    </span>
+                  );
+                })()}
+              </div>
+            )}
           </div>
 
-          {/* Right side: Turn highlight summary */}
+          {/* Right side: Turn highlight summary (แสดงชัดเจนว่าตานี้ใครจ่ายใคร) */}
           {shooterTarget && (
             <div className="hidden sm:flex items-center gap-1.5 text-[10px] font-mono shrink-0 pl-2 border-l border-border/80">
               <span className="text-muted-foreground">{locale === "th" ? "ตานี้:" : "Turn:"}</span>
-              <span className="text-emerald-400 font-semibold">
-                {locale === "th" ? `กิน ${shooterTarget.nickname}` : `Scores on ${shooterTarget.nickname}`}
+              <span className="text-emerald-400 font-bold">
+                {locale === "th"
+                  ? `${shooterTarget.nickname} จ่าย ${shooter.nickname}`
+                  : `${shooterTarget.nickname} pays ${shooter.nickname}`}
               </span>
-              {shooterPayer && (
-                <span className="text-amber-400">
-                  {locale === "th" ? `· จ่าย ${shooterPayer.nickname}` : `· Pays ${shooterPayer.nickname}`}
-                </span>
-              )}
+              <span className="text-[9px] text-muted-foreground/80">
+                {locale === "th" ? "(เป้าหมาย)" : "(Target)"}
+              </span>
             </div>
           )}
         </div>
