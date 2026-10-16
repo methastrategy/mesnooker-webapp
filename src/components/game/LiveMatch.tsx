@@ -20,6 +20,7 @@ import {
 import type { ArchivedGame, BallColor, Player } from "@/types";
 
 import { useElapsed, useElapsedSum } from "@/hooks/useElapsed";
+import { useWakeLock } from "@/hooks/useWakeLock";
 import { playPotSound, playPenaltySound } from "@/lib/sound";
 
 type ToastTone = "info" | "success" | "danger";
@@ -31,6 +32,7 @@ export function LiveMatch({ onPause }: {
 }) {
   const frame = useActiveFrame();
   const running = useRunningBalance();
+  const { isActive: wakeLockActive } = useWakeLock(true);
   const session = useGameStore((s) => s.session);
   const frames = useGameStore((s) => s.frames);
   const allEvents = useGameStore((s) => s.events);
@@ -230,6 +232,8 @@ export function LiveMatch({ onPause }: {
             frameClock={frameClock}
             sessionClock={sessionClock}
             frameNumber={frames.length}
+            targetCycle={frame?.targetCycle}
+            wakeLockActive={wakeLockActive}
           />
         </div>
 

@@ -1,9 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
-import dotenv from "dotenv";
-import path from "path";
+import { loadEnvConfig } from "@next/env";
 
-dotenv.config({ path: path.resolve(__dirname, ".env.local") });
-dotenv.config();
+// Load environment variables from .env.local and .env
+loadEnvConfig(process.cwd());
 
 const PORT = process.env.PORT || 3005;
 const BASE_URL = `http://localhost:${PORT}`;

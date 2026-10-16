@@ -33,6 +33,8 @@ next-env.d.ts
 # testing
 /coverage
 .scratch/
+/playwright-report/
+/test-results/
 
 # local prod secret references
 .env.prod-secrets

@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import { Minus, Plus, Trash2, ArrowLeft, ArrowRight, Table2, Users } from "lucide-react";
+import { useState, useCallback } from "react";
+import { Minus, Plus, Trash2, ArrowLeft, ArrowRight, Table2, Users, Shuffle, Sparkles } from "lucide-react";
 import { Button, Badge } from "@/components/ui";
 import { BALL_HEX, BALL_ORDER } from "@/lib/rules";
 import { AVATAR_PRESETS } from "@/lib/avatar";
 import { AvatarPicker } from "@/components/game/AvatarPicker";
+import { useGameStore } from "@/store/gameStore";
 import type { GameMode, MoneyRateUnit, Player } from "@/types";
 import { uid, cn } from "@/lib/utils";
 
@@ -32,6 +33,7 @@ export function NewSession({
   }) => void;
   initialPlayers?: Player[];
 }) {
+  const locale = useGameStore((s) => s.locale);
   const [step, setStep] = useState(0);
   const [mode, setMode] = useState<GameMode>("points");
   const [moneyRate, setMoneyRate] = useState(1);
@@ -43,6 +45,7 @@ export function NewSession({
   );
   const [count, setCount] = useState(2);
   const [redCount, setRedCount] = useState(15);
+  const [isShuffling, setIsShuffling] = useState(false);
 
   const shown = names.slice(0, count);
   const validPlayers = shown.filter((n) => n.trim());
@@ -68,6 +71,52 @@ export function NewSession({
     next[i] = v;
     setAvatars(next);
   }
+
+  /** Randomize the active players' queue order (Fisher-Yates shuffle) */
+  const shufflePlayers = useCallback(() => {
+    if (count < 2) return;
+    setIsShuffling(true);
+
+    if (typeof navigator !== "undefined" && "vibrate" in navigator) {
+      try {
+        navigator.vibrate?.([15]);
+      } catch {}
+    }
+
+    const currentNames = [...names];
+    const currentAvatars = [...avatars];
+    const activeIndices = Array.from({ length: count }, (_, i) => i);
+
+    for (let i = activeIndices.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [activeIndices[i], activeIndices[j]] = [activeIndices[j], activeIndices[i]];
+    }
+
+    const nextNames = [...names];
+    const nextAvatars = [...avatars];
+    for (let i = 0; i < count; i++) {
+      nextNames[i] = currentNames[activeIndices[i]];
+      nextAvatars[i] = currentAvatars[activeIndices[i]];
+    }
+
+    setNames(nextNames);
+    setAvatars(nextAvatars);
+
+    setTimeout(() => setIsShuffling(false), 300);
+  }, [names, avatars, count]);
+
+  /** 1-Tap quick setup for standard 4-player match */
+  const apply4PlayerPreset = useCallback(() => {
+    setCount(4);
+    setMode("balls");
+    setNames(["เม", "อุ้ม", "ฟุค", "นน"]);
+    setAvatars([
+      AVATAR_PRESETS[0] || "🎱",
+      AVATAR_PRESETS[1] || "🍀",
+      AVATAR_PRESETS[2] || "🔥",
+      AVATAR_PRESETS[3] || "🦁",
+    ]);
+  }, []);
 
   function start() {
     const players: Player[] = shown.map((n, i) => ({
@@ -291,32 +340,67 @@ export function NewSession({
 
           {/* Players Roster */}
           <div className="rounded-[20px] border border-border/80 bg-surface/90 p-4 shadow-sm">
-            <div className="mb-3 flex items-center justify-between">
-              <span className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground">
-                Players Roster ({count})
-              </span>
-              <div className="flex items-center gap-1 rounded-full border border-border/80 bg-card p-1 shadow-xs">
-                <Button
-                  variant="ghost"
-                  size="iconSm"
-                  className="rounded-full h-6 w-6"
-                  onClick={() => bump(-1)}
-                  aria-label="Remove player"
-                >
-                  <Minus size={13} />
-                </Button>
-                <span className="min-w-6 text-center font-bold font-mono text-xs tabular-nums text-foreground">
-                  {count}
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground">
+                  Players Roster ({count})
                 </span>
+
+                {/* Shuffle order button */}
                 <Button
-                  variant="ghost"
-                  size="iconSm"
-                  className="rounded-full h-6 w-6"
-                  onClick={() => bump(1)}
-                  aria-label="Add player"
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={shufflePlayers}
+                  disabled={count < 2}
+                  className="h-7 px-2.5 rounded-full text-[11px] font-mono font-bold gap-1.5 border-primary/40 text-primary hover:bg-primary/15 hover:border-primary transition-all active:scale-95 shadow-xs"
+                  title="สุ่มลำดับคิวผู้เล่น (Shuffle Player Queue Order)"
                 >
-                  <Plus size={13} />
+                  <Shuffle
+                    size={12}
+                    className={cn("transition-transform", isShuffling && "rotate-180 duration-300")}
+                  />
+                  <span>{locale === "th" ? "สุ่มคิว" : "Shuffle"}</span>
                 </Button>
+              </div>
+
+              <div className="flex items-center gap-2">
+                {/* Quick 4-Player Preset Button */}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={apply4PlayerPreset}
+                  className="h-7 px-2 text-[10px] font-mono text-gold hover:text-gold hover:bg-gold/10 rounded-full gap-1 hidden xs:flex"
+                  title="โหลดผู้เล่น 4 คนอัตโนมัติ (เม, อุ้ม, ฟุค, นน)"
+                >
+                  <Sparkles size={11} className="text-gold" />
+                  <span>4 คน (เม, อุ้ม, ฟุค, นน)</span>
+                </Button>
+
+                <div className="flex items-center gap-1 rounded-full border border-border/80 bg-card p-1 shadow-xs">
+                  <Button
+                    variant="ghost"
+                    size="iconSm"
+                    className="rounded-full h-6 w-6"
+                    onClick={() => bump(-1)}
+                    aria-label="Remove player"
+                  >
+                    <Minus size={13} />
+                  </Button>
+                  <span className="min-w-6 text-center font-bold font-mono text-xs tabular-nums text-foreground">
+                    {count}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="iconSm"
+                    className="rounded-full h-6 w-6"
+                    onClick={() => bump(1)}
+                    aria-label="Add player"
+                  >
+                    <Plus size={13} />
+                  </Button>
+                </div>
               </div>
             </div>
 
@@ -324,24 +408,47 @@ export function NewSession({
               {shown.map((n, i) => (
                 <div
                   key={i}
-                  className="flex items-center gap-2.5 rounded-[18px] border border-border/80 bg-card/85 p-2.5 shadow-xs"
+                  className="flex items-center gap-2.5 rounded-[18px] border border-border/80 bg-card/85 p-2.5 shadow-xs transition-all"
                 >
-                  <AvatarPicker value={avatars[i] ?? ""} onChange={(v) => setAvatar(i, v)} />
-                  <input
-                    value={n}
-                    onChange={(e) => {
-                      const next = [...names];
-                      next[i] = e.target.value;
-                      setNames(next);
-                    }}
-                    placeholder={`Player ${i + 1}`}
-                    className="h-10 min-w-0 flex-1 rounded-xl border border-border/80 bg-surface px-3 text-sm font-semibold outline-none focus:ring-2 focus:ring-primary/60 transition-all text-foreground placeholder:text-muted-foreground/60"
-                  />
+                  {/* Queue order position badge */}
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <span
+                      className={cn(
+                        "flex h-6 min-w-6 px-1.5 items-center justify-center rounded-full text-[10px] font-mono font-bold",
+                        i === 0
+                          ? "bg-primary text-primary-foreground shadow-xs ring-1 ring-primary/40"
+                          : "bg-surface border border-border/80 text-muted-foreground"
+                      )}
+                      title={i === 0 ? "ผู้เปิดเฟรม (Frame Opener)" : `คิวที่ ${i + 1}`}
+                    >
+                      #{i + 1}
+                    </span>
+                    <AvatarPicker value={avatars[i] ?? ""} onChange={(v) => setAvatar(i, v)} />
+                  </div>
+
+                  <div className="relative flex-1 min-w-0 flex items-center gap-1.5">
+                    <input
+                      value={n}
+                      onChange={(e) => {
+                        const next = [...names];
+                        next[i] = e.target.value;
+                        setNames(next);
+                      }}
+                      placeholder={`Player ${i + 1}`}
+                      className="h-10 min-w-0 flex-1 rounded-xl border border-border/80 bg-surface px-3 text-sm font-semibold outline-none focus:ring-2 focus:ring-primary/60 transition-all text-foreground placeholder:text-muted-foreground/60"
+                    />
+                    {i === 0 && (
+                      <span className="hidden sm:inline-block rounded-md px-1.5 py-0.5 text-[9px] font-mono font-bold bg-primary/15 text-primary border border-primary/30 uppercase tracking-wider shrink-0">
+                        {locale === "th" ? "เปิดเฟรม" : "Opener"}
+                      </span>
+                    )}
+                  </div>
+
                   {i > 0 && (
                     <Button
                       variant="ghost"
                       size="iconSm"
-                      className="rounded-full h-8 w-8 text-muted-foreground hover:text-destructive"
+                      className="rounded-full h-8 w-8 text-muted-foreground hover:text-destructive shrink-0"
                       onClick={() => {
                         const next = [...names];
                         next[i] = "";
@@ -356,7 +463,7 @@ export function NewSession({
               ))}
             </div>
             <p className="mt-2.5 text-[11px] font-mono text-muted-foreground">
-              Tap any avatar bubble to upload, select from presets, or randomize. Minimum 2 players required.
+              Tap any avatar bubble to customize. Tap &quot;สุ่มคิว&quot; (Shuffle) to randomize rotation order before breaking.
             </p>
           </div>
 
