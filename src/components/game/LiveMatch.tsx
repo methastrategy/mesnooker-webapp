@@ -2,12 +2,14 @@
 
 import * as React from "react";
 import { useState, useEffect, useCallback } from "react";
+import { Sparkles } from "lucide-react";
 import { useGameStore, useActiveFrame, useRunningBalance } from "@/store/gameStore";
 import { BallPad } from "@/components/game/BallPad";
 import { TurnHeader } from "@/components/game/TurnHeader";
 import { ClearRack } from "@/components/game/ClearRack";
 import { ControlDock } from "@/components/game/ControlDock";
 import { ActionToast } from "@/components/game/ActionToast";
+import { FoulOptionsSheet } from "@/components/game/FoulOptionsSheet";
 import {
   BALL_NAME,
   BALL_ORDER,
@@ -46,6 +48,8 @@ export function LiveMatch({ onPause }: {
   const startCounts = useGameStore((s) => s.startCounts);
   const canUndo = useGameStore((s) => s.undoStack.length > 0);
   const canRedo = useGameStore((s) => s.redoStack.length > 0);
+  const settingsOpen = useGameStore((s) => s.settingsOpen);
+  const freeBallActive = useGameStore((s) => s.freeBallActive);
 
   const pot = useGameStore((s) => s.pot);
   const applyScoring = useGameStore((s) => s.applyScoring);
@@ -53,11 +57,17 @@ export function LiveMatch({ onPause }: {
   const endFrame = useGameStore((s) => s.endFrame);
   const undo = useGameStore((s) => s.undo);
   const redo = useGameStore((s) => s.redo);
+  const setFreeBall = useGameStore((s) => s.setFreeBall);
+  const foulWithOptions = useGameStore((s) => s.foulWithOptions);
+  const playAgain = useGameStore((s) => s.playAgain);
+  const rerack = useGameStore((s) => s.rerack);
+  const concede = useGameStore((s) => s.concede);
 
   const frameStartedAt = frame?.startedAt;
   const sessionClock = useElapsedSum(frames);
   const frameClock = useElapsed(frameStartedAt);
   const [moreOpen, setMoreOpen] = useState(false);
+  const [foulOptionsOpen, setFoulOptionsOpen] = useState(false);
   const [toast, setToast] = useState<{ id: number; msg: string; tone: ToastTone } | null>(null);
 
   const shooter = players[shooterIndex];
@@ -69,10 +79,13 @@ export function LiveMatch({ onPause }: {
   // Break engine: legal phase + consecutive break count for the current shooter
   const phase = inferBreakPhase(events, shooter?.id ?? "");
   const breakCount = currentBreakCount(events, shooter?.id ?? "");
-  const legal = legalBalls(phase, ballCounts);
+  // When free ball is active, any colour remaining on the table can be nominated as a red
+  const legal = freeBallActive
+    ? (BALL_ORDER.filter((c) => c !== "red" && ballCounts[c] > 0) as BallColor[])
+    : legalBalls(phase, ballCounts);
   const canStartBreak = phase === BreakPhase.COLOUR;
   const clearingColours = ballCounts.red === 0;
-  const clearOrderLocked = clearingColours && phase === BreakPhase.RED_FIRST;
+  const clearOrderLocked = clearingColours && phase === BreakPhase.RED_FIRST && !freeBallActive;
   const nextColour = clearOrderLocked ? legal[0] : undefined;
 
   const ballValues: Record<BallColor, number> = {
@@ -127,8 +140,13 @@ export function LiveMatch({ onPause }: {
       setTimeout(() => onPause(), 600);
       return;
     }
-    setToast({ id: Date.now(), msg: `${BALL_NAME[ball]} potted`, tone: "info" });
-  }, [tap, pot, onPause, haptics]);
+    const isFree = freeBallActive;
+    setToast({
+      id: Date.now(),
+      msg: isFree ? `⭐ Free Ball ${BALL_NAME[ball]} (+1 pt)` : `${BALL_NAME[ball]} potted`,
+      tone: isFree ? "success" : "info",
+    });
+  }, [tap, pot, onPause, haptics, freeBallActive]);
 
   const scoringAction = useCallback((kind: "foul" | "miss" | "solve", verb: string, value: string, tone: ToastTone) => {
     tap("penalty");
@@ -155,10 +173,13 @@ export function LiveMatch({ onPause }: {
     }
   }, [endFrame, onPause, haptics]);
 
-  // Keyboard shortcuts for effortless PC match play
+  // Keyboard shortcuts for effortless PC match play with repeat guard and modal suppression
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
+      if (e.repeat) return; // Prevent key repeat flooding (BUG-04)
+      if (moreOpen || foulOptionsOpen || settingsOpen) return; // Ignore hotkeys while modals/sheets are open (BUG-04)
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+
       if (e.key === " " || e.key === "Enter") {
         e.preventDefault();
         tap();
@@ -189,7 +210,7 @@ export function LiveMatch({ onPause }: {
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [canUndo, endTurn, undo, mode, legal, nextShooter, onPot, scoringAction, tap]);
+  }, [canUndo, endTurn, undo, mode, legal, nextShooter, onPot, scoringAction, tap, moreOpen, foulOptionsOpen, settingsOpen]);
 
   if (!frame || !session) {
     return (
@@ -239,6 +260,26 @@ export function LiveMatch({ onPause }: {
 
         {/* Middle & Bottom in Portrait / Right Column in Landscape: Ball Rack & Big Control Deck */}
         <div className="w-full flex flex-col justify-between gap-1.5 sm:gap-2.5 landscape:h-full landscape:justify-center">
+          
+          {/* Active Free Ball Glow Banner */}
+          {freeBallActive && (
+            <div className="w-full rounded-2xl border border-amber-400/80 bg-amber-500/20 px-3 py-1.5 flex items-center justify-between gap-2 text-amber-300 animate-pulse shadow-md">
+              <div className="flex items-center gap-2">
+                <Sparkles size={16} className="text-amber-400 shrink-0" />
+                <span className="text-xs font-black tracking-wide">
+                  FREE BALL ACTIVE: เลือกตบสีใดก็ได้ มีค่าเท่ากับลูกแดง (+1)
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setFreeBall(false)}
+                className="text-[10px] font-mono px-2 py-0.5 rounded-lg bg-black/40 hover:bg-black/70 border border-white/20 text-foreground cursor-pointer"
+              >
+                ยกเลิก (Cancel)
+              </button>
+            </div>
+          )}
+
           {/* THE TABLE / BALL RACK ARENA */}
           <div className="w-full shrink-0">
             {clearOrderLocked ? (
@@ -258,8 +299,6 @@ export function LiveMatch({ onPause }: {
           <div className="w-full shrink-0">
             <ControlDock
               mode={mode}
-              canPotRed={legal.includes("red")}
-              onPotRed={() => onPot("red")}
               onFoul={() => scoringAction("foul", "Foul", mode === "points" ? "-4" : "-2", "danger")}
               onMiss={() => scoringAction("miss", "Snooker miss", mode === "points" ? "-2" : "-1", "danger")}
               onSolve={() => scoringAction("solve", "Solve", "+1", "success")}
@@ -272,10 +311,58 @@ export function LiveMatch({ onPause }: {
               onUndo={() => { tap(); undo(); setToast({ id: Date.now(), msg: "↺ Undone", tone: "info" }); }}
               onRedo={() => { setMoreOpen(false); tap(); redo(); setToast({ id: Date.now(), msg: "↻ Redone", tone: "info" }); }}
               onEndFrame={() => { setMoreOpen(false); handleEndFrame(); }}
+              onReRack={() => {
+                rerack();
+                setToast({ id: Date.now(), msg: "🔄 ขอเริ่มเฟรมใหม่ (Re-rack 0-0)", tone: "info" });
+              }}
+              onConcede={() => {
+                concede();
+                if (onPause) onPause();
+              }}
+              onOpenFoulOptions={() => setFoulOptionsOpen(true)}
+              onPlayAgain={() => {
+                playAgain();
+                setToast({ id: Date.now(), msg: "🔁 ให้แทงซ้ำ (Play Again)", tone: "info" });
+              }}
+              onToggleFreeBall={() => {
+                const nextVal = !freeBallActive;
+                setFreeBall(nextVal);
+                if (nextVal) {
+                  setToast({ id: Date.now(), msg: "⭐ เปิดใช้งานฟรีบอล (Free Ball Active)", tone: "success" });
+                }
+              }}
+              freeBallActive={freeBallActive}
             />
           </div>
         </div>
       </div>
+
+      {/* Foul Options & Play Again Sheet */}
+      <FoulOptionsSheet
+        open={foulOptionsOpen}
+        onClose={() => setFoulOptionsOpen(false)}
+        mode={mode}
+        onApplyFoul={(points, playAgainShot) => {
+          tap("penalty");
+          foulWithOptions({ points, playAgain: playAgainShot });
+          const freshFrames = useGameStore.getState().frames;
+          const freshFrame = freshFrames[freshFrames.length - 1];
+          if (freshFrame?.endedAt && onPause) {
+            setToast({ id: Date.now(), msg: "⬛ Foul on black — frame over!", tone: "danger" });
+            setTimeout(() => onPause(), 600);
+            return;
+          }
+          setToast({
+            id: Date.now(),
+            msg: `Foul -${points}${playAgainShot ? " · ให้คนเดิมแทงซ้ำ" : ` · → ${nextShooter()?.nickname ?? "next"}`}`,
+            tone: "danger",
+          });
+        }}
+        onActivateFreeBall={() => {
+          setFreeBall(true);
+          setToast({ id: Date.now(), msg: "⭐ ประกาศฟรีบอล (Free Ball Active)", tone: "success" });
+        }}
+      />
 
       {/* Action consequence toast — flashes clearly on every scoring tap */}
       {toast ? (

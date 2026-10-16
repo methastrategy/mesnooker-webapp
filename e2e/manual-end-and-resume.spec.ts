@@ -27,10 +27,12 @@ test.describe("Manual End Frame & Resume Safety (E2E)", () => {
     await redBall.click();
     await expect(page.getByText("×14")).toBeVisible();
 
-    // Player accidentally clicks "End" frame on the dock
-    const endFrameDockBtn = page.locator('button[aria-label*="End current frame"]');
-    await expect(endFrameDockBtn).toBeVisible();
-    await endFrameDockBtn.click();
+    // Player clicks "More options" and "End" frame in the sheet with confirmation
+    await page.locator('button[aria-label*="More options"]').click();
+    const endFrameBtn = page.locator('button[aria-label*="End current frame"]');
+    await expect(endFrameBtn).toBeVisible();
+    await endFrameBtn.click();
+    await page.getByRole("button", { name: /confirm end frame|ยืนยันจบเฟรม/i }).click();
 
     // FramePauseSummary appears with "Resume Frame" safety button
     const resumeBtn = page.getByRole("button", { name: /resume frame/i });
@@ -41,7 +43,9 @@ test.describe("Manual End Frame & Resume Safety (E2E)", () => {
     await expect(page.getByText("×14")).toBeVisible();
 
     // End frame for real
-    await endFrameDockBtn.click();
+    await page.locator('button[aria-label*="More options"]').click();
+    await page.locator('button[aria-label*="End current frame"]').click();
+    await page.getByRole("button", { name: /confirm end frame|ยืนยันจบเฟรม/i }).click();
     await expect(page.getByRole("heading", { name: /frame 1 complete/i })).toBeVisible();
 
     // Test "Next Frame" button

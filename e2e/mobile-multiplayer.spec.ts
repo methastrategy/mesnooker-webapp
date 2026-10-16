@@ -114,9 +114,11 @@ test.describe("Mobile Viewport & 4-Player Target Cycle (E2E)", () => {
     expect(hasGameOverflow).toBe(false);
 
     // ─── 4. End Frame on Mobile ───────────────────────────────────────────────
-    const endFrameDockBtn = page.locator('button[aria-label*="End current frame"]');
-    await expect(endFrameDockBtn).toBeVisible();
-    await endFrameDockBtn.click();
+    await page.locator('button[aria-label*="More options"]').click();
+    const endFrameBtn = page.locator('button[aria-label*="End current frame"]');
+    await expect(endFrameBtn).toBeVisible();
+    await endFrameBtn.click();
+    await page.getByRole("button", { name: /confirm end frame|ยืนยันจบเฟรม/i }).click();
 
     // FramePauseSummary should adapt gracefully to mobile viewport
     await expect(page.getByRole("heading", { name: /frame 1 complete/i })).toBeVisible();

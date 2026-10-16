@@ -109,10 +109,10 @@ describe("Snooker Money Engine", () => {
     expect(potMoney("black", "balls", "ball", 20)).toBe(40);
   });
 
-  it("calculates moneyPer === ball using ballCounts.total or potted balls correctly", () => {
+  it("calculates moneyPer === ball using fallback ballCounts when scores are not provided", () => {
     const players = [pA, pB];
     const targetCycle = { pA: "pB", pB: "pA" };
-    const scores = { pA: 0, pB: 0 }; // scores ignored when ballCounts given
+    const scores = {}; // scores undefined, falls back to ballCounts
 
     // Case 1: ballCounts with total property
     const res1 = computeFrameMoney({
@@ -131,37 +131,55 @@ describe("Snooker Money Engine", () => {
     expect(res1.net.pA).toBe(30);
     expect(res1.net.pB).toBe(-30);
 
-    // Case 2: ballCounts with BallCounts colors
+    // Case 2: ballCounts with BallCounts colors (including 2-point brown and black)
     const res2 = computeFrameMoney({
       mode: "balls",
       players,
       scores,
       ballCounts: {
-        pA: { red: 3, yellow: 1, green: 0, brown: 0, blue: 0, pink: 0, black: 1 },
-        pB: { red: 1, yellow: 0, green: 0, brown: 0, blue: 0, pink: 0, black: 0 },
+        pA: { red: 3, yellow: 1, green: 0, brown: 0, blue: 0, pink: 0, black: 1 }, // 3 + 1 + 2 = 6
+        pB: { red: 1, yellow: 0, green: 0, brown: 0, blue: 0, pink: 0, black: 0 }, // 1
       },
       targetCycle,
       moneyPer: "ball",
       moneyRate: 10,
     });
-    // pA potted 5 balls => earns 50, pB potted 1 ball => earns 10 => Net pA = +40, Net pB = -40
-    expect(res2.net.pA).toBe(40);
-    expect(res2.net.pB).toBe(-40);
+    // pA = 6 balls => earns 60, pB = 1 ball => earns 10 => Net pA = +50, Net pB = -50
+    expect(res2.net.pA).toBe(50);
+    expect(res2.net.pB).toBe(-50);
+  });
 
-    // Case 3: ballCounts overrides points scores when moneyPer === "ball"
-    const res3 = computeFrameMoney({
+  it("preserves fouls, misses, and solves when ballCounts is passed alongside scores in ball mode", () => {
+    const players = [pA, pB, pC];
+    const targetCycle = { pA: "pC", pB: "pA", pC: "pB" };
+    // pA: potted 3 balls (3 pts), 1 foul (-2 pts) => score = 1
+    // pB: potted 0 balls (0 pts), 1 solve (+1 pt) => score = 1
+    // pC: potted 2 balls (2 pts), 2 fouls (-4 pts) => score = -2
+    const scores = { pA: 1, pB: 1, pC: -2 };
+    const ballCounts = {
+      pA: { red: 3, yellow: 0, green: 0, brown: 0, blue: 0, pink: 0, black: 0 },
+      pB: { red: 0, yellow: 0, green: 0, brown: 0, blue: 0, pink: 0, black: 0 },
+      pC: { red: 2, yellow: 0, green: 0, brown: 0, blue: 0, pink: 0, black: 0 },
+    };
+
+    const res = computeFrameMoney({
       mode: "balls",
       players,
-      scores: { pA: 100, pB: 50 }, // point scores overridden by ballCounts
-      ballCounts: {
-        pA: { total: 0 },
-        pB: { total: 0 },
-      },
+      scores,
+      ballCounts,
       targetCycle,
       moneyPer: "ball",
       moneyRate: 10,
     });
-    expect(res3.net.pA).toBe(0);
-    expect(res3.net.pB).toBe(0);
+
+    // pA value = 10, earns 10 from pC, pays 10 to pB => Net pA = 10 - 10 = 0
+    // pB value = 10, earns 10 from pA, pays -20 to pC => Net pB = 10 - (-20) = 30
+    // pC value = -20, earns -20 from pB, pays 10 to pA => Net pC = -20 - 10 = -30
+    expect(res.net.pA).toBe(0);
+    expect(res.net.pB).toBe(30);
+    expect(res.net.pC).toBe(-30);
+
+    const sum = Object.values(res.net).reduce((a, b) => a + b, 0);
+    expect(Math.abs(sum)).toBeLessThan(1e-6);
   });
 });

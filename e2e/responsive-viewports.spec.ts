@@ -80,9 +80,11 @@ test.describe("UI/UX Multi-Device Viewports & Ergonomics (E2E)", () => {
 
     // ─── 3. FramePauseSummary Scroll Lock Fix on iPhone SE 2 ───
     // End frame manually to enter FramePauseSummary
-    const endFrameDockBtn = page.locator('button[aria-label*="End current frame"]');
-    await expect(endFrameDockBtn).toBeVisible();
-    await endFrameDockBtn.click();
+    await page.locator('button[aria-label*="More options"]').click();
+    const endFrameBtn = page.locator('button[aria-label*="End current frame"]');
+    await expect(endFrameBtn).toBeVisible();
+    await endFrameBtn.click();
+    await page.getByRole("button", { name: /confirm end frame|ยืนยันจบเฟรม/i }).click();
 
     // Pause summary modal is visible
     await expect(page.getByRole("heading", { name: /frame 1 complete/i })).toBeVisible();

@@ -61,6 +61,7 @@ function buildNextFrameOrder(players: Player[], openerIndex: number): Player[] {
 }
 export interface PottedEvent extends GameEvent {
   ball: BallColor;
+  isFreeBall?: boolean;
 }
 
 function initialCounts(redCount: number = 15): BallCounts {
@@ -111,6 +112,7 @@ interface PersistShape {
   history: ArchivedGame[];
   customRules: CustomRulesConfig;
   paidTransfers: string[];
+  freeBallActive: boolean;
   /** undo/redo stacks (in-memory only, not persisted) */
   undoStack: StateSnapshot[];
   redoStack: StateSnapshot[];
@@ -166,6 +168,13 @@ interface GameStore extends PersistShape {
   markTransferPaid: (key: string) => void;
   undoTransferPayment: (key: string) => void;
   clearPaidTransfers: () => void;
+  /** Advanced tactical snooker rules & governance */
+  setFreeBall: (active: boolean) => void;
+  foulWithOptions: (opts?: { points?: number; playAgain?: boolean }) => void;
+  playAgain: () => void;
+  rerack: () => void;
+  concede: (concedingPlayerId?: string) => void;
+  respotBlack: () => void;
 }
 
 /** A full state snapshot used for undo/redo. Deep-copied because frames/events
@@ -178,6 +187,7 @@ export interface StateSnapshot {
   shooterIndex: number;
   session: SessionSummary | null;
   reverse: boolean;
+  freeBallActive: boolean;
 }
 
 const MAX_HISTORY = 60;
@@ -190,6 +200,7 @@ function cloneSnapshot(st: PersistShape): StateSnapshot {
     shooterIndex: st.shooterIndex,
     session: st.session ? (JSON.parse(JSON.stringify(st.session)) as SessionSummary) : null,
     reverse: st.reverse,
+    freeBallActive: st.freeBallActive ?? false,
   };
 }
 
@@ -226,6 +237,7 @@ export const useGameStore = create<GameStore>()(
       redoStack: [],
       settingsOpen: false,
       paidTransfers: [],
+      freeBallActive: false,
 
       startSession: ({ players, mode, moneyRate, moneyPer, redCount = 15, tableFee = 0 }) => {
         if (players.length < 2) return;
@@ -262,6 +274,7 @@ export const useGameStore = create<GameStore>()(
           frames: [frame],
           events: [],
           paidTransfers: [],
+          freeBallActive: false,
         });
       },
 
@@ -372,6 +385,7 @@ export const useGameStore = create<GameStore>()(
           redoStack: [],
           settingsOpen: false,
           paidTransfers: [],
+          freeBallActive: false,
         });
         return archived;
       },
@@ -383,28 +397,51 @@ export const useGameStore = create<GameStore>()(
         const st = get();
         const f = st.frames[st.frames.length - 1];
         if (!f || !st.session) return;
-        const value = ballValue(ball, f.mode, st.customRules);
         const scorer = st.players[st.shooterIndex];
         if (!scorer) return;
         const counts = { ...st.ballCounts };
         // TURN BOUNDARY BEHAVIOUR — a pot is the start of a fresh undoable step.
         pushUndo(st);
 
-        // Re-spotting rule (USER-CONFIRMED):
-        // - A RED pot is always consumed (removed from the table).
-        // - A COLOUR pot RE-SPOTS (put back up) while any red remains on the
-        //   table AND while the shooter is still in their COLOUR phase — the
-        //   colour stays pressable so it can be potted again. A colour is only
-        //   actually removed once reds are gone AND the phase has cycled back
-        //   to RED_FIRST (ordered clear: yellow → … → black).
-        const frameEvents = st.events.filter((e) => e.frameId === f.id && !e.undone);
-        const phase = inferBreakPhase(frameEvents, scorer.id);
-        if (ball === "red") {
-          if (counts.red > 0) counts.red -= 1;
+        const isFreeBall = st.freeBallActive;
+        let value: number;
+
+        if (isFreeBall) {
+          // Free ball nominated color counts as a red (+1 point / +1 ball) WITHOUT decrementing reds or colours!
+          value = 1;
         } else {
-          const clearing = counts.red === 0 && phase === BreakPhase.RED_FIRST;
-          if (clearing && counts[ball] > 0) counts[ball] -= 1;
+          value = ballValue(ball, f.mode, st.customRules);
+          // Re-spotting rule (USER-CONFIRMED):
+          // - A RED pot is always consumed (removed from the table).
+          // - A COLOUR pot RE-SPOTS (put back up) while any red remains on the
+          //   table AND while the shooter is still in their COLOUR phase — the
+          //   colour stays pressable so it can be potted again. A colour is only
+          //   actually removed once reds are gone AND the phase has cycled back
+          //   to RED_FIRST (ordered clear: yellow → … → black).
+          const frameEvents = st.events.filter((e) => e.frameId === f.id && !e.undone);
+          const phase = inferBreakPhase(frameEvents, scorer.id);
+          if (ball === "red") {
+            if (counts.red > 0) counts.red -= 1;
+          } else {
+            const clearing = counts.red === 0 && phase === BreakPhase.RED_FIRST;
+            if (clearing && counts[ball] > 0) counts[ball] -= 1;
+          }
         }
+
+        // Consecutive points in the active turn/break only (BUG-03 fix)
+        let currentTurnPoints = 0;
+        for (let i = st.events.length - 1; i >= 0; i--) {
+          const e = st.events[i];
+          if (e.undone) continue;
+          if (e.frameId !== f.id) break; // Frame boundary: never cross into past frames
+          if (e.playerId !== scorer.id || e.type === "end_turn" || e.type === "foul" || e.type === "snooker_miss") {
+            break;
+          }
+          if (e.type === "pot") {
+            currentTurnPoints += e.points;
+          }
+        }
+        const activeBreak = currentTurnPoints + value;
 
         const evt: PottedEvent = {
           id: nid(),
@@ -415,21 +452,27 @@ export const useGameStore = create<GameStore>()(
           targetName: st.players.find((p) => p.id === f.targetCycle[scorer.id])?.nickname,
           type: "pot",
           ball,
+          isFreeBall: isFreeBall ? true : undefined,
           points: value,
-          breakValue: st.events.filter((e) => e.frameId === f.id && e.playerId === scorer.id && !e.undone).length + 1,
+          breakValue: activeBreak,
           frameId: f.id,
           turnIndex: st.shooterIndex,
         };
 
         f.scores[scorer.id] = (f.scores[scorer.id] ?? 0) + value;
-        f.breaks[scorer.id] = Math.max(f.breaks[scorer.id] ?? 0, evt.breakValue ?? 0);
+        f.breaks[scorer.id] = Math.max(f.breaks[scorer.id] ?? 0, activeBreak);
+        const topBreak = Math.max(0, ...st.players.map((p) => f.breaks[p.id] ?? 0));
+        f.highestBreak = topBreak;
+        if (activeBreak >= topBreak && topBreak > 0) {
+          f.highestBreakPlayerId = scorer.id;
+        }
         f.eventIds.push(evt.id);
 
         // AUTO-END: potting the black ball while it was the only ball left
         // ends the frame immediately — the shooter who pots it opens next frame.
         const wasOnlyBlack = isOnlyBlackLeft(st.ballCounts); // check BEFORE decrement
         const newCounts = counts;
-        if (ball === "black" && wasOnlyBlack) {
+        if (!isFreeBall && ball === "black" && wasOnlyBlack) {
           // Compute frame money inline (same as endFrame)
           const allFrameEvents = [...st.events, evt].filter((e) => e.frameId === f.id && !e.undone);
           const money = computeFrameMoney({
@@ -446,14 +489,17 @@ export const useGameStore = create<GameStore>()(
           f.money = money.net;
           f.endedAt = Date.now();
           const best = Math.max(...st.players.map((p) => f.scores[p.id] ?? 0));
-          const winners = st.players.filter((p) => (f.scores[p.id] ?? 0) === best && best >= 0);
+          const winners = st.players.filter((p) => (f.scores[p.id] ?? 0) === best);
           f.winnerId = winners.length === 1 ? winners[0].id : undefined;
           f.highestBreak = Math.max(0, ...st.players.map((p) => f.breaks[p.id] ?? 0));
+          const topBreakPlayer = st.players.find((p) => (f.breaks[p.id] ?? 0) === f.highestBreak && f.highestBreak > 0);
+          f.highestBreakPlayerId = topBreakPlayer?.id;
           const running = mergeRunning(st.session.runningBalance, money.net);
           set({
             ballCounts: newCounts,
             frames: [...st.frames],
             events: [...st.events, evt],
+            freeBallActive: false,
             undoStack: st.undoStack,
             redoStack: st.redoStack,
             session: { ...st.session, runningBalance: running, nextFrameFirstShooter: st.shooterIndex },
@@ -465,6 +511,7 @@ export const useGameStore = create<GameStore>()(
           ballCounts: counts,
           frames: [...st.frames],
           events: [...st.events, evt],
+          freeBallActive: false,
           undoStack: st.undoStack,
           redoStack: st.redoStack,
         });
@@ -569,9 +616,9 @@ export const useGameStore = create<GameStore>()(
         };
         f.eventIds.push(evt.id);
 
-        // FOUL-ON-BLACK auto-end: if only black was left, foul ends the frame immediately.
+        // FOUL or MISS on black auto-end: if only black was left, violation ends the frame immediately.
         // The fouling player opens next frame (they were "on" the black).
-        if (kind === "foul" && isOnlyBlackLeft(st.ballCounts)) {
+        if ((kind === "foul" || kind === "miss") && isOnlyBlackLeft(st.ballCounts)) {
           const allFrameEvents = [...st.events, evt].filter((e) => e.frameId === f.id && !e.undone);
           const money = computeFrameMoney({
             mode: f.mode,
@@ -587,13 +634,16 @@ export const useGameStore = create<GameStore>()(
           f.money = money.net;
           f.endedAt = Date.now();
           const best = Math.max(...st.players.map((p) => f.scores[p.id] ?? 0));
-          const winners = st.players.filter((p) => (f.scores[p.id] ?? 0) === best && best >= 0);
+          const winners = st.players.filter((p) => (f.scores[p.id] ?? 0) === best);
           f.winnerId = winners.length === 1 ? winners[0].id : undefined;
           f.highestBreak = Math.max(0, ...st.players.map((p) => f.breaks[p.id] ?? 0));
+          const topBreakPlayer = st.players.find((p) => (f.breaks[p.id] ?? 0) === f.highestBreak && f.highestBreak > 0);
+          f.highestBreakPlayerId = topBreakPlayer?.id;
           const running = mergeRunning(st.session.runningBalance, money.net);
           set({
             frames: [...st.frames],
             events: [...st.events, evt],
+            freeBallActive: false,
             undoStack: st.undoStack,
             redoStack: st.redoStack,
             session: { ...st.session, runningBalance: running, nextFrameFirstShooter: st.shooterIndex },
@@ -614,6 +664,7 @@ export const useGameStore = create<GameStore>()(
           frames: [...st.frames],
           events: [...st.events, evt, passEvt],
           shooterIndex: nextShooter,
+          freeBallActive: false,
           undoStack: st.undoStack,
           redoStack: st.redoStack,
         });
@@ -648,6 +699,7 @@ export const useGameStore = create<GameStore>()(
           frames: [...st.frames],
           events: nextEvents,
           shooterIndex: idx,
+          freeBallActive: false,
           undoStack: st.undoStack,
           redoStack: st.redoStack,
         });
@@ -700,6 +752,7 @@ export const useGameStore = create<GameStore>()(
         const f = st.frames[st.frames.length - 1];
         if (!f || !st.session) return;
         if (f.endedAt) return;
+        pushUndo(st);
         f.endedAt = Date.now();
 
         // Per-frame money: count balls potted in THIS frame only.
@@ -723,16 +776,21 @@ export const useGameStore = create<GameStore>()(
           const sc = f.scores[p.id] ?? 0;
           if (sc > best) best = sc;
         }
-        // winner = player(s) tied at best AND > 0
-        const winners = st.players.filter((p) => (f.scores[p.id] ?? 0) === best && best >= 0);
+        // winner = player(s) tied at best (even if negative)
+        const winners = st.players.filter((p) => (f.scores[p.id] ?? 0) === best);
         f.winnerId = winners.length === 1 ? winners[0].id : undefined;
         f.highestBreak = Math.max(0, ...st.players.map((p) => f.breaks[p.id] ?? 0));
+        const topBreakPlayer = st.players.find((p) => (f.breaks[p.id] ?? 0) === f.highestBreak && f.highestBreak > 0);
+        f.highestBreakPlayerId = topBreakPlayer?.id;
 
         const running = mergeRunning(st.session.runningBalance, money.net);
         const nextOpener = (st.shooterIndex + 1) % Math.max(1, st.players.length);
         set({
           session: { ...st.session, runningBalance: running, nextFrameFirstShooter: nextOpener },
           frames: [...st.frames],
+          freeBallActive: false,
+          undoStack: st.undoStack,
+          redoStack: st.redoStack,
         });
       },
 
@@ -740,6 +798,7 @@ export const useGameStore = create<GameStore>()(
         const st = get();
         const f = st.frames[st.frames.length - 1];
         if (!f || !st.session || f.endedAt) return; // guard double-end
+        pushUndo(st);
         const frameEvents = st.events.filter((e) => e.frameId === f.id && !e.undone);
         const money = computeFrameMoney({
           mode: f.mode,
@@ -754,14 +813,19 @@ export const useGameStore = create<GameStore>()(
         });
         f.money = money.net;
         f.endedAt = Date.now();
-        const best = Math.max(0, ...st.players.map((p) => f.scores[p.id] ?? 0));
-        const winners = st.players.filter((p) => (f.scores[p.id] ?? 0) === best && best >= 0);
+        const best = Math.max(...st.players.map((p) => f.scores[p.id] ?? 0));
+        const winners = st.players.filter((p) => (f.scores[p.id] ?? 0) === best);
         f.winnerId = winners.length === 1 ? winners[0].id : undefined;
         f.highestBreak = Math.max(0, ...st.players.map((p) => f.breaks[p.id] ?? 0));
+        const topBreakPlayer = st.players.find((p) => (f.breaks[p.id] ?? 0) === f.highestBreak && f.highestBreak > 0);
+        f.highestBreakPlayerId = topBreakPlayer?.id;
         const running = mergeRunning(st.session.runningBalance, money.net);
         set({
           session: { ...st.session, runningBalance: running, nextFrameFirstShooter: openerIdx },
           frames: [...st.frames],
+          freeBallActive: false,
+          undoStack: st.undoStack,
+          redoStack: st.redoStack,
         });
       },
 
@@ -813,6 +877,7 @@ export const useGameStore = create<GameStore>()(
           ballCounts: initialCounts(st.session.redCount),
           startCounts: initialCounts(st.session.redCount),
           shooterIndex: 0,
+          freeBallActive: false,
           undoStack: [],
           redoStack: [],
         });
@@ -918,6 +983,244 @@ export const useGameStore = create<GameStore>()(
           paidTransfers: (s.paidTransfers ?? []).filter((k) => k !== key),
         })),
       clearPaidTransfers: () => set({ paidTransfers: [] }),
+
+      setFreeBall: (active: boolean) => set({ freeBallActive: active }),
+
+      foulWithOptions: (opts) => {
+        const { points, playAgain = false } = opts ?? {};
+        const st = get();
+        const f = st.frames[st.frames.length - 1];
+        const n = st.players.length;
+        if (!f || !st.session || !n) return;
+        const scorer = st.players[st.shooterIndex];
+        if (!scorer) return;
+        pushUndo(st);
+
+        const defaultPenalty = getFoulValue(f.mode, st.customRules);
+        const penalty = points !== undefined ? (points > 0 ? -points : points) : defaultPenalty;
+
+        f.scores[scorer.id] = (f.scores[scorer.id] ?? 0) + penalty;
+        f.fouls[scorer.id] = (f.fouls[scorer.id] ?? 0) + 1;
+
+        const evt: GameEvent = {
+          id: nid(),
+          ts: Date.now(),
+          playerId: scorer.id,
+          playerName: scorer.nickname,
+          targetId: f.targetCycle[scorer.id],
+          targetName: st.players.find((p) => p.id === f.targetCycle[scorer.id])?.nickname,
+          type: "foul",
+          points: penalty,
+          frameId: f.id,
+          turnIndex: st.shooterIndex,
+        };
+        f.eventIds.push(evt.id);
+
+        if (isOnlyBlackLeft(st.ballCounts)) {
+          const allFrameEvents = [...st.events, evt].filter((e) => e.frameId === f.id && !e.undone);
+          const money = computeFrameMoney({
+            mode: f.mode,
+            players: st.players,
+            scores: f.scores,
+            ballCounts: Object.fromEntries(
+              st.players.map((p) => [p.id, pottedBallsPerPlayer(allFrameEvents, p.id)])
+            ),
+            targetCycle: f.targetCycle,
+            moneyPer: st.moneyPer,
+            moneyRate: st.moneyRate,
+          });
+          f.money = money.net;
+          f.endedAt = Date.now();
+          const best = Math.max(...st.players.map((p) => f.scores[p.id] ?? 0));
+          const winners = st.players.filter((p) => (f.scores[p.id] ?? 0) === best);
+          f.winnerId = winners.length === 1 ? winners[0].id : undefined;
+          f.highestBreak = Math.max(0, ...st.players.map((p) => f.breaks[p.id] ?? 0));
+          const topBreakPlayer = st.players.find((p) => (f.breaks[p.id] ?? 0) === f.highestBreak && f.highestBreak > 0);
+          f.highestBreakPlayerId = topBreakPlayer?.id;
+          const running = mergeRunning(st.session.runningBalance, money.net);
+          set({
+            frames: [...st.frames],
+            events: [...st.events, evt],
+            freeBallActive: false,
+            undoStack: st.undoStack,
+            redoStack: st.redoStack,
+            session: { ...st.session, runningBalance: running, nextFrameFirstShooter: st.shooterIndex },
+          });
+          return;
+        }
+
+        const passEvt: GameEvent = {
+          id: nid(),
+          ts: Date.now(),
+          playerId: scorer.id,
+          playerName: scorer.nickname,
+          targetId: f.targetCycle[scorer.id],
+          targetName: st.players.find((p) => p.id === f.targetCycle[scorer.id])?.nickname,
+          type: "end_turn",
+          points: 0,
+          frameId: f.id,
+          turnIndex: st.shooterIndex,
+        };
+        f.eventIds.push(passEvt.id);
+
+        const nextShooter = playAgain ? st.shooterIndex : (st.shooterIndex + 1) % n;
+        set({
+          frames: [...st.frames],
+          events: [...st.events, evt, passEvt],
+          shooterIndex: nextShooter,
+          freeBallActive: false,
+          undoStack: st.undoStack,
+          redoStack: st.redoStack,
+        });
+      },
+
+      playAgain: () => {
+        const st = get();
+        const n = st.players.length;
+        if (!st.session || n < 2) return;
+        const f = st.frames[st.frames.length - 1];
+        if (!f) return;
+
+        // Find the last foul or miss event in the current frame to identify who fouled
+        const lastViolation = [...st.events]
+          .reverse()
+          .find((e) => e.frameId === f.id && !e.undone && (e.type === "foul" || e.type === "snooker_miss"));
+
+        pushUndo(st);
+
+        let targetIndex: number;
+        if (lastViolation) {
+          const violatorIndex = st.players.findIndex((p) => p.id === lastViolation.playerId);
+          targetIndex = violatorIndex >= 0 ? violatorIndex : (st.shooterIndex - 1 + n) % n;
+        } else {
+          targetIndex = (st.shooterIndex - 1 + n) % n;
+        }
+
+        set({
+          shooterIndex: targetIndex,
+          undoStack: st.undoStack,
+          redoStack: st.redoStack,
+        });
+      },
+
+      rerack: () => {
+        const st = get();
+        const f = st.frames[st.frames.length - 1];
+        if (!f || !st.session || f.endedAt) return;
+        pushUndo(st);
+
+        f.scores = emptyScores(st.players);
+        f.breaks = emptyScores(st.players);
+        f.fouls = emptyScores(st.players);
+        f.snookerMisses = emptyScores(st.players);
+        f.snookerHits = emptyScores(st.players);
+        f.highestBreak = 0;
+        f.highestBreakPlayerId = undefined;
+        f.winnerId = undefined;
+        f.money = {};
+        f.startedAt = Date.now();
+
+        const events = st.events.map((e) => (e.frameId === f.id ? { ...e, undone: true } : e));
+        f.eventIds = [];
+
+        const counts = initialCounts(st.session.redCount);
+        set({
+          ballCounts: counts,
+          startCounts: counts,
+          shooterIndex: 0,
+          freeBallActive: false,
+          frames: [...st.frames],
+          events,
+          undoStack: st.undoStack,
+          redoStack: st.redoStack,
+        });
+      },
+
+      concede: (concedingPlayerId?: string) => {
+        const st = get();
+        const f = st.frames[st.frames.length - 1];
+        if (!f || !st.session || f.endedAt) return;
+        pushUndo(st);
+
+        let winnerId: string | undefined;
+        if (concedingPlayerId) {
+          const opponents = st.players.filter((p) => p.id !== concedingPlayerId);
+          const maxScore = Math.max(...opponents.map((p) => f.scores[p.id] ?? 0));
+          const topOpponents = opponents.filter((p) => (f.scores[p.id] ?? 0) === maxScore);
+          winnerId = topOpponents.length === 1 ? topOpponents[0].id : undefined;
+        } else {
+          // If no specific conceder passed, award win to overall leader
+          const maxScore = Math.max(...st.players.map((p) => f.scores[p.id] ?? 0));
+          const leaders = st.players.filter((p) => (f.scores[p.id] ?? 0) === maxScore);
+          winnerId = leaders.length === 1 ? leaders[0].id : undefined;
+        }
+
+        const frameEvents = st.events.filter((e) => e.frameId === f.id && !e.undone);
+        const money = computeFrameMoney({
+          mode: f.mode,
+          players: st.players,
+          scores: f.scores,
+          ballCounts: Object.fromEntries(
+            st.players.map((p) => [p.id, pottedBallsPerPlayer(frameEvents, p.id)])
+          ),
+          targetCycle: f.targetCycle,
+          moneyPer: st.moneyPer,
+          moneyRate: st.moneyRate,
+        });
+        f.money = money.net;
+        f.endedAt = Date.now();
+        f.winnerId = winnerId;
+        f.highestBreak = Math.max(0, ...st.players.map((p) => f.breaks[p.id] ?? 0));
+        const topBreakPlayer = st.players.find((p) => (f.breaks[p.id] ?? 0) === f.highestBreak && f.highestBreak > 0);
+        f.highestBreakPlayerId = topBreakPlayer?.id;
+
+        const running = mergeRunning(st.session.runningBalance, money.net);
+        const nextOpener = (st.shooterIndex + 1) % Math.max(1, st.players.length);
+        set({
+          session: { ...st.session, runningBalance: running, nextFrameFirstShooter: nextOpener },
+          frames: [...st.frames],
+          freeBallActive: false,
+          undoStack: st.undoStack,
+          redoStack: st.redoStack,
+        });
+      },
+
+      respotBlack: () => {
+        const st = get();
+        const f = st.frames[st.frames.length - 1];
+        if (!f || !st.session) return;
+        pushUndo(st);
+
+        const prevRunning = { ...st.session.runningBalance };
+        if (f.money) {
+          for (const [pid, amt] of Object.entries(f.money)) {
+            prevRunning[pid] = (prevRunning[pid] ?? 0) - amt;
+          }
+        }
+
+        f.endedAt = undefined;
+        f.winnerId = undefined;
+        f.money = {};
+
+        const respotCounts: BallCounts = {
+          red: 0,
+          yellow: 0,
+          green: 0,
+          brown: 0,
+          blue: 0,
+          pink: 0,
+          black: 1,
+        };
+
+        set({
+          session: { ...st.session, runningBalance: prevRunning },
+          ballCounts: respotCounts,
+          frames: [...st.frames],
+          freeBallActive: false,
+          undoStack: st.undoStack,
+          redoStack: st.redoStack,
+        });
+      },
     }),
     {
       name: "smoke-master-v1",
@@ -940,6 +1243,7 @@ export const useGameStore = create<GameStore>()(
         history: s.history,
         customRules: s.customRules,
         paidTransfers: s.paidTransfers ?? [],
+        freeBallActive: s.freeBallActive ?? false,
       }),
       version: 1,
     }

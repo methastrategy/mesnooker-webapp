@@ -150,7 +150,7 @@ export enum BreakPhase {
  * current break. Redefine from the events (reverse scan until a reset event).
  */
 export function inferBreakPhase(
-  events: Array<{ type: string; ball?: BallColor; playerId?: string; undone?: boolean }>,
+  events: Array<{ type: string; ball?: BallColor; playerId?: string; undone?: boolean; isFreeBall?: boolean }>,
   shooterId: string
 ): BreakPhase {
   for (let i = events.length - 1; i >= 0; i--) {
@@ -163,13 +163,13 @@ export function inferBreakPhase(
       return BreakPhase.RED_FIRST;
     }
     // only consider this shooter's active break
-    if (e.playerId && e.playerId !== shooterId) continue;
+    if (e.playerId && e.playerId !== shooterId) break;
     if (e.type === "foul" || e.type === "snooker_miss") {
       return BreakPhase.RED_FIRST;
     }
     if (e.type === "pot") {
-      // A red pot means "must now play a colour"; a colour pot means "red next".
-      return e.ball === "red" ? BreakPhase.COLOUR : BreakPhase.RED_FIRST;
+      // A red pot (or free ball acting as a red) means "must now play a colour"; a colour pot means "red next".
+      return (e.ball === "red" || e.isFreeBall) ? BreakPhase.COLOUR : BreakPhase.RED_FIRST;
     }
     if (e.type === "snooker_hit") {
       continue; // hit continues the break state
@@ -224,7 +224,7 @@ export function currentBreakCount(
   for (let i = events.length - 1; i >= 0; i--) {
     const e = events[i];
     if (e.undone) continue;
-    if (e.playerId && e.playerId !== shooterId) continue;
+    if (e.playerId && e.playerId !== shooterId) break;
     if (e.type === "foul" || e.type === "snooker_miss" || e.type === "end_turn") break;
     if (e.type === "pot" || e.type === "snooker_hit") count++;
   }
@@ -233,13 +233,19 @@ export function currentBreakCount(
 
 /** Count how many balls of each colour this player potted in a frame (for per-ball money). */
 export function pottedBallsPerPlayer(
-  events: Array<{ type: string; playerId?: string; ball?: BallColor; undone?: boolean }>,
+  events: Array<{ type: string; playerId?: string; ball?: BallColor; undone?: boolean; isFreeBall?: boolean }>,
   playerId: string
 ): BallCounts {
   const c: BallCounts = { red: 0, yellow: 0, green: 0, brown: 0, blue: 0, pink: 0, black: 0 };
   events.forEach((e) => {
     if (e.undone) return;
-    if (e.type === "pot" && e.playerId === playerId && e.ball) c[e.ball] += 1;
+    if (e.type === "pot" && e.playerId === playerId && e.ball) {
+      if (e.isFreeBall) {
+        c.red += 1;
+      } else {
+        c[e.ball] += 1;
+      }
+    }
   });
   return c;
 }

@@ -31,6 +31,7 @@ export function FramePauseSummary({
   const setNextFrameOpener = useGameStore((s) => s.setNextFrameOpener);
   const newFrame = useGameStore((s) => s.newFrame);
   const resumeFrame = useGameStore((s) => s.resumeFrame);
+  const respotBlack = useGameStore((s) => s.respotBlack);
   const archiveAndReset = useGameStore((s) => s.archiveAndReset);
 
   const frame = frames[frames.length - 1];
@@ -44,9 +45,9 @@ export function FramePauseSummary({
     (a, b) => (frame.scores[b.id] ?? 0) - (frame.scores[a.id] ?? 0)
   );
   const frameTotal = players.reduce((s, p) => s + (frame.scores[p.id] ?? 0), 0);
-  const maxScore = Math.max(0, ...players.map((x) => frame.scores[x.id] ?? 0));
+  const maxScore = Math.max(...players.map((x) => frame.scores[x.id] ?? 0));
   const winnerIds = players
-    .filter((p) => (frame.scores[p.id] ?? 0) === maxScore && maxScore > 0)
+    .filter((p) => (frame.scores[p.id] ?? 0) === maxScore)
     .map((p) => p.id);
   const isTie = winnerIds.length > 1;
   const frameWinner = winnerIds.length === 1 ? players.find((p) => p.id === winnerIds[0]) : null;
@@ -71,6 +72,11 @@ export function FramePauseSummary({
 
   const handleResume = () => {
     resumeFrame();
+    if (onResume) onResume();
+  };
+
+  const handleRespotBlack = () => {
+    respotBlack();
     if (onResume) onResume();
   };
 
@@ -222,6 +228,37 @@ export function FramePauseSummary({
           </div>
         </motion.div>
       ) : null}
+
+      {/* ─── 2.5 Respot Black Action Trigger (ชิงดำ) ────────────────────────── */}
+      {isTie && (
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.12 }}
+          className="rounded-[20px] border border-amber-500/50 bg-gradient-to-r from-amber-500/15 via-black/40 to-amber-500/10 p-3.5 sm:p-4 shadow-lg flex flex-col sm:flex-row items-center justify-between gap-3"
+        >
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-black border border-amber-400 text-amber-400 font-black text-sm shadow-md">
+              🎱
+            </div>
+            <div className="flex flex-col">
+              <span className="text-xs sm:text-sm font-black text-amber-300 uppercase tracking-wide">
+                Respot Black · ชิงดำตัดสินเฟรม
+              </span>
+              <span className="text-[11px] text-muted-foreground leading-snug">
+                แต้มเสมอกัน ตั้งลูกดำบนจุด ชิงดำตัดสินผู้ชนะเฟรมนี้ (แต้มแรกที่ได้เป็นฝ่ายชนะ)
+              </span>
+            </div>
+          </div>
+          <Button
+            variant="gold"
+            onClick={handleRespotBlack}
+            className="w-full sm:w-auto h-11 px-5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-stone-950 font-black uppercase tracking-wider text-xs shadow-md hover:brightness-110 shrink-0 cursor-pointer"
+          >
+            🎱 เริ่มชิงดำ (Respot Black)
+          </Button>
+        </motion.div>
+      )}
 
       {/* ─── 3. Next Frame Opener Radar Capsule & Selector ──────────────────── */}
       <motion.div

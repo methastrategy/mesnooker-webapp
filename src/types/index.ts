@@ -59,6 +59,7 @@ export interface GameEvent {
   targetName?: string;
   type: EventType;
   ball?: BallColor;
+  isFreeBall?: boolean;
   points: number;
   breakValue?: number;
   frameId: string;

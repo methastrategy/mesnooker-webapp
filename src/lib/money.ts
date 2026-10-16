@@ -55,8 +55,11 @@ export function computeFrameMoney(args: {
 
   for (const p of players) {
     const id = p.id;
-    let units = scores[id] ?? 0;
-    if (moneyPer === "ball" && ballCounts) {
+    let units = scores[id];
+    // In both point count and ball count modes, scores[id] already accumulates the net game
+    // value (+1 for red/yellow/green/blue/pink, +2 for brown/black, -2 foul, -1 miss, +1 solve).
+    // If scores[id] is undefined, fall back to ballCounts if provided.
+    if (units === undefined && moneyPer === "ball" && ballCounts) {
       const bc = ballCounts[id] as (BallCounts & { total?: number }) | undefined;
       if (typeof bc?.total === "number") {
         units = bc.total;
@@ -65,14 +68,13 @@ export function computeFrameMoney(args: {
           (bc.red ?? 0) +
           (bc.yellow ?? 0) +
           (bc.green ?? 0) +
-          (bc.brown ?? 0) +
+          (bc.brown ?? 0) * 2 +
           (bc.blue ?? 0) +
           (bc.pink ?? 0) +
-          (bc.black ?? 0);
-      } else {
-        units = 0;
+          (bc.black ?? 0) * 2;
       }
     }
+    units = units ?? 0;
     const value = units * moneyRate;
 
     if (Math.abs(value) < 1e-9) continue;
