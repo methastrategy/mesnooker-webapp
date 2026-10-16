@@ -131,10 +131,10 @@ export function SettlementPanel({
                     <Button
                       variant={paid ? "outline" : "default"}
                       size="sm"
-                      className="rounded-full h-7 sm:h-8 px-2.5 sm:px-3 text-[11px] sm:text-xs font-semibold"
+                      className="rounded-full h-9 sm:h-10 px-3.5 sm:px-4 text-xs sm:text-sm font-semibold"
                       onClick={() => (paid ? onUndoPayment(key) : onMarkPaid(key))}
                     >
-                      {paid ? <Check size={12} /> : <CreditCard size={12} />}
+                      {paid ? <Check size={14} /> : <CreditCard size={14} />}
                       <span>{paid ? "Paid" : "Pay"}</span>
                     </Button>
                   </div>
@@ -168,10 +168,10 @@ export function PaymentActions({ transfers }: { transfers: SettlementInstruction
             key={key}
             variant="glass"
             size="sm"
-            className="rounded-full text-xs font-mono"
+            className="rounded-full h-9 sm:h-10 px-3.5 sm:px-4 text-xs sm:text-sm font-mono"
             onClick={() => copy(`${t.fromName} pays ${t.toName} ${formatNumber(t.amount)}฿`, key)}
           >
-            {copied === key ? <Check size={13} className="text-primary" /> : <Copy size={13} />}
+            {copied === key ? <Check size={14} className="text-primary" /> : <Copy size={14} />}
             <span>Copy {t.fromName} → {t.toName}</span>
           </Button>
         );

@@ -193,7 +193,7 @@ export function LiveMatch({ onPause }: {
 
   if (!frame || !session) {
     return (
-      <div className="mx-auto flex w-full max-w-5xl h-full items-center justify-center">
+      <div className="mx-auto flex w-full max-w-5xl xl:max-w-6xl 2xl:max-w-7xl h-full items-center justify-center">
         <div className="glass p-8 text-center text-muted-foreground rounded-2xl">
           No active session. Start one from the dashboard.
         </div>
@@ -211,7 +211,7 @@ export function LiveMatch({ onPause }: {
   });
 
   return (
-    <div className="w-full max-w-5xl mx-auto h-full flex flex-col justify-between overflow-hidden gap-1.5 sm:gap-2.5">
+    <div className="w-full max-w-5xl xl:max-w-6xl 2xl:max-w-7xl mx-auto h-full flex flex-col justify-between overflow-hidden gap-1.5 sm:gap-2.5">
       {/* ══════════ MATCH COCKPIT CONTAINER (ZERO SCROLL IN BOTH ORIENTATIONS) ══════════ */}
       <div className="h-full flex flex-col justify-between overflow-hidden gap-1.5 sm:gap-2 landscape:grid landscape:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] landscape:gap-3 landscape:items-center">
         

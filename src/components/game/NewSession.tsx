@@ -115,7 +115,7 @@ export function NewSession({
   }
 
   return (
-    <div className="glass-strong rounded-[24px] border border-border/80 shadow-2xl backdrop-blur-2xl p-4 sm:p-7 flex flex-col gap-5 select-none relative">
+    <div className="glass-strong rounded-[24px] border border-border/80 shadow-2xl backdrop-blur-2xl p-4 sm:p-7 flex flex-col gap-5 select-none relative overflow-hidden">
       {/* Ambient Radial Glow */}
       <div
         aria-hidden
@@ -363,27 +363,27 @@ export function NewSession({
                   <span>4 คน (เม, อุ้ม, ฟุค, นน)</span>
                 </Button>
 
-                <div className="flex items-center gap-1 rounded-full border border-border/80 bg-card p-1 shadow-xs">
+                <div className="flex items-center gap-1.5 rounded-full border border-border/80 bg-card p-1 sm:p-1.5 shadow-xs">
                   <Button
                     variant="ghost"
                     size="iconSm"
-                    className="rounded-full h-6 w-6"
+                    className="rounded-full h-9 w-9 sm:h-10 sm:w-10"
                     onClick={() => bump(-1)}
                     aria-label="Remove player"
                   >
-                    <Minus size={13} />
+                    <Minus size={16} />
                   </Button>
-                  <span className="min-w-6 text-center font-bold font-mono text-xs tabular-nums text-foreground">
+                  <span className="min-w-7 text-center font-bold font-mono text-xs sm:text-sm tabular-nums text-foreground">
                     {count}
                   </span>
                   <Button
                     variant="ghost"
                     size="iconSm"
-                    className="rounded-full h-6 w-6"
+                    className="rounded-full h-9 w-9 sm:h-10 sm:w-10"
                     onClick={() => bump(1)}
                     aria-label="Add player"
                   >
-                    <Plus size={13} />
+                    <Plus size={16} />
                   </Button>
                 </div>
               </div>

@@ -23,15 +23,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   const isAuthPage = pathname === "/login";
   const isMatchPage = pathname === "/match";
+  const isSetupPage = pathname === "/setup";
   const session = useGameStore((s) => s.session);
   const frames = useGameStore((s) => s.frames);
   const isLiveMatch = isMatchPage && Boolean(session && session.status === "live" && frames.length > 0);
+  const hideBottomNav = isLiveMatch || isSetupPage;
 
   if (isAuthPage) {
     return (
       <div className="relative flex min-h-screen bg-background text-foreground">
         <main className="relative z-10 w-full min-w-0 flex-1 px-4 py-8">
-          <div className="mx-auto w-full max-w-5xl">{children}</div>
+          <div className="mx-auto w-full max-w-5xl xl:max-w-6xl 2xl:max-w-7xl">{children}</div>
         </main>
       </div>
     );
@@ -49,21 +51,23 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <main
         className={
           isLiveMatch
-            ? "relative z-10 w-full min-w-0 flex-1 px-2 sm:px-4 pt-1 sm:pt-2 pb-1 sm:pb-2 flex flex-col overflow-hidden"
-            : "relative z-10 w-full min-w-0 flex-1 px-3 sm:px-6 pt-3 sm:pt-4 pb-24 md:pb-12"
+            ? "relative z-10 w-full min-w-0 flex-1 px-2 sm:px-4 pt-1 sm:pt-2 pb-1 sm:pb-2 flex flex-col min-h-0 overflow-hidden"
+            : isSetupPage
+              ? "relative z-10 w-full min-w-0 flex-1 px-3 sm:px-6 pt-3 sm:pt-4 pb-6 sm:pb-8"
+              : "relative z-10 w-full min-w-0 flex-1 px-3 sm:px-6 pt-3 sm:pt-4 pb-24 md:pb-12"
         }
       >
         <div
           className={
             isLiveMatch
-              ? "mx-auto w-full max-w-5xl md:max-w-6xl h-full flex flex-col overflow-hidden"
-              : "mx-auto w-full max-w-5xl md:max-w-6xl"
+              ? "mx-auto w-full max-w-5xl md:max-w-6xl xl:max-w-6xl 2xl:max-w-7xl h-full flex flex-col min-h-0"
+              : "mx-auto w-full max-w-5xl md:max-w-6xl xl:max-w-6xl 2xl:max-w-7xl"
           }
         >
           {children}
         </div>
       </main>
-      {!isLiveMatch && <BottomNav />}
+      {!hideBottomNav && <BottomNav />}
     </div>
   );
 }

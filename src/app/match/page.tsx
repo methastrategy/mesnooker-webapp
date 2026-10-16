@@ -46,7 +46,7 @@ export default function MatchPage() {
   const lastFrame = frames[frames.length - 1];
   if (paused && lastFrame?.endedAt) {
     return (
-      <div className="pb-20 md:pb-8">
+      <div className="h-full w-full overflow-y-auto overscroll-contain pb-24 md:pb-12 pr-0.5 select-none [-webkit-overflow-scrolling:touch]">
         <FramePauseSummary
           onResume={() => setPaused(false)}
           onFinish={(a) => {

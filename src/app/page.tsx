@@ -439,7 +439,7 @@ export default function HomePage() {
                   type="button"
                   onClick={() => setCalcUnits(val)}
                   className={cn(
-                    "px-2.5 py-1 rounded-lg text-xs font-mono font-semibold transition-all cursor-pointer",
+                    "px-3.5 py-2 min-h-[40px] rounded-xl text-xs sm:text-sm font-mono font-semibold transition-all cursor-pointer flex items-center justify-center",
                     calcUnits === val
                       ? "bg-primary text-primary-foreground font-bold border border-primary/50 shadow-xs"
                       : "bg-surface border border-border text-muted-foreground hover:text-foreground"

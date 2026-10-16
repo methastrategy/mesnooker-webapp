@@ -113,9 +113,9 @@ export function TurnHeader({
         className={cn(
           "grid gap-2 sm:gap-2.5",
           opponents.length === 1
-            ? "grid-cols-2"
+            ? "grid-cols-2 landscape:grid-cols-1"
             : opponents.length > 0
-              ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]"
+              ? "grid-cols-1 landscape:flex landscape:flex-col landscape:gap-2.5"
               : "grid-cols-1"
         )}
       >
@@ -245,10 +245,10 @@ export function TurnHeader({
             opponents.length === 1
               ? "grid-cols-1"
               : opponents.length === 2
-                ? "grid-cols-2"
+                ? "grid-cols-2 landscape:grid-cols-1"
                 : opponents.length === 3
-                  ? "grid-cols-3"
-                  : "grid-cols-2 sm:grid-cols-4"
+                  ? "grid-cols-3 landscape:grid-cols-1 landscape:gap-1.5"
+                  : "grid-cols-2 sm:grid-cols-4 landscape:grid-cols-1"
           )}
         >
           {opponents.map((p) => {
@@ -270,6 +270,7 @@ export function TurnHeader({
                 key={p.id}
                 className={cn(
                   "relative flex flex-col justify-between rounded-[16px] sm:rounded-2xl border p-1.5 min-[380px]:p-2 sm:p-2.5 transition-all duration-150 select-none shadow-md backdrop-blur-md overflow-hidden",
+                  "landscape:flex-row landscape:items-center landscape:p-2 landscape:gap-2",
                   isTargetOfShooter
                     ? "border-emerald-500/45 bg-emerald-950/20 ring-1 ring-emerald-500/30 shadow-xs"
                     : isNext
@@ -278,7 +279,7 @@ export function TurnHeader({
                 )}
               >
                 {/* Top line: Avatar + Name + Single prioritized badge */}
-                <div className="flex items-center justify-between gap-1 min-w-0">
+                <div className="flex items-center justify-between gap-1 min-w-0 landscape:flex-1">
                   <Link
                     href={`/player?id=${p.id}`}
                     className="flex items-center gap-1 min-[380px]:gap-1.5 min-w-0 flex-1 group hover:opacity-90 transition-opacity"
@@ -317,7 +318,7 @@ export function TurnHeader({
                 </div>
 
                 {/* Score & Money */}
-                <div className="flex items-baseline justify-between gap-1 mt-1.5 pt-1 border-t border-border/70">
+                <div className="flex items-baseline justify-between gap-1 mt-1.5 pt-1 border-t border-border/70 landscape:mt-0 landscape:pt-0 landscape:border-t-0 landscape:shrink-0 landscape:gap-3">
                   <div className="flex items-baseline gap-1 min-w-0">
                     <span className="font-mono font-black tracking-tight text-foreground tabular-nums text-xl min-[380px]:text-2xl sm:text-3xl leading-none">
                       <AnimatedNumber value={score} />

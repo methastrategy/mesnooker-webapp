@@ -106,7 +106,7 @@ export function BallPad({
           onScroll={updateScrollHints}
           className="w-full overflow-x-auto no-scrollbar py-0.5"
         >
-          <div className="mx-auto flex w-full max-w-full justify-between sm:justify-center items-center gap-1 min-[360px]:gap-1.5 min-[390px]:gap-2 sm:gap-3 px-0.5">
+          <div className="mx-auto flex w-full max-w-full justify-between sm:justify-center items-center gap-0.5 min-[360px]:gap-1 min-[375px]:gap-1.5 min-[390px]:gap-2 sm:gap-3 px-0.5">
             {BALL_ORDER.map((c) => {
               const isLegal = legalSet.has(c);
               const value = ballValues[c];
@@ -120,7 +120,7 @@ export function BallPad({
                     selected={isLegal}
                     onClick={() => onPot(c)}
                   />
-                  <div className="flex items-center gap-1 rounded-full bg-card/90 px-2 py-0.5 border border-border/80 shadow-xs">
+                  <div className="flex items-center gap-0.5 min-[380px]:gap-1 rounded-full bg-card/90 px-1 min-[375px]:px-1.5 min-[390px]:px-2 py-0.5 border border-border/80 shadow-xs">
                     <span className="text-[9px] sm:text-[10px] font-semibold text-foreground/85 leading-tight">
                       {BALL_NAME[c]}
                     </span>
