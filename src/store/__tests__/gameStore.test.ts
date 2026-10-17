@@ -421,4 +421,18 @@ describe("gameStore - paidTransfers persistence and state", () => {
     expect(frame2.breaks[p2.id]).toBe(1);
     expect(frame2.highestBreak).toBe(1);
   });
+
+  it("updates player promptpay ID cleanly", () => {
+    useGameStore.getState().startSession({
+      players: [p1, p2],
+      mode: "points",
+      moneyRate: 10,
+      moneyPer: "point",
+      redCount: 15,
+    });
+
+    useGameStore.getState().updatePlayerPromptPay(p1.id, "081-234-5678");
+    const player = useGameStore.getState().players.find((p) => p.id === p1.id);
+    expect(player?.promptpayId).toBe("081-234-5678");
+  });
 });

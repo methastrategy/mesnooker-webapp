@@ -168,6 +168,7 @@ interface GameStore extends PersistShape {
   markTransferPaid: (key: string) => void;
   undoTransferPayment: (key: string) => void;
   clearPaidTransfers: () => void;
+  updatePlayerPromptPay: (playerId: string, promptpayId: string) => void;
   /** Advanced tactical snooker rules & governance */
   setFreeBall: (active: boolean) => void;
   foulWithOptions: (opts?: { points?: number; playAgain?: boolean }) => void;
@@ -983,6 +984,12 @@ export const useGameStore = create<GameStore>()(
           paidTransfers: (s.paidTransfers ?? []).filter((k) => k !== key),
         })),
       clearPaidTransfers: () => set({ paidTransfers: [] }),
+      updatePlayerPromptPay: (playerId: string, promptpayId: string) =>
+        set((s) => ({
+          players: (s.players ?? []).map((p) =>
+            p.id === playerId ? { ...p, promptpayId: promptpayId.trim() } : p
+          ),
+        })),
 
       setFreeBall: (active: boolean) => set({ freeBallActive: active }),
 

@@ -38,6 +38,8 @@ export interface Player {
   nickname: string;
   color: BallColor;
   avatar?: string;
+  /** PromptPay mobile phone number (08x...) or Thai Citizen ID (13 digits) */
+  promptpayId?: string;
   /** persistent lifetime stats */
   lifetime?: PlayerLifetime;
 }

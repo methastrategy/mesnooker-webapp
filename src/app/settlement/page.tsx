@@ -17,6 +17,7 @@ export default function SettlementPage() {
   const paidTransfers = useGameStore((s) => s.paidTransfers ?? []);
   const markTransferPaid = useGameStore((s) => s.markTransferPaid);
   const undoTransferPayment = useGameStore((s) => s.undoTransferPayment);
+  const updatePlayerPromptPay = useGameStore((s) => s.updatePlayerPromptPay);
   const [copied, setCopied] = useState(false);
 
   const isHistoryFallback = !session && history.length > 0;
@@ -114,6 +115,7 @@ export default function SettlementPage() {
               payments={payments}
               onMarkPaid={(key) => markPaid(key)}
               onUndoPayment={(key) => undoPayment(key)}
+              onUpdatePromptPay={updatePlayerPromptPay}
             />
             {transfers.length > 0 && (
               <Button
