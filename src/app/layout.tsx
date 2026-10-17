@@ -28,11 +28,11 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [
-      { url: "/assets/mascot/sticker_thumbsup_v2_cute.png?v=2", type: "image/png" },
-      { url: "/favicon.ico?v=2", sizes: "any" },
+      { url: "/assets/mascot/sticker_snooker_cue.png?v=3", type: "image/png" },
+      { url: "/favicon.ico?v=3", sizes: "any" },
     ],
-    shortcut: "/favicon.ico?v=2",
-    apple: "/apple-touch-icon.png?v=2",
+    shortcut: "/favicon.ico?v=3",
+    apple: "/apple-touch-icon.png?v=3",
   },
   appleWebApp: {
     capable: true,
