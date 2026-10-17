@@ -27,9 +27,12 @@ export const metadata: Metadata = {
     "Premium snooker scoring and money settlement for Thai players. Point or ball count, live targets, minimal-transfer settlement, offline-ready PWA.",
   manifest: "/manifest.webmanifest",
   icons: {
-    icon: "/assets/mascot/sticker_thumbsup_v2_cute.png",
-    shortcut: "/favicon.ico",
-    apple: "/apple-touch-icon.png",
+    icon: [
+      { url: "/assets/mascot/sticker_thumbsup_v2_cute.png?v=2", type: "image/png" },
+      { url: "/favicon.ico?v=2", sizes: "any" },
+    ],
+    shortcut: "/favicon.ico?v=2",
+    apple: "/apple-touch-icon.png?v=2",
   },
   appleWebApp: {
     capable: true,
