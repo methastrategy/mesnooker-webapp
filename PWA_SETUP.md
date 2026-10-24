@@ -43,11 +43,11 @@ and caches the responses it sees.
 
 ## 2. Service worker — `public/sw.js`
 
-Cache name: `smoke-cache-v1`. When you ship breaking frontend changes, **bump the cache
-version** (e.g. `smoke-cache-v2`) so the `activate` handler purges the old cache.
+Cache name: `mesnooker-cache-v1`. When you ship breaking frontend changes, **bump the cache
+version** (e.g. `mesnooker-cache-v2`) so the `activate` handler purges the old cache.
 
 ```js
-const CACHE = "smoke-cache-v1";
+const CACHE = "mesnooker-cache-v1";
 const STATIC = ["/", "/manifest.webmanifest", "/icon.svg"];
 
 // install: pre-cache the app shell, then take over immediately
@@ -193,7 +193,7 @@ Android requires: HTTPS, the manifest, and at least a valid 192px icon (we serve
 - [ ] Lighthouse → **PWA installable**: manifest present, icons `192` + `512`, SW served
       over HTTPS.
 - [ ] `navigator.serviceWorker.controller` is set after first load (production).
-- [ ] DevTools → **Application → Service Workers**: `sw.js` active, cache `smoke-cache-v1`
+- [ ] DevTools → **Application → Service Workers**: `sw.js` active, cache `mesnooker-cache-v1`
       populated.
 - [ ] DevTools → **Network/offline**: reload → app shell still renders.
 - [ ] iOS: Share → Add to Home Screen → launcher shows `apple-touch-icon.png`, opens

@@ -1,17 +1,17 @@
-/* Snooker Money Tracker Pro — offline-first service worker (App Router compatible) */
-/* v2: network-first for navigations (never serve a stale shell after a deploy);
-   cache-first only for versioned static chunks, which are immutable by hash.  */
-/* v3 (2026-09): bump CACHE name so installed PWAs holding the pre-v2 shell are
-   purged on activate — old shell + new chunk hashes = dead buttons.          */
-/* v4 (2026-09): Arcade Neon deploy shipped WITHOUT a cache bump; installed
-   phones kept the pre-Arcade shell (old look + dead buttons). Bump forces
-   the activate purge so everyone gets the current build.                      */
-/* v5 (2026-09): Golden Lounge re-theme + Settings cleanup (Language removed).
-   Chunks changed again — bump or installed phones keep the old look.        */
-/* v6 (2026-10): Tactile Lounge v2.0, Asymmetric 8:4 Bento Command Center,
-   WCAG AAA dynamic theme contrast, Aramith Oklab balls. Bump clears v5 cache. */
-const CACHE = "smoke-cache-v6";
-const STATIC = ["/manifest.webmanifest", "/icon.svg"];
+/* Mesnooker — offline-first service worker (App Router compatible) */
+/* v1: mesnooker-cache-v1 for production release; network-first for navigations;
+   cache-first for versioned static chunks; stale-while-revalidate for assets.
+   Purges legacy smoke-cache-* caches on activate. */
+const CACHE = "mesnooker-cache-v1";
+const STATIC = [
+  "/manifest.webmanifest",
+  "/favicon.ico",
+  "/icon.svg",
+  "/apple-touch-icon.png",
+  "/icons/icon-192.png",
+  "/icons/icon-512.png",
+  "/assets/mascot/sticker_snooker_cue.png",
+];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(
@@ -58,7 +58,7 @@ self.addEventListener("fetch", (e) => {
   }
 
   // Hashed static assets (chunks, css, fonts): cache-first. Files under
-  // /_next/static/ are name-hashed and effectively immutable; serving then
+  // /_next/static/ are name-hashed and effectively immutable; serving them
   // from cache is safe and fast on repeat loads.
   if (
     request.destination === "script" ||
