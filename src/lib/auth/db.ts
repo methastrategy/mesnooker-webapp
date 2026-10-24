@@ -1,6 +1,6 @@
 // src/lib/auth/db.ts — auth_users table on the app's Postgres (Neon).
 // Same connection string as the journal (DATABASE_URL). Server-side only.
-import { Pool } from "pg";
+import { Pool } from "@neondatabase/serverless";
 import { randomUUID } from "node:crypto";
 
 export interface AuthUser {
