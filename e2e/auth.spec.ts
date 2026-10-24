@@ -1,27 +1,41 @@
 import { test, expect } from "@playwright/test";
 import { loginAsTestUser } from "./helpers/auth";
 
-test.describe("Authentication Gate & Navigation", () => {
-  test("unauthenticated user is redirected to /login", async ({ page }) => {
-    // Navigate to protected page
+test.describe("Guest Mode Access & Authentication Gate", () => {
+  test("unauthenticated guest user can access core pages directly without login redirect", async ({ page }) => {
+    // 1. Homepage access
+    await page.goto("/");
+    await expect(page).toHaveURL("/");
+    await expect(page.locator("h1").first()).toBeVisible();
+
+    // 2. Setup page access
     await page.goto("/setup");
-    await expect(page).toHaveURL(/\/login\?next=/);
-    await expect(page.locator("#login-username")).toBeVisible();
-    await expect(page.locator("#login-pass")).toBeVisible();
-    await expect(page.locator('button[type="submit"]')).toBeVisible();
+    await expect(page).toHaveURL("/setup");
+    await expect(page.getByRole("heading", { name: /new game/i })).toBeVisible();
+
+    // 3. Match page access
+    await page.goto("/match");
+    await expect(page).toHaveURL("/match");
+
+    // 4. Settlement page access
+    await page.goto("/settlement");
+    await expect(page).toHaveURL("/settlement");
   });
 
-  test("authenticated user can access homepage and setup", async ({ page, context }) => {
+  test("unauthenticated request to protected API endpoint returns 401 unauthorized", async ({ request }) => {
+    const res = await request.get("/api/unknown-protected-endpoint");
+    expect(res.status()).toBe(401);
+    const body = await res.json();
+    expect(body.error).toBe("unauthorized");
+  });
+
+  test("authenticated user can access homepage and is bounced away from /login", async ({ page, context }) => {
     // Inject valid session cookie
     await loginAsTestUser(context);
 
     await page.goto("/");
     await expect(page).toHaveURL("/");
     await expect(page.locator("h1").first()).toBeVisible();
-
-    await page.goto("/setup");
-    await expect(page).toHaveURL("/setup");
-    await expect(page.getByRole("heading", { name: /new game/i })).toBeVisible();
 
     // Authenticated user navigating to /login should be bounced to /
     await page.goto("/login");
