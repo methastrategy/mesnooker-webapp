@@ -81,7 +81,7 @@ export function TopDockNav() {
   const isSettings = pathname.startsWith("/settings");
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-border/70 bg-background/85 backdrop-blur-xl transition-all">
+    <header className="sticky top-0 z-40 w-full border-b border-border/70 bg-background/85 backdrop-blur-xl transition-all pt-safe">
       <div className="mx-auto flex h-14 sm:h-16 landscape:h-11 max-w-6xl 2xl:max-w-7xl items-center justify-between gap-1 sm:gap-4 px-2 sm:px-6">
         
         {/* Brand Zone: Squircle Icon + Name + HUD Badge */}
