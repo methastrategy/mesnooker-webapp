@@ -90,7 +90,7 @@ export function ControlDock({
           tone="primary"
           onClick={onEndTurn}
           aria-label="Pass turn to next player (Press Space)"
-          className="h-13 min-[380px]:h-14 sm:h-14 md:h-16 flex-1 px-3 sm:px-6 gap-1.5 sm:gap-2.5 rounded-2xl bg-gradient-to-r from-amber-500 via-primary to-amber-600 text-stone-950 font-black shadow-lg shadow-primary/25 hover:brightness-110 transition-all cursor-pointer"
+          className="h-13 min-[380px]:h-14 sm:h-14 md:h-16 flex-1 px-3 sm:px-6 gap-1.5 sm:gap-2.5 rounded-2xl bg-primary text-primary-foreground font-black border border-primary/50 shadow-xs hover:bg-primary-hover active:scale-[0.985] transition-all cursor-pointer"
         >
           <div className="flex items-center gap-1.5 truncate">
             <span className="text-sm sm:text-base md:text-lg font-black tracking-wider uppercase">
@@ -100,7 +100,7 @@ export function ControlDock({
               (เปลี่ยนตา / ตบไม่ลง)
             </span>
           </div>
-          <kbd className="hidden md:inline-flex items-center justify-center text-[10px] font-mono px-1.5 py-0.5 rounded bg-black/25 text-stone-950 border border-black/20 font-bold leading-none shrink-0">
+          <kbd className="hidden md:inline-flex items-center justify-center text-[10px] font-mono px-1.5 py-0.5 rounded bg-black/20 text-primary-foreground border border-black/15 font-bold leading-none shrink-0">
             Space
           </kbd>
           <ArrowRight size={20} className="stroke-[2.8] shrink-0" />

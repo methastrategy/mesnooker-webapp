@@ -120,16 +120,14 @@ export function TopDockNav() {
                 <span
                   className={cn(
                     "relative z-10 flex items-center gap-1.5 sm:gap-2 rounded-full px-3 sm:px-5 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold transition-all duration-150 select-none min-h-[38px] sm:min-h-[44px] landscape:min-h-[32px] landscape:py-1",
-                    active
-                      ? "text-amber-300 font-bold"
-                      : "text-foreground/75 hover:text-foreground hover:bg-white/[0.05]"
+                    active ? "text-primary font-bold" : "text-foreground/75 hover:text-foreground hover:bg-white/[0.04]"
                   )}
                 >
                   <item.icon
                     size={17}
                     className={cn(
                       "transition-colors shrink-0",
-                      active ? "text-amber-400 stroke-[2.3]" : "text-muted-foreground group-hover:text-foreground stroke-[1.8]"
+                      active ? "text-primary stroke-[2.2]" : "text-muted-foreground group-hover:text-foreground stroke-[1.8]"
                     )}
                   />
                   <span className="hidden sm:inline tracking-tight">{item.label}</span>
@@ -137,7 +135,7 @@ export function TopDockNav() {
                 {active && (
                   <motion.span
                     layoutId="topdock-active-pill"
-                    className="absolute inset-0 z-0 rounded-full bg-gradient-to-b from-amber-500/25 via-amber-500/15 to-primary/20 border border-amber-400/40 shadow-[0_2px_12px_rgba(245,158,11,0.15),inset_0_1px_0_rgba(255,255,255,0.12)]"
+                    className="absolute inset-0 z-0 rounded-full bg-primary/15 border border-primary/30 shadow-[0_1px_8px_rgba(16,185,129,0.15),inset_0_1px_0_rgba(255,255,255,0.08)]"
                     transition={{ type: "spring", stiffness: 450, damping: 32 }}
                   />
                 )}
@@ -153,12 +151,12 @@ export function TopDockNav() {
             type="button"
             onClick={() => setLocale(locale === "th" ? "en" : "th")}
             aria-label="Switch Language TH/EN"
-            className="flex items-center gap-1 sm:gap-2 rounded-full border border-border/80 bg-surface/85 px-2.5 sm:px-3.5 py-1.5 sm:py-2 text-xs font-mono font-semibold transition-all hover:border-amber-400/40 hover:bg-surface active:scale-[0.97] cursor-pointer shadow-xs min-h-[38px] sm:min-h-[44px] landscape:min-h-[32px] landscape:py-1"
+            className="flex items-center gap-1 sm:gap-2 rounded-full border border-border/80 bg-surface/85 px-2.5 sm:px-3.5 py-1.5 sm:py-2 text-xs font-mono font-semibold transition-all hover:border-primary/40 hover:bg-surface active:scale-[0.97] cursor-pointer shadow-xs min-h-[38px] sm:min-h-[44px] landscape:min-h-[32px] landscape:py-1"
           >
-            <Globe size={14} className="text-amber-400" />
-            <span className={locale === "th" ? "text-amber-300 font-bold" : "text-muted-foreground"}>TH</span>
+            <Globe size={14} className="text-primary" />
+            <span className={locale === "th" ? "text-primary font-bold" : "text-muted-foreground"}>TH</span>
             <span className="text-border text-[10px]">/</span>
-            <span className={locale === "en" ? "text-amber-300 font-bold" : "text-muted-foreground"}>EN</span>
+            <span className={locale === "en" ? "text-primary font-bold" : "text-muted-foreground"}>EN</span>
           </button>
 
           {/* Settings Trigger Link */}
@@ -168,11 +166,11 @@ export function TopDockNav() {
             className={cn(
               "flex h-9 w-9 sm:h-11 sm:w-auto sm:px-4 items-center justify-center gap-2 rounded-full border text-xs sm:text-sm font-semibold transition-all shadow-xs active:scale-[0.97] min-h-[38px] sm:min-h-[44px] landscape:min-h-[32px]",
               isSettings
-                ? "border-amber-400/50 bg-amber-500/20 text-amber-300 font-bold ring-1 ring-amber-400/30 shadow-[0_2px_8px_rgba(245,158,11,0.15)]"
-                : "border-border/80 bg-surface/85 text-foreground/70 hover:text-foreground hover:border-amber-400/30"
+                ? "border-primary/40 bg-primary/15 text-primary font-bold ring-1 ring-primary/30 shadow-[0_1px_8px_rgba(16,185,129,0.15)]"
+                : "border-border/80 bg-surface/85 text-foreground/70 hover:text-foreground hover:border-primary/30"
             )}
           >
-            <Settings size={15} className={isSettings ? "text-amber-400" : "text-muted-foreground"} />
+            <Settings size={15} className={isSettings ? "text-primary" : "text-muted-foreground"} />
             <span className="hidden sm:inline">{t("nav.settings", locale)}</span>
           </Link>
         </div>
@@ -255,16 +253,16 @@ export function BottomNav() {
                 className={cn(
                   "rounded-full px-3.5 py-1.5 transition-colors flex items-center justify-center min-h-[36px]",
                   active
-                    ? "bg-amber-500/20 text-amber-300 border border-amber-400/40 shadow-[0_2px_8px_rgba(245,158,11,0.15)]"
+                    ? "bg-primary/15 text-primary border border-primary/35 shadow-[0_1px_8px_rgba(16,185,129,0.15)]"
                     : "text-muted-foreground hover:text-foreground"
                 )}
               >
-                <item.icon size={19} className={active ? "text-amber-400 stroke-[2.3]" : "stroke-[1.8]"} />
+                <item.icon size={19} className={active ? "text-primary stroke-[2.2]" : "stroke-[1.8]"} />
               </motion.span>
               <span
                 className={cn(
                   "text-[11px] tracking-tight leading-tight transition-colors",
-                  active ? "text-amber-300 font-bold" : "text-muted-foreground"
+                  active ? "text-primary font-bold" : "text-muted-foreground"
                 )}
               >
                 {item.label}

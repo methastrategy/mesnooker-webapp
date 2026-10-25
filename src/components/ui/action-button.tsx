@@ -8,13 +8,13 @@ type Tone = "primary" | "danger" | "violation" | "gold" | "outline";
 
 const TONE_CLASS: Record<Tone, string> = {
   primary:
-    "bg-primary text-primary-foreground font-bold hover:bg-primary-hover border border-primary/50 border-t-white/30 shadow-md shadow-primary/25",
+    "bg-primary text-primary-foreground font-bold hover:bg-primary-hover border border-primary/50 border-t-white/25 shadow-xs",
   danger:
     "bg-destructive/15 text-destructive hover:bg-destructive/25 border border-destructive/35 border-t-destructive/50",
   violation:
     "bg-violation/15 text-violation hover:bg-violation/25 border border-violation/35 border-t-violation/50",
   gold:
-    "bg-gold text-zinc-950 font-black hover:opacity-90 border border-gold/50 border-t-white/30 shadow-md shadow-gold/25",
+    "bg-gold text-zinc-950 font-black hover:opacity-90 border border-gold/50 border-t-white/25 shadow-xs",
   outline:
     "bg-card/85 text-foreground border border-border border-t-white/12 hover:bg-card-solid",
 };

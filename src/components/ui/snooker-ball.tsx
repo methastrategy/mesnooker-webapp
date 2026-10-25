@@ -40,7 +40,7 @@ export function SnookerBall({
         isLight ? "text-zinc-950 font-black" : "text-white font-black",
         disabled && "opacity-20 pointer-events-none grayscale-[60%]",
         selected && "ring-2 ring-primary ring-offset-2 ring-offset-background",
-        !size && "w-10 h-10 min-[375px]:w-11 min-[375px]:h-11 min-[380px]:w-12 min-[380px]:h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 text-[14px] min-[375px]:text-[15px] min-[380px]:text-[17px] sm:text-[20px] md:text-[24px]",
+        !size && "w-11 h-11 min-[380px]:w-12 min-[380px]:h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 text-[14px] min-[375px]:text-[15px] min-[380px]:text-[17px] sm:text-[20px] md:text-[24px]",
         className
       )}
       style={{

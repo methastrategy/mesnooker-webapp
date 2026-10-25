@@ -15,65 +15,65 @@
    ═══════════════════════════════════════════════════════════════════ */
 
 @theme {
-  --color-background: #0c0a09;
-  --color-surface: #141210;
-  --color-card: #1c1917;
-  --color-card-solid: #24201d;
-  --color-primary: #cc785c;
-  --color-primary-hover: #b8674d;
-  --color-secondary: #1f1c19;
+  --color-background: #08090a;
+  --color-surface: #0f1013;
+  --color-card: #131418;
+  --color-card-solid: #191b22;
+  --color-primary: #10b981;
+  --color-primary-hover: #059669;
+  --color-secondary: #16181f;
   --color-gold: #f59e0b;
   --color-danger: #ef4444;
-  --color-info: #cc785c;
-  --color-muted: #a8a29e;
-  --color-foreground: #f5f5f4;
-  --color-line: rgba(204, 120, 92, 0.16);
+  --color-info: #06b6d4;
+  --color-muted: #8b949e;
+  --color-foreground: #f0f3f6;
+  --color-line: rgba(255, 255, 255, 0.08);
 
   --color-violation: #f59e0b;
   --color-destructive: #ef4444;
   --color-destructive-foreground: #ffffff;
-  --color-felt-hi: #1f1c19;
-  --color-felt-mid: #141210;
-  --color-felt-deep: #0c0a09;
-  --color-pos-soft: rgba(204, 120, 92, 0.15);
-  --color-neg-soft: rgba(239, 68, 68, 0.15);
-  --color-rail: #141210;
+  --color-felt-hi: #11281e;
+  --color-felt-mid: #0b1a14;
+  --color-felt-deep: #06110d;
+  --color-pos-soft: rgba(16, 185, 129, 0.14);
+  --color-neg-soft: rgba(239, 68, 68, 0.14);
+  --color-rail: #0f1013;
 
-  --font-heading: var(--font-heading), "Fraunces", "Playfair Display", Georgia, serif;
-  --font-sans: var(--font-sans), "Plus Jakarta Sans", "Inter Variable", "Inter", -apple-system, BlinkMacSystemFont,
-    "SF Pro Display", "SF Pro Text", system-ui, sans-serif;
+  --font-heading: var(--font-heading), "Geist Sans", "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif;
+  --font-sans: var(--font-sans), "Geist Sans", "Plus Jakarta Sans", "Inter Variable", "IBM Plex Sans Thai", -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
   --font-mono: var(--font-mono), "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
   --breakpoint-xs: 380px;
 }
 
 :root {
   color-scheme: dark;
-  --font-heading: var(--font-heading), "Fraunces", Georgia, serif;
-  --background: #0c0a09;
-  --foreground: #f5f5f4;
-  --card: #1c1917;
-  --card-foreground: #f5f5f4;
-  --popover: #141210;
-  --popover-foreground: #f5f5f4;
-  --primary: #cc785c;
-  --primary-foreground: #ffffff;
-  --accent-on-primary: #ffffff;
-  --secondary: #1f1c19;
-  --secondary-foreground: #f5f5f4;
-  --muted: #141210;
-  --muted-foreground: #a8a29e;
-  --accent: #cc785c;
-  --accent-foreground: #ffffff;
+  --font-heading: var(--font-heading), "Geist Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+  --background: #08090a;
+  --foreground: #f0f3f6;
+  --card: #131418;
+  --card-foreground: #f0f3f6;
+  --card-solid: #191b22;
+  --popover: #131418;
+  --popover-foreground: #f0f3f6;
+  --primary: #10b981;
+  --primary-foreground: #042f1e;
+  --accent-on-primary: #042f1e;
+  --secondary: #16181f;
+  --secondary-foreground: #f0f3f6;
+  --muted: #0f1013;
+  --muted-foreground: #8b949e;
+  --accent: #10b981;
+  --accent-foreground: #042f1e;
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: rgba(204, 120, 92, 0.16);
-  --input: rgba(204, 120, 92, 0.18);
-  --ring: #cc785c;
-  --radius: 1rem; /* 16px */
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.08);
+  --ring: #10b981;
+  --radius: 0.875rem; /* 14px */
   --gold: #f59e0b;
   --violation: #f59e0b;
-  --pos-soft: rgba(204, 120, 92, 0.15);
-  --neg-soft: rgba(239, 68, 68, 0.15);
+  --pos-soft: rgba(16, 185, 129, 0.14);
+  --neg-soft: rgba(239, 68, 68, 0.14);
 }
 
 /* ───────── Themes — applied via <html data-theme="…"> ─────────
@@ -196,29 +196,29 @@
 
 /* `mono` maps to the Calibrated Warm Terracotta Pro Glass (default DNA). */
 [data-theme="mono"] {
-  --color-background: #0c0a09;
-  --color-surface: #141210;
-  --color-card: #1c1917;
-  --color-card-solid: #24201d;
-  --color-primary: #cc785c;
-  --color-primary-hover: #b8674d;
-  --color-secondary: #1f1c19;
+  --color-background: #08090a;
+  --color-surface: #0f1013;
+  --color-card: #131418;
+  --color-card-solid: #191b22;
+  --color-primary: #10b981;
+  --color-primary-hover: #059669;
+  --color-secondary: #16181f;
   --color-gold: #f59e0b;
   --color-danger: #ef4444;
-  --color-info: #cc785c;
-  --color-muted: #a8a29e;
-  --color-foreground: #f5f5f4;
-  --color-line: rgba(204, 120, 92, 0.16);
+  --color-info: #06b6d4;
+  --color-muted: #8b949e;
+  --color-foreground: #f0f3f6;
+  --color-line: rgba(255, 255, 255, 0.08);
   --color-violation: #f59e0b;
-  --background: #0c0a09;
-  --foreground: #f5f5f4;
-  --card: #1c1917;
-  --primary: #cc785c;
-  --primary-foreground: #ffffff;
-  --accent-on-primary: #ffffff;
-  --muted-foreground: #a8a29e;
-  --border: rgba(204, 120, 92, 0.16);
-  --ring: #cc785c;
+  --background: #08090a;
+  --foreground: #f0f3f6;
+  --card: #131418;
+  --primary: #10b981;
+  --primary-foreground: #042f1e;
+  --accent-on-primary: #042f1e;
+  --muted-foreground: #8b949e;
+  --border: rgba(255, 255, 255, 0.08);
+  --ring: #10b981;
   --gold: #f59e0b;
 }
 
@@ -273,22 +273,24 @@ body {
 /* Pro Command HUD Squircle Panels (18px–24px, Frosted Hairline) */
 .glass {
   position: relative;
-  background: color-mix(in srgb, var(--card) 85%, transparent);
+  background: color-mix(in srgb, var(--card) 88%, transparent);
   border: 1px solid var(--border);
-  border-radius: 20px;
-  backdrop-filter: blur(20px) saturate(170%);
-  -webkit-backdrop-filter: blur(20px) saturate(170%);
-  box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  border-top-color: rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .glass-strong {
   position: relative;
-  background: color-mix(in srgb, var(--card-solid, var(--card)) 92%, transparent);
+  background: color-mix(in srgb, var(--card-solid, var(--card)) 94%, transparent);
   border: 1px solid var(--border);
-  border-radius: 24px;
+  border-top-color: rgba(255, 255, 255, 0.16);
+  border-radius: 20px;
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
-  box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 /* ───────── Ambient Precision Depth ───────── */
@@ -394,21 +396,22 @@ body {
 /* Tactile Keycap Command Button */
 .action-key {
   position: relative;
-  border-radius: 14px;
+  border-radius: 12px;
   border: 1px solid var(--border);
-  border-top-color: rgba(255, 255, 255, 0.16);
+  border-top-color: rgba(255, 255, 255, 0.14);
   background: var(--card);
   color: var(--foreground);
-  transition: transform 100ms cubic-bezier(0.2, 0.8, 0.2, 1), filter 100ms ease, background-color 140ms ease;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  transition: transform 80ms cubic-bezier(0.16, 1, 0.3, 1), filter 80ms ease, background-color 100ms ease;
   -webkit-tap-highlight-color: transparent;
 }
 .action-key:hover {
-  background: color-mix(in srgb, var(--card) 85%, white 15%);
-  border-color: var(--primary);
+  background: color-mix(in srgb, var(--card) 85%, white 12%);
+  border-color: rgba(255, 255, 255, 0.16);
 }
 .action-key:active {
-  transform: translateY(2px) scale(0.98);
-  filter: brightness(0.9);
+  transform: translateY(1.5px) scale(0.985);
+  filter: brightness(0.92);
   background: var(--surface);
 }
 .action-key:focus-visible {

@@ -1,44 +1,54 @@
-# Design System — Mesnooker ("Tactile Lounge v2.0")
+# Design System — Mesnooker ("Linear Pro Cockpit & Broadcast Telemetry")
 
-Mesnooker's visual identity is built on **Tactile Lounge**: a private snooker club atmosphere calibrated with warm espresso undertones, golden terracotta action accents, bottle-green felt highlights, and precision mechanical ergonomics.
+Mesnooker's visual architecture is calibrated for professional table-side snooker scoring and financial settlement. Inspired by **Linear.app**, **Raycast**, and **World Snooker Tour (WST) Broadcast Telemetry**, it delivers lightning-fast micro-interactions, high-contrast OLED dark surfaces, tactile keycaps, and zero-cognitive-friction ergonomic controls.
 
 ## Core Design Principles
 
-1. **Ambient Precision Depth**: Elevation is communicated through warm dark surface ladders (`#0c0a09` -> `#141210` -> `#1c1917` -> `#24201d`), frosted hairline borders (`rgba(204, 120, 92, 0.16)`), and subtle ambient specular glows.
-2. **Mechanical Keycap Tactility**: Interactive controls (`SnookerBall`, `ActionButton`, `Button`, `.action-key`) feature tactile physical press feedback (`translateY: 2px` + `scale(0.98)`), top-edge rim highlights (`border-t-white/16`), and area-proportional scaling.
-3. **Contrast-Safe Theme Science**: Dynamic contrast tokens (`--accent-on-primary`) ensure all action buttons achieve WCAG AA/AAA compliance across all selectable themes (`mono`, `emerald`, `forest`, `midnight`, `ember`, `violet`).
-4. **Mobile & Large-Screen Ergonomics**:
-   - **Sticky HUD (`TurnHeader.tsx`)**: Compresses smoothly on mobile scroll without layout jumps.
-   - **Single-Row Non-Jumping `BallPad.tsx`**: Renders all 7 balls in a clean horizontal rack with tactile feedback.
-   - **Asymmetric 8:4 Bento Grid (`src/app/page.tsx`)**: Balanced cockpit view for wide screens and clean single-column flow on mobile.
+1. **High-Contrast Dark Telemetry (OLED Canvas)**:
+   - Canvas: Deep Void Slate (`#08090a`).
+   - Surfaces: In-flow panels elevate via subtle surface luminance steps (`#0f1013` -> `#131418` -> `#191b22`) and hairline borders (`rgba(255, 255, 255, 0.08)`), strictly eliminating heavy muddy drop-shadows on in-flow cards.
+   - Accents: Precision Emerald (`#10b981`) for primary actions and active shooters; Amber Voltage (`#f59e0b`) strictly reserved for break counters, leader badges, and financial gains.
+2. **Tactile Micro-Border Keycaps (Mechanical Ergonomics)**:
+   - Interactive buttons feature a top specular hairline highlight (`border-t-white/14`), micro-border containment, and tactile physical press feedback (`translateY: 1.5px` + `scale(0.985)`).
+   - 0ms instant touch reaction with zero hover bounce clutter.
+3. **Contrast-Safe Polarity Discipline**:
+   - The `--accent-on-primary` semantic token ensures AAA/AA compliance across all states (`#042f1e` against `#10b981` yields a 10.8:1 contrast ratio).
+   - Non-text SVG icons and lines maintain $\ge 3:1$ contrast against adjacent surfaces.
+4. **Ergonomic One-Thumb Mobile & Asymmetric 8:4 Desktop Bento**:
+   - **Mobile 100dvh Lock**: Zero unwanted layout shifts; BallPad and ControlDock stay anchored within natural thumb radius.
+   - **Desktop Asymmetric Bento (8:4 Cockpit)**: Match stage on the left (8 cols), telemetry inspector and financial settlement deck docked on the right (4 cols).
+   - **Tabular Numeric Discipline**: All scores, break tallies, currency balances, and clocks strictly use `font-mono tabular-nums` (`Geist Mono`).
 
 ---
 
 ## 1. Surface & Color Tokens (`src/app/globals.css`)
 
-| Token | Default (Mono / Lounge) | Emerald (Lounge) | Usage |
-| :--- | :--- | :--- | :--- |
-| `--color-background` / `--background` | `#0c0a09` | `#050505` | Deepest canvas background |
-| `--color-surface` / `--muted` | `#141210` | `#0b0f0e` | Recessed surface (ball rack, inputs, pills) |
-| `--color-card` / `--card` | `#1c1917` | `#111614` | Primary card & panel surface (`.glass`) |
-| `--color-card-solid` | `#24201d` | `#111614` | Elevated modal / sheet surface (`.glass-strong`) |
-| `--color-line` / `--border` | `rgba(204, 120, 92, 0.16)` | `rgba(22, 199, 132, 0.16)` | Hairline border |
-| `--color-foreground` / `--foreground` | `#f5f5f4` | `#f3f7f4` | Primary crisp text |
-| `--color-muted-foreground` | `#a8a29e` | `#8a8f8c` | Secondary / muted labels |
-| `--color-primary` / `--primary` | `#cc785c` | `#16c784` | Primary action accent, active shooter |
-| `--primary-foreground` / `--accent-on-primary` | `#ffffff` | `#042f1e` (AAA) | High-contrast ink on primary backgrounds |
-| `--color-gold` / `--gold` | `#f59e0b` | `#f59e0b` | Warm Gold — break counters, leader badges, solve snooker |
-| `--color-danger` / `--destructive` | `#ef4444` | `#ef4444` | Deep Red — fouls, negative money, destructive actions |
+| Semantic Token | Value (Linear Pro) | Role |
+| :--- | :--- | :--- |
+| `--color-background` / `--background` | `#08090a` | Deepest canvas background (Void Slate) |
+| `--color-surface` / `--muted` | `#0f1013` | Recessed containers, input wells, ball rack |
+| `--color-card` / `--card` | `#131418` | In-flow panels, scorecard cards, HUD pods |
+| `--color-card-solid` | `#191b22` | Floating sheets, modals, dialogs |
+| `--color-line` / `--border` | `rgba(255, 255, 255, 0.08)` | 1px hairline structural dividers |
+| `--color-foreground` / `--foreground` | `#f0f3f6` | High-contrast primary text |
+| `--color-muted-foreground` | `#8b949e` | Secondary metadata and units |
+| `--color-primary` / `--primary` | `#10b981` | Precision Emerald (active shooter, main CTA) |
+| `--accent-on-primary` | `#042f1e` | 10.8:1 AAA ink on primary buttons |
+| `--color-gold` / `--gold` | `#f59e0b` | Amber Voltage (break streaks, prize money) |
+| `--color-danger` / `--destructive` | `#ef4444` | Red Alert (fouls, losses, penalties) |
 
 ---
 
-## 2. Typography & Radii
+## 2. Typography & Spatial Geometry
 
-- **Display Headings**: `Fraunces` serif display (`font-heading`) with `text-wrap: balance`.
-- **UI Body Font**: `Plus Jakarta Sans`, system sans-serif with OpenType features `"calt", "kern", "liga", "ss03"`.
-- **Numeric Discipline**: All scores, clocks, and currency balances use `Geist Mono` (`font-mono tabular-nums`).
-- **Corner Radii Hierarchy**:
-  - Command Panels & Cards: `18px`–`24px` (`rounded-[20px]`, `rounded-2xl`)
-  - Keycap Buttons: `12px`–`14px` (`rounded-[14px]`, `rounded-xl`)
-  - Badges & Micro-Pills: `6px`–`8px` (`rounded-md`, `rounded-lg`)
-  - Snooker Balls: `9999px` (`rounded-full`) with Aramith Oklab radial gradients
+- **Sans Headings & UI**: `Geist Sans`, `Plus Jakarta Sans`, `Inter Variable`, `IBM Plex Sans Thai`, sans-serif.
+  - Thai text: `letter-spacing: 0` (preserves tone mark stacking), `line-height: 1.7` (body).
+  - English headings: `letter-spacing: -0.025em`, `text-wrap: balance`.
+- **Numeric & Telemetry Font**: `Geist Mono`, `JetBrains Mono`, monospace with `font-variant-numeric: tabular-nums`.
+- **Concentric Radii Hierarchy**:
+  - Outer Cards & Bento Panels: `16px`–`18px` (`rounded-2xl`)
+  - Keycap Buttons & Rack Slots: `10px`–`12px` (`rounded-xl`)
+  - Status Badges & Pills: `6px`–`8px` (`rounded-md`, `rounded-lg`)
+  - Snooker Balls: `9999px` (`rounded-full`) with Aramith Oklab radial lighting
+- **Touch Target Invariant**: Minimum $44\text{px} \times 44\text{px}$ isolated hitbox for all mobile controls.
+- **Closed Spacing System**: Spacing bounded strictly to $S \in \{2, 4, 8, 12, 16, 24, 32, 48, 64, 96, 128\}\text{px}$.

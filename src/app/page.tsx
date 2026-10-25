@@ -74,8 +74,8 @@ export default function HomePage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border/60">
         <div>
           <div className="flex flex-wrap items-center gap-2 text-xs">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/35 bg-amber-500/10 px-3 py-0.5 text-[11px] font-mono font-semibold text-amber-300">
-              <Sparkles size={12} className="text-amber-400" />
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-0.5 text-[11px] font-mono font-semibold text-primary">
+              <Sparkles size={12} className="text-primary" />
               <span>MESNOOKER PRO</span>
             </span>
             <span className="hidden sm:inline text-border">·</span>
@@ -102,7 +102,7 @@ export default function HomePage() {
         <div className="flex flex-wrap items-center gap-2 shrink-0">
           <Link
             href="/setup"
-            className="inline-flex items-center gap-2 rounded-full border border-amber-500/60 bg-gradient-to-r from-amber-500 to-amber-600 px-4.5 py-2.5 text-xs sm:text-sm font-bold text-stone-950 shadow-md transition-all hover:brightness-110 active:scale-[0.97] min-h-[42px]"
+            className="inline-flex items-center gap-2 rounded-full border border-primary/50 bg-primary px-4.5 py-2.5 text-xs sm:text-sm font-bold text-primary-foreground shadow-xs transition-all hover:bg-primary-hover active:scale-[0.97] min-h-[42px]"
           >
             <Play size={14} className="fill-current" />
             <span>{locale === "th" ? "เริ่มเกมใหม่" : "Start New Game"}</span>
@@ -225,7 +225,7 @@ export default function HomePage() {
 
                 <Link
                   href="/setup"
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-amber-500/50 bg-gradient-to-r from-amber-500 to-amber-600 px-6 py-3.5 text-sm font-bold text-stone-950 shadow-md transition-all hover:brightness-110 active:scale-[0.98] shrink-0"
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-primary/50 bg-primary px-6 py-3.5 text-sm font-bold text-primary-foreground shadow-xs transition-all hover:bg-primary-hover active:scale-[0.98] shrink-0"
                 >
                   <Play size={16} className="fill-current" />
                   <span>{locale === "th" ? "สร้างเกมทันที" : "Configure Table"}</span>
@@ -239,7 +239,7 @@ export default function HomePage() {
             {/* B1: Live Scoreboard Card */}
             <Link
               href="/match"
-              className="group relative flex flex-col justify-between overflow-hidden rounded-[20px] border border-border/80 bg-card/85 p-5 transition-all duration-200 hover:-translate-y-1 hover:border-primary/50 hover:shadow-xl"
+              className="group relative flex flex-col justify-between overflow-hidden rounded-[20px] border border-border/80 bg-card/85 p-5 transition-all duration-150 hover:border-primary/40 hover:bg-card/95"
             >
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
@@ -280,7 +280,7 @@ export default function HomePage() {
             {/* B2: Stats & Archive Analytics */}
             <Link
               href="/stats"
-              className="group relative flex flex-col justify-between overflow-hidden rounded-[20px] border border-border/80 bg-card/85 p-5 transition-all duration-200 hover:-translate-y-1 hover:border-sky-500/50 hover:shadow-xl"
+              className="group relative flex flex-col justify-between overflow-hidden rounded-[20px] border border-border/80 bg-card/85 p-5 transition-all duration-150 hover:border-sky-500/40 hover:bg-card/95"
             >
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
@@ -455,7 +455,7 @@ export default function HomePage() {
               <div className="text-xs text-muted-foreground font-mono">
                 {calcUnits} × ฿{moneyRate} =
               </div>
-              <div className="text-lg font-black font-mono text-amber-400">
+              <div className="text-lg font-bold font-mono tabular-nums text-amber-400">
                 ฿{calculatedBaht.toLocaleString()}
               </div>
             </div>
